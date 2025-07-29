@@ -721,7 +721,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
         import { getDatabase, ref, set, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
-        // Your web app's Firebase configuration (PASTE YOUR CONFIG HERE)
+        // Your web app's Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyB90h6Yllco6LZfdyrSyBl0hc4bt6fbUDg",
             authDomain: "projmanage.firebaseapp.com",
@@ -750,7 +750,15 @@
         // --- Data Loading and Sync from Firebase ---
         onValue(dbRefProjects, (snapshot) => {
             const data = snapshot.val();
-            projects = data || {};
+            projects = {}; // Reset to empty object
+            if (data) {
+                // Iterate through Firebase data, add the key as 'id' property to each project object
+                for (const key in data) {
+                    if (data.hasOwnProperty(key)) {
+                        projects[key] = { ...data[key], id: key };
+                    }
+                }
+            }
             renderProjects();
         }, (error) => {
             console.error("Error loading projects from Firebase:", error);
@@ -759,7 +767,14 @@
 
         onValue(dbRefDeletedProjects, (snapshot) => {
             const data = snapshot.val();
-            deletedProjects = data || {};
+            deletedProjects = {};
+            if (data) {
+                for (const key in data) {
+                    if (data.hasOwnProperty(key)) {
+                        deletedProjects[key] = { ...data[key], id: key };
+                    }
+                }
+            }
             renderDeletedProjects();
         }, (error) => {
             console.error("Error loading deleted projects from Firebase:", error);
