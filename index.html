@@ -1,10 +1,9 @@
-<! Built by n3k0>
 <!DOCTYPE html>
 <html lang="he">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ניהול פרויקטים</title>
+    <title>אפליקציית הפרודוקטיביות שלי</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -24,7 +23,7 @@
             gap: 25px;
             width: 95%;
             max-width: 1400px;
-            background-color: #374f7a;
+            background-color: #ffffff;
             padding: 30px;
             border-radius: 12px;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
@@ -53,7 +52,7 @@
             grid-column: 2 / 3;
             grid-row: 1 / 2;
             display: grid;
-            grid-template-rows: 2.5fr 1fr;
+            grid-template-rows: 1.5fr 1fr;
             gap: 20px;
         }
         .calendar-container {
@@ -491,7 +490,7 @@
                 padding: 15px;
             }
 
-            /* NEW: Hide Calendar/Time wrapper completely on mobile */
+            /* HIDE Calendar/Time wrapper completely on mobile */
             .calendar-time-wrapper {
                 display: none;
             }
@@ -530,8 +529,6 @@
                 font-size: 0.85em;
                 padding: 7px 0;
             }
-            /* Time content will be hidden by parent wrapper, so no need to adjust its font size */
-            /* .time-container #currentTime { font-size: 2.2em; } */
             .calendar-grid {
                 max-width: 100%;
             }
@@ -589,8 +586,6 @@
                 font-size: 0.75em;
                 padding: 4px 0;
             }
-            /* Time content already hidden */
-            /* .time-container #currentTime { font-size: 1.8em; } */
 
             .project-form input,
             .project-form textarea,
@@ -653,7 +648,7 @@
             </h2>
             <div class="project-form">
                 <div class="form-group">
-                    <label for="projectName">שם היזם:</label>
+                    <label for="projectName">שם הפרויקט:</label>
                     <input type="text" id="projectName" placeholder="לדוגמה: עיצוב מחדש של אתר">
                 </div>
                 <div class="form-group">
@@ -721,7 +716,68 @@
         <button id="exportProjectsBtn">ייצוא נתונים ל-CSV</button>
     </div>
 
-    <script>
+    <script type="module">
+        // Firebase SDKs imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+        // import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-analytics.js"; // Not used in this app's functionality
+        import { getDatabase, ref, set, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+
+        // Your web app's Firebase configuration (PASTE YOUR CONFIG HERE)
+        const firebaseConfig = {
+            apiKey: "AIzaSyB90h6Yllco6LZfdyrSyBl0hc4bt6fbUDg",
+            authDomain: "projmanage.firebaseapp.com",
+            databaseURL: "https://projmanage-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "projmanage",
+            storageBucket: "projmanage.firebasestorage.app",
+            messagingSenderId: "362295689587",
+            appId: "1:362295689587:web:ffe6a847b0e8a7fb920506",
+            measurementId: "G-Z5JJT7XT5F"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        // const analytics = getAnalytics(app); // Analytics is not used in app logic
+        const db = getDatabase(app);
+
+        // Firebase Realtime Database references
+        const dbRefProjects = ref(db, 'projects');
+        const dbRefDeletedProjects = ref(db, 'deletedProjects');
+        const dbRefTodoItems = ref(db, 'todoItems');
+
+        // Local data storage (will be synced with Firebase)
+        let projects = {}; // Changed to object for easier Firebase ID mapping
+        let deletedProjects = {}; // Changed to object
+        let todoItems = []; // Still an array for local manipulation
+
+        // --- Data Loading and Sync from Firebase ---
+        onValue(dbRefProjects, (snapshot) => {
+            const data = snapshot.val();
+            projects = data || {}; // If no data, initialize as empty object
+            renderProjects(); // Re-render when data changes in Firebase
+        }, (error) => {
+            console.error("Error loading projects from Firebase:", error);
+            alert("שגיאה בטעינת פרויקטים מ-Firebase. אנא בדוק את חיבור האינטרנט ואת כללי האבטחה (Security Rules).");
+        });
+
+        onValue(dbRefDeletedProjects, (snapshot) => {
+            const data = snapshot.val();
+            deletedProjects = data || {};
+            renderDeletedProjects();
+        }, (error) => {
+            console.error("Error loading deleted projects from Firebase:", error);
+            alert("שגיאה בטעינת פרויקטים שנמחקו מ-Firebase. אנא בדוק את חיבור האינטרנט ואת כללי האבטחה.");
+        });
+
+        onValue(dbRefTodoItems, (snapshot) => {
+            const data = snapshot.val();
+            todoItems = data || []; // ToDo items are stored as array
+            renderTodoItems();
+        }, (error) => {
+            console.error("Error loading todo items from Firebase:", error);
+            alert("שגיאה בטעינת מטלות מ-Firebase. אנא בדוק את חיבור האינטרנט ואת כללי האבטחה.");
+        });
+
+
         // --- Time Display Logic ---
         function updateTime() {
             const now = new Date();
@@ -738,31 +794,14 @@
         const addTodoBtn = document.getElementById('addTodoBtn');
         const todoList = document.getElementById('todoList');
 
-        let todoItems = JSON.parse(localStorage.getItem('todoItems')) || [];
-        function renderTodoItems() {
-            todoList.innerHTML = '';
-            todoItems.forEach((taskText, index) => {
-                const listItem = document.createElement('li');
-                listItem.textContent = taskText;
-                listItem.dataset.index = index;
+        // renderTodoItems() is now called by onValue listener
 
-                listItem.addEventListener('click', function() {
-                    const confirmDelete = confirm(`האם אתה בטוח שברצונך למחוק את "${taskText}"?`);
-                    if (confirmDelete) {
-                        todoItems.splice(parseInt(this.dataset.index), 1);
-                        saveTodoItems();
-                        renderTodoItems();
-                    }
+        function saveTodoItemsToFirebase() {
+            set(dbRefTodoItems, todoItems)
+                .catch(error => {
+                    console.error("Error saving todo items to Firebase:", error);
+                    alert("שגיאה בשמירת מטלות ל-Firebase.");
                 });
-                todoList.appendChild(listItem);
-            });
-            if (todoItems.length === 0) {
-                 todoList.innerHTML = '<p style="text-align: right; color: #888; font-style: italic;">אין מטלות. הוסף אחת למעלה!</p>';
-            }
-        }
-
-        function saveTodoItems() {
-            localStorage.setItem('todoItems', JSON.stringify(todoItems));
         }
 
         addTodoBtn.addEventListener('click', addTodo);
@@ -780,12 +819,12 @@
             }
 
             todoItems.push(taskText);
-            saveTodoItems();
-            renderTodoItems();
+            saveTodoItemsToFirebase(); // Save to Firebase instead of localStorage
             todoInput.value = '';
             todoInput.focus();
+            // renderTodoItems() will be called by the onValue listener
         }
-        renderTodoItems();
+        // Initial render for To-Do list is handled by onValue listener
 
 
         // --- Calendar Logic ---
@@ -850,14 +889,10 @@
 
         const exportProjectsBtn = document.getElementById('exportProjectsBtn');
 
-        let projects = JSON.parse(localStorage.getItem('projects')) || [];
-        let deletedProjects = JSON.parse(localStorage.getItem('deletedProjects')) || [];
-        let selectedProject = null;
+        let selectedProject = null; // Stores the local copy of the selected project (including Firebase key)
 
-        function saveProjectsToLocalStorage() {
-            localStorage.setItem('projects', JSON.stringify(projects));
-            localStorage.setItem('deletedProjects', JSON.stringify(deletedProjects));
-        }
+        // saveProjectsToLocalStorage() will be removed as we directly update Firebase
+        // No need to load projects explicitly here, onValue listeners handle it
 
         function formatDateTimeLocal(date) {
             const year = date.getFullYear();
@@ -882,17 +917,10 @@
             if (selectedProject) {
                 const clickedElement = event.target;
 
-                // If the click is INSIDE the project management container OR on a toggle button,
-                // we should NOT cancel the edit mode.
-                // The 'selectProjectForEdit' and button click handlers (saveProject, deleteProject)
-                // already handle their specific actions and propagation.
                 if (projectManagementContainer.contains(clickedElement) || clickedElement.classList.contains('toggle-btn')) {
-                    // Do nothing, allow the specific element's default behavior or click handler to proceed
                     return;
                 }
 
-                // If the click is OUTSIDE the project management container and not on a toggle button,
-                // then cancel the edit mode.
                 clearProjectForm();
             }
         }
@@ -901,22 +929,15 @@
             const BOM = '\uFEFF';
 
             const headers = [
-                "שם הפרויקט",
-                "כתובת",
-                "פרטי יצירת קשר",
-                "מה צריך לעשות",
-                "מה בוצע עד כה",
-                "תאריך ושעת יצירת מטלה",
-                "מי יצר את המטלה",
-                "התקדמות",
-                "הערות נוספות",
-                "סטטוס",
-                "נמחק בתאריך"
+                "שם הפרויקט", "כתובת", "פרטי יצירת קשר", "מה צריך לעשות", "מה בוצע עד כה",
+                "תאריך ושעת יצירת מטלה", "מי יצר את המטלה", "התקדמות", "הערות נוספות",
+                "סטטוס", "נמחק בתאריך"
             ];
 
             const allProjectsData = [];
 
-            projects.forEach(p => {
+            // Convert projects object to an array for export
+            Object.values(projects).forEach(p => {
                 const projectCopy = { ...p,
                     status: 'נוכחי',
                     deletedAt: ''
@@ -924,7 +945,8 @@
                 allProjectsData.push(projectCopy);
             });
 
-            deletedProjects.forEach(p => {
+            // Convert deletedProjects object to an array for export
+            Object.values(deletedProjects).forEach(p => {
                 const projectCopy = { ...p,
                     status: 'נמחק'
                 };
@@ -970,6 +992,8 @@
             alert('נתוני הפרויקטים יוצאו בהצלחה ל-"נתוני_פרויקטים.csv"!');
         }
 
+        // --- CRUD Operations for Projects ---
+
         function saveProject() {
             const projectName = projectNameInput.value.trim();
             const whatNeedsToBeDone = whatNeedsToBeDoneInput.value.trim();
@@ -980,32 +1004,44 @@
             }
 
             const projectData = {
-                id: selectedProject ? selectedProject.id : Date.now(),
+                // IMPORTANT: Firebase generates the ID (key). We don't use Date.now() for the ID here.
                 name: projectName,
                 address: projectAddressInput.value.trim(),
                 contactInfo: contactInfoInput.value.trim(),
                 whatNeedsToBeDone: whatNeedsToBeDone,
                 whatHasBeenDone: whatHasBeenDoneInput.value.trim(),
+                // Use existing addedDateTime if editing, otherwise current time
                 addedDateTime: selectedProject ? selectedProject.addedDateTime : formatDateTimeLocal(new Date()),
                 whoCreated: whoCreatedTaskInput.value.trim(),
                 progress: taskProgressSelect.value,
                 furtherNotes: furtherNotesInput.value.trim()
             };
 
-            if (selectedProject) {
-                const index = projects.findIndex(p => p.id === selectedProject.id);
-                if (index !== -1) {
-                    projects[index] = projectData;
-                    alert(`הפרויקט "${projectData.name}" עודכן בהצלחה!`);
-                }
+            if (selectedProject && selectedProject.id) {
+                // Editing existing project: update specific child in Firebase
+                update(ref(db, 'projects/' + selectedProject.id), projectData)
+                    .then(() => {
+                        alert(`הפרויקט "${projectData.name}" עודכן בהצלחה!`);
+                        clearProjectForm();
+                    })
+                    .catch((error) => {
+                        console.error("Error updating project:", error);
+                        alert("שגיאה בעדכון הפרויקט: " + error.message);
+                    });
             } else {
-                projects.push(projectData);
-                alert(`הפרויקט "${projectData.name}" נוסף בהצלחה!`);
+                // Adding new project: push to generate a new unique key
+                const newProjectRef = push(dbRefProjects);
+                set(newProjectRef, projectData)
+                    .then(() => {
+                        alert(`הפרויקט "${projectData.name}" נוסף בהצלחה!`);
+                        clearProjectForm();
+                    })
+                    .catch((error) => {
+                        console.error("Error adding project:", error);
+                        alert("שגיאה בהוספת הפרויקט: " + error.message);
+                    });
             }
-
-            renderProjects();
-            clearProjectForm();
-            saveProjectsToLocalStorage();
+            // renderProjects() will be called by the onValue listener
         }
 
         function selectProjectForEdit(event) {
@@ -1013,14 +1049,15 @@
 
             const listItem = event.target.closest('li');
             if (listItem && listItem.dataset.projectId) {
-                const projectId = parseInt(listItem.dataset.projectId);
+                const projectId = listItem.dataset.projectId; // projectId is now the Firebase key
                 
                 if (selectedProject && selectedProject.id === projectId) {
-                    clearProjectForm();
+                    clearProjectForm(); // If same project clicked again, deselect
                     return;
                 }
 
-                selectedProject = projects.find(p => p.id === projectId);
+                // Find the project locally from the projects object
+                selectedProject = projects[projectId]; 
 
                 if (selectedProject) {
                     projectNameInput.value = selectedProject.name;
@@ -1031,7 +1068,7 @@
                     addedTaskDateTimeInput.value = selectedProject.addedDateTime;
                     whoCreatedTaskInput.value = selectedProject.whoCreated || '';
                     taskProgressSelect.value = selectedProject.progress;
-                    furtherNotesInput.value = furtherNotesInput.value = selectedProject.furtherNotes || '';
+                    furtherNotesInput.value = selectedProject.furtherNotes || '';
 
                     deleteProjectBtn.disabled = false;
                     addProjectBtn.textContent = 'שמור שינויים';
@@ -1047,22 +1084,28 @@
         function deleteProject(event) {
             event.stopPropagation();
 
-            if (!selectedProject) {
+            if (!selectedProject || !selectedProject.id) { // Ensure selectedProject and its ID exist
                 alert('אנא בחר פרויקט למחיקה.');
                 return;
             }
 
             if (confirm(`האם אתה בטוח שברצונך למחוק את הפרויקט "${selectedProject.name}"? פעולה זו אינה ניתנת לביטול.`)) {
-                projects = projects.filter(p => p.id !== selectedProject.id);
-
-                selectedProject.deletedAt = formatDateTimeLocal(new Date());
-                deletedProjects.push(selectedProject);
-
-                renderProjects();
-                renderDeletedProjects();
-                clearProjectForm();
-                saveProjectsToLocalStorage();
-                alert(`הפרויקט "${selectedProject.name}" הועבר בהצלחה להיסטוריה.`);
+                // Store the deleted project in the 'deletedProjects' path in Firebase
+                const deletedProjectData = { ...selectedProject, deletedAt: formatDateTimeLocal(new Date()) };
+                set(ref(db, 'deletedProjects/' + selectedProject.id), deletedProjectData)
+                    .then(() => {
+                        // Remove from 'projects' path in Firebase
+                        return remove(ref(db, 'projects/' + selectedProject.id));
+                    })
+                    .then(() => {
+                        alert(`הפרויקט "${selectedProject.name}" הועבר בהצלחה להיסטוריה.`);
+                        clearProjectForm();
+                    })
+                    .catch((error) => {
+                        console.error("Error deleting project:", error);
+                        alert("שגיאה במחיקת הפרויקט: " + error.message);
+                    });
+                // renderProjects() and renderDeletedProjects() will be called by onValue listeners
             }
         }
 
@@ -1073,42 +1116,62 @@
             const listItem = button.closest('li');
             if (!listItem) return;
 
-            const projectId = parseInt(listItem.dataset.projectId);
-            const projectToRestoreIndex = deletedProjects.findIndex(p => p.id === projectId);
+            const projectId = listItem.dataset.projectId; // Get Firebase key
+            const projectToRestore = deletedProjects[projectId]; // Access directly by key
 
-            if (projectToRestoreIndex !== -1) {
-                const projectToRestore = deletedProjects.splice(projectToRestoreIndex, 1)[0];
-                delete projectToRestore.deletedAt;
-                projectToRestore.status = 'נוכחי';
+            if (projectToRestore) {
+                // Remove 'deletedAt' and 'status' (if status was added for export)
+                const restoredProjectData = { ...projectToRestore };
+                delete restoredProjectData.deletedAt;
+                delete restoredProjectData.status; // Remove temporary status property
 
-                projects.push(projectToRestore);
-
-                saveProjectsToLocalStorage();
-                renderProjects();
-                renderDeletedProjects();
-                clearProjectForm();
-                alert(`הפרויקט "${projectToRestore.name}" שוחזר בהצלחה.`);
+                // Move back to 'projects' path in Firebase
+                set(ref(db, 'projects/' + projectId), restoredProjectData)
+                    .then(() => {
+                        // Remove from 'deletedProjects' path in Firebase
+                        return remove(ref(db, 'deletedProjects/' + projectId));
+                    })
+                    .then(() => {
+                        alert(`הפרויקט "${projectToRestore.name}" שוחזר בהצלחה.`);
+                        clearProjectForm(); // Clear form, as restored item is not automatically selected for edit
+                    })
+                    .catch((error) => {
+                        console.error("Error restoring project:", error);
+                        alert("שגיאה בשחזור הפרויקט: " + error.message);
+                    });
+                // renderProjects() and renderDeletedProjects() will be called by onValue listeners
             }
         }
 
         function clearHistory() {
             if (confirm('האם אתה בטוח שברצונך למחוק את כל היסטוריית הפרויקטים? פעולה זו אינה ניתנת לביטול.')) {
-                deletedProjects = [];
-                saveProjectsToLocalStorage();
-                renderDeletedProjects();
-                alert('היסטוריית הפרויקטים נוקתה בהצלחה!');
+                remove(dbRefDeletedProjects) // Remove all deleted projects from Firebase
+                    .then(() => {
+                        alert('היסטוריית הפרויקטים נוקתה בהצלחה!');
+                        clearProjectForm();
+                    })
+                    .catch((error) => {
+                        console.error("Error clearing history:", error);
+                        alert("שגיאה בניקוי היסטוריה: " + error.message);
+                    });
+                // renderDeletedProjects() will be called by onValue listener
             }
         }
 
+        // --- Rendering Functions ---
+
         function renderProjects() {
             projectList.innerHTML = '';
-            if (projects.length === 0) {
+            // Convert projects object to an array for rendering (to use forEach)
+            const projectsArray = Object.values(projects || {}); 
+            if (projectsArray.length === 0) {
                 projectList.innerHTML = '<p style="text-align: right; color: #888; font-style: italic;">אין פרויקטים נוכחיים. הוסף אחד למעלה!</p>';
                 return;
             }
-            projects.forEach(project => {
+            projectsArray.forEach(project => {
                 const listItem = document.createElement('li');
-                listItem.dataset.projectId = project.id;
+                // Use project.id (Firebase key) for dataset
+                listItem.dataset.projectId = project.id; 
                 listItem.classList.toggle('selected', selectedProject && selectedProject.id === project.id);
 
                 listItem.innerHTML = `
@@ -1128,13 +1191,15 @@
 
         function renderDeletedProjects() {
             projectHistoryList.innerHTML = '';
-            if (deletedProjects.length === 0) {
+            // Convert deletedProjects object to an array for rendering
+            const deletedProjectsArray = Object.values(deletedProjects || {});
+            if (deletedProjectsArray.length === 0) {
                 projectHistoryList.innerHTML = '<p style="text-align: right; color: #888; font-style: italic;">אין פרויקטים שנמחקו בהיסטוריה.</p>';
                 return;
             }
-            deletedProjects.forEach(project => {
+            deletedProjectsArray.forEach(project => {
                 const listItem = document.createElement('li');
-                listItem.dataset.projectId = project.id;
+                listItem.dataset.projectId = project.id; // Use Firebase key for dataset
                 listItem.classList.add('deleted-project-item');
 
                 const textContentDiv = document.createElement('div');
@@ -1155,12 +1220,24 @@
                 
                 projectHistoryList.appendChild(listItem);
             });
-            projectHistoryList.addEventListener('click', function(event) {
-                if (event.target.classList.contains('restore-project-btn')) {
-                    restoreProject(event);
-                }
-            });
+            // Attach event listener for restore buttons after rendering
+            // This event listener will be removed and re-added by onValue,
+            // so using delegation is more robust.
+            // projectHistoryList.addEventListener('click', function(event) {
+            //     if (event.target.classList.contains('restore-project-btn')) {
+            //         restoreProject(event);
+            //     }
+            // });
+            // Let's use a single delegated listener for projectHistoryList to avoid duplicates
         }
+
+        // Attach a single delegated event listener for restore buttons
+        projectHistoryList.addEventListener('click', function(event) {
+            if (event.target.classList.contains('restore-project-btn')) {
+                restoreProject(event);
+            }
+        });
+
 
         function clearProjectForm() {
             projectNameInput.value = '';
@@ -1200,8 +1277,7 @@
             }
         }
         
-        renderProjects();
-        renderDeletedProjects();
+        // Initial render functions removed, onValue listeners handle initial data loading.
 
 
         // --- Minimize/Maximize Logic ---
@@ -1228,12 +1304,12 @@
                 }
             }
         }
-
-        // --- Page Auto-Refresh Logic ---
+ // --- Page Auto-Refresh Logic ---
         const refreshIntervalSeconds = 240;
         setInterval(function() {
             location.reload();
         }, refreshIntervalSeconds * 1000);
+        
     </script>
 </body>
 </html>
