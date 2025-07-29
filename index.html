@@ -24,7 +24,7 @@
             gap: 25px;
             width: 95%;
             max-width: 1400px;
-            background-color: #3b6980;
+            background-color: #374f7a;
             padding: 30px;
             border-radius: 12px;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
@@ -253,7 +253,7 @@
         .form-group {
             display: flex;
             flex-direction: column;
-            align-items: flex-start; /* Corrected for RTL right alignment */
+            align-items: flex-start;
         }
         .form-group label {
             margin-bottom: 5px;
@@ -388,14 +388,13 @@
             background-color: #fcebeb;
             border: 1px solid #f9dcdc;
             opacity: 0.8;
-            /* pointer-events: none; - Removed, or selectively applied to text to allow button clicks */
             font-size: 0.95em;
-            display: flex; /* Make it a flex container to align text and button */
-            justify-content: space-between; /* Push button to the left */
-            align-items: center; /* Vertically center items */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         .project-management-history-container .project-list li .deleted-text-content {
-            pointer-events: none; /* Make text content non-clickable */
+            pointer-events: none;
         }
         .project-management-history-container .project-list li strong {
             color: #cc0000;
@@ -404,18 +403,18 @@
             color: #555;
         }
 
-        /* NEW: Restore Button Styles */
+        /* Restore Button Styles */
         .restore-project-btn {
-            background-color: #007bff; /* Blue */
+            background-color: #007bff;
             color: white;
             border: none;
             padding: 5px 10px;
             border-radius: 4px;
             cursor: pointer;
             font-size: 0.8em;
-            white-space: nowrap; /* Prevent button text from wrapping */
+            white-space: nowrap;
             transition: background-color 0.2s ease;
-            pointer-events: auto; /* Ensure button is clickable despite parent's pointer-events */
+            pointer-events: auto;
         }
         .restore-project-btn:hover {
             background-color: #0056b3;
@@ -485,7 +484,6 @@
             }
 
             .urgent-todo-container,
-            .calendar-time-wrapper,
             .project-management-container,
             .project-management-history-container {
                 grid-column: 1 / -1;
@@ -493,16 +491,9 @@
                 padding: 15px;
             }
 
+            /* NEW: Hide Calendar/Time wrapper completely on mobile */
             .calendar-time-wrapper {
-                grid-template-columns: 1fr;
-                grid-template-rows: auto;
-                display: flex;
-                flex-direction: column;
-                gap: 15px;
-            }
-            .calendar-container, .time-container {
-                max-width: none;
-                width: 100%;
+                display: none;
             }
             
             .project-form {
@@ -539,9 +530,8 @@
                 font-size: 0.85em;
                 padding: 7px 0;
             }
-            .time-container #currentTime {
-                font-size: 2.2em;
-            }
+            /* Time content will be hidden by parent wrapper, so no need to adjust its font size */
+            /* .time-container #currentTime { font-size: 2.2em; } */
             .calendar-grid {
                 max-width: 100%;
             }
@@ -599,9 +589,8 @@
                 font-size: 0.75em;
                 padding: 4px 0;
             }
-            .time-container #currentTime {
-                font-size: 1.8em;
-            }
+            /* Time content already hidden */
+            /* .time-container #currentTime { font-size: 1.8em; } */
 
             .project-form input,
             .project-form textarea,
@@ -665,7 +654,7 @@
             <div class="project-form">
                 <div class="form-group">
                     <label for="projectName">שם היזם:</label>
-                    <input type="text" id="projectName" placeholder="לדוגמה: אפריקה ישראל">
+                    <input type="text" id="projectName" placeholder="לדוגמה: עיצוב מחדש של אתר">
                 </div>
                 <div class="form-group">
                     <label for="projectAddress">כתובת:</label>
@@ -981,8 +970,6 @@
             alert('נתוני הפרויקטים יוצאו בהצלחה ל-"נתוני_פרויקטים.csv"!');
         }
 
-        // --- CRUD Operations for Projects ---
-
         function saveProject() {
             const projectName = projectNameInput.value.trim();
             const whatNeedsToBeDone = whatNeedsToBeDoneInput.value.trim();
@@ -1044,7 +1031,7 @@
                     addedTaskDateTimeInput.value = selectedProject.addedDateTime;
                     whoCreatedTaskInput.value = selectedProject.whoCreated || '';
                     taskProgressSelect.value = selectedProject.progress;
-                    furtherNotesInput.value = selectedProject.furtherNotes || '';
+                    furtherNotesInput.value = furtherNotesInput.value = selectedProject.furtherNotes || '';
 
                     deleteProjectBtn.disabled = false;
                     addProjectBtn.textContent = 'שמור שינויים';
@@ -1079,28 +1066,27 @@
             }
         }
 
-        // NEW: Function to restore project
         function restoreProject(event) {
-            event.stopPropagation(); // Prevent global click from interfering
+            event.stopPropagation();
 
             const button = event.target;
             const listItem = button.closest('li');
-            if (!listItem) return; // Should not happen
+            if (!listItem) return;
 
             const projectId = parseInt(listItem.dataset.projectId);
             const projectToRestoreIndex = deletedProjects.findIndex(p => p.id === projectId);
 
             if (projectToRestoreIndex !== -1) {
-                const projectToRestore = deletedProjects.splice(projectToRestoreIndex, 1)[0]; // Remove from deleted
-                delete projectToRestore.deletedAt; // Remove deletedAt property
-                projectToRestore.status = 'נוכחי'; // Reset status if it was set for export only
+                const projectToRestore = deletedProjects.splice(projectToRestoreIndex, 1)[0];
+                delete projectToRestore.deletedAt;
+                projectToRestore.status = 'נוכחי';
 
-                projects.push(projectToRestore); // Add back to current projects
+                projects.push(projectToRestore);
 
                 saveProjectsToLocalStorage();
                 renderProjects();
                 renderDeletedProjects();
-                clearProjectForm(); // Clear form, as restored item is not automatically selected for edit
+                clearProjectForm();
                 alert(`הפרויקט "${projectToRestore.name}" שוחזר בהצלחה.`);
             }
         }
@@ -1113,8 +1099,6 @@
                 alert('היסטוריית הפרויקטים נוקתה בהצלחה!');
             }
         }
-
-        // --- Rendering Functions ---
 
         function renderProjects() {
             projectList.innerHTML = '';
@@ -1150,10 +1134,9 @@
             }
             deletedProjects.forEach(project => {
                 const listItem = document.createElement('li');
-                listItem.dataset.projectId = project.id; // Store ID for restore function
+                listItem.dataset.projectId = project.id;
                 listItem.classList.add('deleted-project-item');
 
-                // Div for text content to apply pointer-events: none selectively
                 const textContentDiv = document.createElement('div');
                 textContentDiv.classList.add('deleted-text-content');
                 textContentDiv.innerHTML = `
@@ -1164,16 +1147,14 @@
                 `;
                 listItem.appendChild(textContentDiv);
 
-                // Restore button
                 const restoreButton = document.createElement('button');
                 restoreButton.textContent = 'שחזר פרויקט';
                 restoreButton.classList.add('restore-project-btn');
-                restoreButton.dataset.projectId = project.id; // Ensure button has ID too
+                restoreButton.dataset.projectId = project.id;
                 listItem.appendChild(restoreButton);
                 
                 projectHistoryList.appendChild(listItem);
             });
-            // Attach event listener for restore buttons after rendering
             projectHistoryList.addEventListener('click', function(event) {
                 if (event.target.classList.contains('restore-project-btn')) {
                     restoreProject(event);
@@ -1249,7 +1230,7 @@
         }
 
         // --- Page Auto-Refresh Logic ---
-        const refreshIntervalSeconds = 250;
+        const refreshIntervalSeconds = 240;
         setInterval(function() {
             location.reload();
         }, refreshIntervalSeconds * 1000);
