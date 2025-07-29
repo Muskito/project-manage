@@ -1,0 +1,1258 @@
+<! Built by n3k0>
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ניהול פרויקטים</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #eef2f5;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 90vh;
+            direction: rtl; /* Set RTL direction for the whole body */
+        }
+        .app-container {
+            display: grid;
+            grid-template-columns: 3fr 1fr; /* Urgent To-Do on left (3fr), Calendar/Time on right (1fr) */
+            grid-template-rows: auto auto auto;
+            gap: 25px;
+            width: 95%;
+            max-width: 1400px;
+            background-color: #3b6980;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+        .urgent-todo-container,
+        .calendar-container,
+        .time-container,
+        .project-management-container,
+        .project-management-history-container {
+            border: 1px solid #dcdcdc;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #ffffff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            transition: max-height 0.3s ease-out, padding 0.3s ease-out, background-color 0.3s ease;
+            overflow: hidden;
+        }
+        .urgent-todo-container {
+            grid-column: 1 / 2;
+            grid-row: 1 / 2;
+            background-color: #f7fcfa;
+        }
+        .calendar-time-wrapper {
+            grid-column: 2 / 3;
+            grid-row: 1 / 2;
+            display: grid;
+            grid-template-rows: 2.5fr 1fr;
+            gap: 20px;
+        }
+        .calendar-container {
+            background-color: #ffffff;
+            align-items: center;
+        }
+        .time-container {
+            background-color: #ffffff;
+            text-align: center;
+            justify-content: center;
+            align-items: center;
+        }
+        .project-management-container {
+            grid-column: 1 / 3;
+            grid-row: 2 / 3;
+            background-color: #f8faff;
+        }
+        .project-management-history-container {
+            grid-column: 1 / 3;
+            grid-row: 3 / 4;
+            background-color: #fffdf8;
+        }
+
+        /* --- Container Header & Toggle Button Styles --- */
+        h2 {
+            margin-top: 0;
+            color: #333;
+            font-size: 1.6em;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-align: right;
+            box-sizing: border-box;
+        }
+        h2 .toggle-btn {
+            background: none;
+            border: none;
+            font-size: 1.2em;
+            cursor: pointer;
+            color: #666;
+            padding: 0 5px;
+            line-height: 1;
+            transition: color 0.2s ease;
+        }
+        h2 .toggle-btn:hover {
+            color: #000;
+        }
+
+        /* --- Minimized State for Containers --- */
+        .urgent-todo-container.minimized,
+        .calendar-container.minimized,
+        .time-container.minimized,
+        .project-management-container.minimized,
+        .project-management-history-container.minimized {
+            max-height: 55px;
+            padding-bottom: 0px;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+        
+        /* Hide content when minimized */
+        .minimized .todo-input-group,
+        .minimized .todo-list,
+        .minimized .calendar-header:not(h2),
+        .minimized .calendar-grid,
+        .minimized #currentTime,
+        .minimized .project-form,
+        .minimized .project-buttons,
+        .minimized .project-list-container,
+        .minimized .clear-history-btn-wrapper {
+            display: none;
+        }
+        .minimized h2 {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        /* --- To-Do List Specific Styles --- */
+        .todo-input-group {
+            display: flex;
+            margin-bottom: 15px;
+            gap: 10px;
+            flex-direction: row-reverse;
+        }
+        .todo-input-group input[type="text"] {
+            flex-grow: 1;
+            padding: 10px 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1em;
+            text-align: right;
+        }
+        .todo-input-group button {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.2s ease;
+        }
+        .todo-input-group button:hover {
+            background-color: #218838;
+        }
+        .todo-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+        .todo-list li {
+            background-color: #FFC0CB;
+            border: 1px solid #e0b0b0;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            word-wrap: break-word;
+            text-align: right;
+        }
+        .todo-list li:hover {
+            background-color: #FFB6C1;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        /* --- Calendar Specific Styles --- */
+        .calendar-header {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #444;
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            width: 100%;
+            max-width: 300px;
+            text-align: center;
+        }
+        .calendar-day-name, .calendar-day {
+            padding: 8px 0;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        .calendar-day-name {
+            background-color: #e0e7ee;
+            color: #556270;
+            font-weight: bold;
+        }
+        .calendar-day {
+            background-color: #f7f9fc;
+            color: #4d565e;
+            border: 1px solid #eef2f5;
+            cursor: pointer;
+            transition: background-color 0.1s ease;
+        }
+        .calendar-day.empty {
+            background-color: transparent;
+            border: 1px solid transparent;
+            cursor: default;
+        }
+        .calendar-day:not(.empty):hover {
+            background-color: #e6f0f7;
+        }
+        .calendar-day.current-day {
+            background-color: #4CAF50;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 0 8px rgba(76, 175, 80, 0.4);
+            border-color: #4CAF50;
+        }
+
+        /* --- Project Management Specific Styles --- */
+        .project-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px 20px;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start; /* Corrected for RTL right alignment */
+        }
+        .form-group label {
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+            font-size: 0.95em;
+            text-align: right;
+        }
+        .project-form input[type="text"],
+        .project-form input[type="datetime-local"],
+        .project-form textarea,
+        .project-form select {
+            padding: 10px 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1em;
+            width: 100%;
+            box-sizing: border-box;
+            background-color: #fcfcfc;
+            text-align: right;
+        }
+        .project-form textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        .project-form select {
+            appearance: none;
+            background-image: url('data:image/svg+xml;utf8,<svg fill="%23666" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+            background-repeat: no-repeat;
+            background-position: left 10px center;
+            background-size: 20px;
+            padding-left: 30px;
+            padding-right: 12px;
+        }
+
+        .project-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-start;
+            margin-top: 10px;
+        }
+        .project-buttons button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.05em;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            font-weight: bold;
+        }
+        .project-buttons button.add-btn {
+            background-color: #007bff;
+            color: white;
+        }
+        .project-buttons button.add-btn:hover {
+            background-color: #0056b3;
+            transform: translateY(-1px);
+        }
+        .project-buttons button.delete-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+        .project-buttons button.delete-btn:hover {
+            background-color: #c82333;
+            transform: translateY(-1px);
+        }
+
+        .project-list-container {
+            margin-top: 25px;
+            flex-grow: 1;
+            overflow-y: auto;
+            max-height: 400px;
+        }
+        .project-list {
+            list-style: none;
+            padding: 0;
+            text-align: right;
+        }
+        .project-list li {
+            background-color: #f0faff;
+            border: 1px solid #e0eaf5;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            position: relative;
+        }
+        .project-list li:hover {
+            background-color: #e6f0fa;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .project-list li strong {
+            color: #0056b3;
+            font-size: 1.1em;
+            display: block;
+            margin-bottom: 5px;
+            text-align: right;
+        }
+        .project-list li p {
+            margin: 5px 0;
+            line-height: 1.4;
+            color: #444;
+            text-align: right;
+        }
+        .project-list li .info-label {
+            font-weight: bold;
+            color: #666;
+            margin-left: 5px;
+            margin-right: 0;
+        }
+
+        .project-list li.selected {
+            border: 2px solid #007bff;
+            box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+            background-color: #eaf6ff;
+        }
+
+        /* --- Project Management History Specific Styles --- */
+        .project-list-container h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #444;
+            font-size: 1.3em;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+            text-align: right;
+        }
+
+        .project-management-history-container .project-list li {
+            background-color: #fcebeb;
+            border: 1px solid #f9dcdc;
+            opacity: 0.8;
+            /* pointer-events: none; - Removed, or selectively applied to text to allow button clicks */
+            font-size: 0.95em;
+            display: flex; /* Make it a flex container to align text and button */
+            justify-content: space-between; /* Push button to the left */
+            align-items: center; /* Vertically center items */
+        }
+        .project-management-history-container .project-list li .deleted-text-content {
+            pointer-events: none; /* Make text content non-clickable */
+        }
+        .project-management-history-container .project-list li strong {
+            color: #cc0000;
+        }
+        .project-management-history-container .project-list li p {
+            color: #555;
+        }
+
+        /* NEW: Restore Button Styles */
+        .restore-project-btn {
+            background-color: #007bff; /* Blue */
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+            white-space: nowrap; /* Prevent button text from wrapping */
+            transition: background-color 0.2s ease;
+            pointer-events: auto; /* Ensure button is clickable despite parent's pointer-events */
+        }
+        .restore-project-btn:hover {
+            background-color: #0056b3;
+        }
+
+        /* Clear History Button specific styles */
+        .clear-history-btn-wrapper {
+            width: 100%;
+            text-align: left;
+            margin-top: 15px;
+        }
+        .clear-history-btn-wrapper button {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.2s ease;
+        }
+        .clear-history-btn-wrapper button:hover {
+            background-color: #c82333;
+        }
+
+        /* --- Export Button Styles --- */
+        .export-button-wrapper {
+            width: 95%;
+            max-width: 1400px;
+            text-align: center;
+            margin-top: 25px;
+            margin-bottom: 20px;
+            direction: rtl;
+        }
+        .export-button-wrapper button {
+            background-color: #17a2b8;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            font-size: 1.05em;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            font-weight: bold;
+        }
+        .export-button-wrapper button:hover {
+            background-color: #138496;
+            transform: translateY(-1px);
+        }
+
+
+        /* ========================================= */
+        /* === RESPONSIVE STYLES (MEDIA QUERIES) === */
+        /* ========================================= */
+
+        /* Styles for screens up to 768px wide (e.g., tablets in portrait, large phones landscape) */
+        @media (max-width: 768px) {
+            body {
+                margin: 15px;
+            }
+            .app-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto;
+                width: 98%;
+                padding: 15px;
+                gap: 20px;
+            }
+
+            .urgent-todo-container,
+            .calendar-time-wrapper,
+            .project-management-container,
+            .project-management-history-container {
+                grid-column: 1 / -1;
+                margin-bottom: 0;
+                padding: 15px;
+            }
+
+            .calendar-time-wrapper {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto;
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
+            }
+            .calendar-container, .time-container {
+                max-width: none;
+                width: 100%;
+            }
+            
+            .project-form {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            .form-group {
+                width: 100%;
+            }
+
+            h2 {
+                font-size: 1.4em;
+                margin-bottom: 10px;
+                padding-bottom: 8px;
+            }
+            .todo-input-group input[type="text"],
+            .todo-input-group button,
+            .project-form input,
+            .project-form textarea,
+            .project-form select,
+            .project-buttons button,
+            .project-list li,
+            .clear-history-btn-wrapper button {
+                font-size: 0.95em;
+                padding: 10px 12px;
+            }
+            .project-list li strong {
+                font-size: 1.05em;
+            }
+            .project-list li p, .project-list li .info-label {
+                font-size: 0.9em;
+            }
+            .calendar-day-name, .calendar-day {
+                font-size: 0.85em;
+                padding: 7px 0;
+            }
+            .time-container #currentTime {
+                font-size: 2.2em;
+            }
+            .calendar-grid {
+                max-width: 100%;
+            }
+
+            .export-button-wrapper {
+                text-align: center;
+            }
+            .export-button-wrapper button {
+                width: 90%;
+                font-size: 1em;
+            }
+
+            .restore-project-btn {
+                padding: 4px 8px;
+                font-size: 0.75em;
+            }
+        }
+
+        /* Styles for screens up to 480px wide (e.g., most smartphones in portrait) */
+        @media (max-width: 480px) {
+            body {
+                margin: 10px;
+            }
+            .app-container {
+                padding: 10px;
+                gap: 15px;
+            }
+            h2 {
+                font-size: 1.3em;
+            }
+            .todo-input-group {
+                flex-wrap: wrap;
+            }
+            .todo-input-group input[type="text"] {
+                flex-basis: 100%;
+                margin-bottom: 10px;
+            }
+            .todo-input-group button {
+                width: 100%;
+            }
+
+            .project-buttons {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .project-buttons button {
+                width: 100%;
+                margin-top: 5px;
+            }
+
+            .calendar-grid {
+                gap: 2px;
+            }
+            .calendar-day-name, .calendar-day {
+                font-size: 0.75em;
+                padding: 4px 0;
+            }
+            .time-container #currentTime {
+                font-size: 1.8em;
+            }
+
+            .project-form input,
+            .project-form textarea,
+            .project-form select,
+            .project-list li,
+            .clear-history-btn-wrapper button {
+                font-size: 0.85em;
+                padding: 8px 10px;
+            }
+            .export-button-wrapper button {
+                font-size: 0.9em;
+                padding: 10px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="urgent-todo-container" id="urgentTodoContainer">
+            <h2 class="container-header">
+                רשימת מטלות דחופות
+                <button class="toggle-btn" data-target="urgentTodoContainer" data-state="maximized">&#x2212;</button>
+            </h2>
+            <div class="todo-input-group">
+                <input type="text" id="todoInput" placeholder="הוסף מטלה דחופה חדשה...">
+                <button id="addTodoBtn">הוסף מטלה</button>
+            </div>
+            <ul id="todoList" class="todo-list">
+                </ul>
+        </div>
+        <div class="calendar-time-wrapper">
+            <div class="calendar-container" id="calendarContainer">
+                <h2 class="container-header">
+                    לוח שנה
+                    <button class="toggle-btn" data-target="calendarContainer" data-state="maximized">&#x2212;</button>
+                </h2>
+                <div id="calendarHeader" class="calendar-header"></div>
+                <div id="calendarGrid" class="calendar-grid">
+                    <div class="calendar-day-name">א</div>
+                    <div class="calendar-day-name">ב</div>
+                    <div class="calendar-day-name">ג</div>
+                    <div class="calendar-day-name">ד</div>
+                    <div class="calendar-day-name">ה</div>
+                    <div class="calendar-day-name">ו</div>
+                    <div class="calendar-day-name">ש</div>
+                </div>
+            </div>
+            <div class="time-container" id="timeContainer">
+                <h2 class="container-header">
+                    שעה נוכחית
+                    <button class="toggle-btn" data-target="timeContainer" data-state="maximized">&#x2212;</button>
+                </h2>
+                <div id="currentTime" style="font-size: 2.5em; font-weight: bold; color: #007bff;"></div>
+            </div>
+        </div>
+        <div class="project-management-container" id="projectManagementContainer">
+            <h2 class="container-header">
+                ניהול פרויקטים
+                <button class="toggle-btn" data-target="projectManagementContainer" data-state="maximized">&#x2212;</button>
+            </h2>
+            <div class="project-form">
+                <div class="form-group">
+                    <label for="projectName">שם היזם:</label>
+                    <input type="text" id="projectName" placeholder="לדוגמה: אפריקה ישראל">
+                </div>
+                <div class="form-group">
+                    <label for="projectAddress">כתובת:</label>
+                    <input type="text" id="projectAddress" placeholder="לדוגמה: רחוב ראשי 123">
+                </div>
+                <div class="form-group">
+                    <label for="contactInfo">פרטי יצירת קשר:</label>
+                    <input type="text" id="contactInfo" placeholder="לדוגמה: יוסי כהן - 555-1234">
+                </div>
+                <div class="form-group full-width">
+                    <label for="whatNeedsToBeDone">מה צריך לעשות:</label>
+                    <textarea id="whatNeedsToBeDone" placeholder="מטלות מפורטות..."></textarea>
+                </div>
+                <div class="form-group full-width">
+                    <label for="whatHasBeenDone">מה בוצע עד כה:</label>
+                    <textarea id="whatHasBeenDone" placeholder="עדכוני התקדמות..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="addedTaskDateTime">תאריך ושעת יצירת מטלה:</label>
+                    <input type="datetime-local" id="addedTaskDateTime" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="whoCreatedTask">מי יצר את המטלה:</label>
+                    <input type="text" id="whoCreatedTask" placeholder="לדוגמה: שרה לוי">
+                </div>
+                <div class="form-group">
+                    <label for="taskProgress">התקדמות מטלה:</label>
+                    <select id="taskProgress">
+                        <option value="Not Started">לא התחיל</option>
+                        <option value="In Progress">בטיפול</option>
+                        <option value="On Hold">בהמתנה</option>
+                        <option value="Completed">הושלם</option>
+                    </select>
+                </div>
+                <div class="form-group full-width">
+                    <label for="furtherNotes">הערות נוספות:</label>
+                    <textarea id="furtherNotes" placeholder="כל הערה נוספת..."></textarea>
+                </div>
+            </div>
+            <div class="project-buttons">
+                <button id="addProjectBtn" class="add-btn">הוסף פרויקט</button>
+                <button id="deleteProjectBtn" class="delete-btn" disabled>מחק פרויקט</button>
+            </div>
+
+            <div class="project-list-container">
+                <h3>פרויקטים נוכחיים</h3>
+                <ul id="projectList" class="project-list">
+                </ul>
+            </div>
+        </div>
+        <div class="project-management-history-container" id="projectManagementHistoryContainer">
+            <h2 class="container-header">
+                היסטוריית פרויקטים
+                <button class="toggle-btn" data-target="projectManagementHistoryContainer" data-state="maximized">&#x2212;</button>
+            </h2>
+            <ul id="projectHistoryList" class="project-list">
+            </ul>
+            <div class="clear-history-btn-wrapper">
+                <button id="clearHistoryBtn">נקה היסטוריה</button>
+            </div>
+        </div>
+    </div>
+    <div class="export-button-wrapper">
+        <button id="exportProjectsBtn">ייצוא נתונים ל-CSV</button>
+    </div>
+
+    <script>
+        // --- Time Display Logic ---
+        function updateTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('currentTime').textContent = `${hours}:${minutes}:${seconds}`;
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+
+        // --- Urgent To-Do List Logic ---
+        const todoInput = document.getElementById('todoInput');
+        const addTodoBtn = document.getElementById('addTodoBtn');
+        const todoList = document.getElementById('todoList');
+
+        let todoItems = JSON.parse(localStorage.getItem('todoItems')) || [];
+        function renderTodoItems() {
+            todoList.innerHTML = '';
+            todoItems.forEach((taskText, index) => {
+                const listItem = document.createElement('li');
+                listItem.textContent = taskText;
+                listItem.dataset.index = index;
+
+                listItem.addEventListener('click', function() {
+                    const confirmDelete = confirm(`האם אתה בטוח שברצונך למחוק את "${taskText}"?`);
+                    if (confirmDelete) {
+                        todoItems.splice(parseInt(this.dataset.index), 1);
+                        saveTodoItems();
+                        renderTodoItems();
+                    }
+                });
+                todoList.appendChild(listItem);
+            });
+            if (todoItems.length === 0) {
+                 todoList.innerHTML = '<p style="text-align: right; color: #888; font-style: italic;">אין מטלות. הוסף אחת למעלה!</p>';
+            }
+        }
+
+        function saveTodoItems() {
+            localStorage.setItem('todoItems', JSON.stringify(todoItems));
+        }
+
+        addTodoBtn.addEventListener('click', addTodo);
+        todoInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                addTodo();
+            }
+        });
+
+        function addTodo() {
+            const taskText = todoInput.value.trim();
+            if (taskText === '') {
+                alert('אנא הזן מטלה!');
+                return;
+            }
+
+            todoItems.push(taskText);
+            saveTodoItems();
+            renderTodoItems();
+            todoInput.value = '';
+            todoInput.focus();
+        }
+        renderTodoItems();
+
+
+        // --- Calendar Logic ---
+        function generateCalendar() {
+            const calendarHeader = document.getElementById('calendarHeader');
+            const calendarGrid = document.getElementById('calendarGrid');
+
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            const currentMonth = now.getMonth();
+            const today = now.getDate();
+
+            const monthNames = ["ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני",
+                                "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"];
+
+            calendarHeader.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+
+            while (calendarGrid.children.length > 7) {
+                calendarGrid.removeChild(calendarGrid.lastChild);
+            }
+
+            const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
+
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+            for (let i = 0; i < firstDayOfMonth; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.classList.add('calendar-day', 'empty');
+                calendarGrid.appendChild(emptyDay);
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayElement = document.createElement('div');
+                dayElement.classList.add('calendar-day');
+                dayElement.textContent = day;
+
+                if (day === today && currentMonth === now.getMonth() && currentYear === now.getFullYear()) {
+                    dayElement.classList.add('current-day');
+                }
+                calendarGrid.appendChild(dayElement);
+            }
+        }
+        generateCalendar();
+
+        // --- Project Management Logic ---
+        const projectNameInput = document.getElementById('projectName');
+        const projectAddressInput = document.getElementById('projectAddress');
+        const contactInfoInput = document.getElementById('contactInfo');
+        const whatNeedsToBeDoneInput = document.getElementById('whatNeedsToBeDone');
+        const whatHasBeenDoneInput = document.getElementById('whatHasBeenDone');
+        const addedTaskDateTimeInput = document.getElementById('addedTaskDateTime');
+        const whoCreatedTaskInput = document.getElementById('whoCreatedTask');
+        const taskProgressSelect = document.getElementById('taskProgress');
+        const furtherNotesInput = document.getElementById('furtherNotes');
+
+        const addProjectBtn = document.getElementById('addProjectBtn');
+        const deleteProjectBtn = document.getElementById('deleteProjectBtn');
+        const projectList = document.getElementById('projectList');
+        const projectHistoryList = document.getElementById('projectHistoryList');
+        const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+        const projectManagementContainer = document.getElementById('projectManagementContainer');
+
+        const exportProjectsBtn = document.getElementById('exportProjectsBtn');
+
+        let projects = JSON.parse(localStorage.getItem('projects')) || [];
+        let deletedProjects = JSON.parse(localStorage.getItem('deletedProjects')) || [];
+        let selectedProject = null;
+
+        function saveProjectsToLocalStorage() {
+            localStorage.setItem('projects', JSON.stringify(projects));
+            localStorage.setItem('deletedProjects', JSON.stringify(deletedProjects));
+        }
+
+        function formatDateTimeLocal(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${year}-${month}-${day}T${hours}:${minutes}`;
+        }
+
+        addedTaskDateTimeInput.value = formatDateTimeLocal(new Date());
+
+        addProjectBtn.addEventListener('click', saveProject);
+        deleteProjectBtn.addEventListener('click', deleteProject);
+        projectList.addEventListener('click', selectProjectForEdit);
+        clearHistoryBtn.addEventListener('click', clearHistory);
+        exportProjectsBtn.addEventListener('click', exportProjectsToCsv);
+
+        document.body.addEventListener('click', handleGlobalClick);
+
+        function handleGlobalClick(event) {
+            if (selectedProject) {
+                const clickedElement = event.target;
+
+                // If the click is INSIDE the project management container OR on a toggle button,
+                // we should NOT cancel the edit mode.
+                // The 'selectProjectForEdit' and button click handlers (saveProject, deleteProject)
+                // already handle their specific actions and propagation.
+                if (projectManagementContainer.contains(clickedElement) || clickedElement.classList.contains('toggle-btn')) {
+                    // Do nothing, allow the specific element's default behavior or click handler to proceed
+                    return;
+                }
+
+                // If the click is OUTSIDE the project management container and not on a toggle button,
+                // then cancel the edit mode.
+                clearProjectForm();
+            }
+        }
+
+        function exportProjectsToCsv() {
+            const BOM = '\uFEFF';
+
+            const headers = [
+                "שם הפרויקט",
+                "כתובת",
+                "פרטי יצירת קשר",
+                "מה צריך לעשות",
+                "מה בוצע עד כה",
+                "תאריך ושעת יצירת מטלה",
+                "מי יצר את המטלה",
+                "התקדמות",
+                "הערות נוספות",
+                "סטטוס",
+                "נמחק בתאריך"
+            ];
+
+            const allProjectsData = [];
+
+            projects.forEach(p => {
+                const projectCopy = { ...p,
+                    status: 'נוכחי',
+                    deletedAt: ''
+                };
+                allProjectsData.push(projectCopy);
+            });
+
+            deletedProjects.forEach(p => {
+                const projectCopy = { ...p,
+                    status: 'נמחק'
+                };
+                allProjectsData.push(projectCopy);
+            });
+
+            let csvContent = headers.map(header => `"${header}"`).join(',') + '\n';
+            csvContent = BOM + csvContent;
+
+            allProjectsData.forEach(project => {
+                const row = [
+                    project.name,
+                    project.address,
+                    project.contactInfo,
+                    project.whatNeedsToBeDone,
+                    project.whatHasBeenDone,
+                    new Date(project.addedDateTime).toLocaleString('he-IL'),
+                    project.whoCreated,
+                    getProgressTranslation(project.progress),
+                    project.furtherNotes,
+                    project.status,
+                    project.deletedAt ? new Date(project.deletedAt).toLocaleString('he-IL') : ''
+                ].map(field => {
+                    if (field === null || field === undefined) return '""';
+                    let stringField = String(field);
+                    if (stringField.includes(',') || stringField.includes('\n') || stringField.includes('"')) {
+                        return `"${stringField.replace(/"/g, '""')}"`;
+                    }
+                    return `"${stringField}"`;
+                }).join(',');
+                csvContent += row + '\n';
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'נתוני_פרויקטים.csv';
+
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            alert('נתוני הפרויקטים יוצאו בהצלחה ל-"נתוני_פרויקטים.csv"!');
+        }
+
+        // --- CRUD Operations for Projects ---
+
+        function saveProject() {
+            const projectName = projectNameInput.value.trim();
+            const whatNeedsToBeDone = whatNeedsToBeDoneInput.value.trim();
+
+            if (!projectName || !whatNeedsToBeDone) {
+                alert('שם פרויקט ו"מה צריך לעשות" הם שדות חובה!');
+                return;
+            }
+
+            const projectData = {
+                id: selectedProject ? selectedProject.id : Date.now(),
+                name: projectName,
+                address: projectAddressInput.value.trim(),
+                contactInfo: contactInfoInput.value.trim(),
+                whatNeedsToBeDone: whatNeedsToBeDone,
+                whatHasBeenDone: whatHasBeenDoneInput.value.trim(),
+                addedDateTime: selectedProject ? selectedProject.addedDateTime : formatDateTimeLocal(new Date()),
+                whoCreated: whoCreatedTaskInput.value.trim(),
+                progress: taskProgressSelect.value,
+                furtherNotes: furtherNotesInput.value.trim()
+            };
+
+            if (selectedProject) {
+                const index = projects.findIndex(p => p.id === selectedProject.id);
+                if (index !== -1) {
+                    projects[index] = projectData;
+                    alert(`הפרויקט "${projectData.name}" עודכן בהצלחה!`);
+                }
+            } else {
+                projects.push(projectData);
+                alert(`הפרויקט "${projectData.name}" נוסף בהצלחה!`);
+            }
+
+            renderProjects();
+            clearProjectForm();
+            saveProjectsToLocalStorage();
+        }
+
+        function selectProjectForEdit(event) {
+            event.stopPropagation();
+
+            const listItem = event.target.closest('li');
+            if (listItem && listItem.dataset.projectId) {
+                const projectId = parseInt(listItem.dataset.projectId);
+                
+                if (selectedProject && selectedProject.id === projectId) {
+                    clearProjectForm();
+                    return;
+                }
+
+                selectedProject = projects.find(p => p.id === projectId);
+
+                if (selectedProject) {
+                    projectNameInput.value = selectedProject.name;
+                    projectAddressInput.value = selectedProject.address || '';
+                    contactInfoInput.value = selectedProject.contactInfo || '';
+                    whatNeedsToBeDoneInput.value = selectedProject.whatNeedsToBeDone;
+                    whatHasBeenDoneInput.value = selectedProject.whatHasBeenDone || '';
+                    addedTaskDateTimeInput.value = selectedProject.addedDateTime;
+                    whoCreatedTaskInput.value = selectedProject.whoCreated || '';
+                    taskProgressSelect.value = selectedProject.progress;
+                    furtherNotesInput.value = selectedProject.furtherNotes || '';
+
+                    deleteProjectBtn.disabled = false;
+                    addProjectBtn.textContent = 'שמור שינויים';
+
+                    document.querySelectorAll('.project-list li').forEach(item => {
+                        item.classList.remove('selected');
+                    });
+                    listItem.classList.add('selected');
+                }
+            }
+        }
+
+        function deleteProject(event) {
+            event.stopPropagation();
+
+            if (!selectedProject) {
+                alert('אנא בחר פרויקט למחיקה.');
+                return;
+            }
+
+            if (confirm(`האם אתה בטוח שברצונך למחוק את הפרויקט "${selectedProject.name}"? פעולה זו אינה ניתנת לביטול.`)) {
+                projects = projects.filter(p => p.id !== selectedProject.id);
+
+                selectedProject.deletedAt = formatDateTimeLocal(new Date());
+                deletedProjects.push(selectedProject);
+
+                renderProjects();
+                renderDeletedProjects();
+                clearProjectForm();
+                saveProjectsToLocalStorage();
+                alert(`הפרויקט "${selectedProject.name}" הועבר בהצלחה להיסטוריה.`);
+            }
+        }
+
+        // NEW: Function to restore project
+        function restoreProject(event) {
+            event.stopPropagation(); // Prevent global click from interfering
+
+            const button = event.target;
+            const listItem = button.closest('li');
+            if (!listItem) return; // Should not happen
+
+            const projectId = parseInt(listItem.dataset.projectId);
+            const projectToRestoreIndex = deletedProjects.findIndex(p => p.id === projectId);
+
+            if (projectToRestoreIndex !== -1) {
+                const projectToRestore = deletedProjects.splice(projectToRestoreIndex, 1)[0]; // Remove from deleted
+                delete projectToRestore.deletedAt; // Remove deletedAt property
+                projectToRestore.status = 'נוכחי'; // Reset status if it was set for export only
+
+                projects.push(projectToRestore); // Add back to current projects
+
+                saveProjectsToLocalStorage();
+                renderProjects();
+                renderDeletedProjects();
+                clearProjectForm(); // Clear form, as restored item is not automatically selected for edit
+                alert(`הפרויקט "${projectToRestore.name}" שוחזר בהצלחה.`);
+            }
+        }
+
+        function clearHistory() {
+            if (confirm('האם אתה בטוח שברצונך למחוק את כל היסטוריית הפרויקטים? פעולה זו אינה ניתנת לביטול.')) {
+                deletedProjects = [];
+                saveProjectsToLocalStorage();
+                renderDeletedProjects();
+                alert('היסטוריית הפרויקטים נוקתה בהצלחה!');
+            }
+        }
+
+        // --- Rendering Functions ---
+
+        function renderProjects() {
+            projectList.innerHTML = '';
+            if (projects.length === 0) {
+                projectList.innerHTML = '<p style="text-align: right; color: #888; font-style: italic;">אין פרויקטים נוכחיים. הוסף אחד למעלה!</p>';
+                return;
+            }
+            projects.forEach(project => {
+                const listItem = document.createElement('li');
+                listItem.dataset.projectId = project.id;
+                listItem.classList.toggle('selected', selectedProject && selectedProject.id === project.id);
+
+                listItem.innerHTML = `
+                    <strong>${project.name}</strong>
+                    <p><span class="info-label">כתובת:</span> ${project.address || 'לא צויין'}</p>
+                    <p><span class="info-label">פרטי יצירת קשר:</span> ${project.contactInfo || 'לא צויין'}</p>
+                    <p><span class="info-label">מה צריך לעשות:</span> ${project.whatNeedsToBeDone}</p>
+                    <p><span class="info-label">מה בוצע עד כה:</span> ${project.whatHasBeenDone || 'עדיין לא בוצע דבר'}</p>
+                    <p><span class="info-label">נוסף בתאריך:</span> ${new Date(project.addedDateTime).toLocaleString('he-IL')}</p>
+                    <p><span class="info-label">נוצר על ידי:</span> ${project.whoCreated || 'לא צויין'}</p>
+                    <p><span class="info-label">התקדמות:</span> <span style="font-weight: bold; color: ${getProgressColor(project.progress)};">${getProgressTranslation(project.progress)}</span></p>
+                    <p><span class="info-label">הערות:</span> ${project.furtherNotes || 'אין'}</p>
+                `;
+                projectList.appendChild(listItem);
+            });
+        }
+
+        function renderDeletedProjects() {
+            projectHistoryList.innerHTML = '';
+            if (deletedProjects.length === 0) {
+                projectHistoryList.innerHTML = '<p style="text-align: right; color: #888; font-style: italic;">אין פרויקטים שנמחקו בהיסטוריה.</p>';
+                return;
+            }
+            deletedProjects.forEach(project => {
+                const listItem = document.createElement('li');
+                listItem.dataset.projectId = project.id; // Store ID for restore function
+                listItem.classList.add('deleted-project-item');
+
+                // Div for text content to apply pointer-events: none selectively
+                const textContentDiv = document.createElement('div');
+                textContentDiv.classList.add('deleted-text-content');
+                textContentDiv.innerHTML = `
+                    <strong>${project.name}</strong>
+                    <p><span class="info-label">מה צריך לעשות (בזמן מחיקה):</span> ${project.whatNeedsToBeDone}</p>
+                    <p><span class="info-label">התקדמות (בזמן מחיקה):</span> ${getProgressTranslation(project.progress)}</p>
+                    <p><span class="info-label">נמחק בתאריך:</span> ${new Date(project.deletedAt).toLocaleString('he-IL')}</p>
+                `;
+                listItem.appendChild(textContentDiv);
+
+                // Restore button
+                const restoreButton = document.createElement('button');
+                restoreButton.textContent = 'שחזר פרויקט';
+                restoreButton.classList.add('restore-project-btn');
+                restoreButton.dataset.projectId = project.id; // Ensure button has ID too
+                listItem.appendChild(restoreButton);
+                
+                projectHistoryList.appendChild(listItem);
+            });
+            // Attach event listener for restore buttons after rendering
+            projectHistoryList.addEventListener('click', function(event) {
+                if (event.target.classList.contains('restore-project-btn')) {
+                    restoreProject(event);
+                }
+            });
+        }
+
+        function clearProjectForm() {
+            projectNameInput.value = '';
+            projectAddressInput.value = '';
+            contactInfoInput.value = '';
+            whatNeedsToBeDoneInput.value = '';
+            whatHasBeenDoneInput.value = '';
+            addedTaskDateTimeInput.value = formatDateTimeLocal(new Date());
+            whoCreatedTaskInput.value = '';
+            taskProgressSelect.value = 'Not Started';
+            furtherNotesInput.value = '';
+            selectedProject = null;
+            deleteProjectBtn.disabled = true;
+            addProjectBtn.textContent = 'הוסף פרויקט';
+            document.querySelectorAll('.project-list li').forEach(item => {
+                item.classList.remove('selected');
+            });
+        }
+
+        function getProgressColor(progress) {
+            switch (progress) {
+                case 'Not Started': return '#dc3545';
+                case 'In Progress': return '#ffc107';
+                case 'On Hold': return '#6c757d';
+                case 'Completed': return '#28a745';
+                default: return '#333';
+            }
+        }
+
+        function getProgressTranslation(progress) {
+            switch (progress) {
+                case 'Not Started': return 'לא התחיל';
+                case 'In Progress': return 'בטיפול';
+                case 'On Hold': return 'בהמתנה';
+                case 'Completed': return 'הושלם';
+                default: return progress;
+            }
+        }
+        
+        renderProjects();
+        renderDeletedProjects();
+
+
+        // --- Minimize/Maximize Logic ---
+        document.querySelectorAll('.toggle-btn').forEach(button => {
+            button.addEventListener('click', toggleContainer);
+        });
+
+        function toggleContainer(event) {
+            event.stopPropagation();
+
+            const button = event.target;
+            const containerId = button.dataset.target;
+            const container = document.getElementById(containerId);
+
+            if (container) {
+                if (container.classList.contains('minimized')) {
+                    container.classList.remove('minimized');
+                    button.dataset.state = 'maximized';
+                    button.innerHTML = '&#x2212;';
+                } else {
+                    container.classList.add('minimized');
+                    button.dataset.state = 'minimized';
+                    button.innerHTML = '+';
+                }
+            }
+        }
+
+        // --- Page Auto-Refresh Logic ---
+        const refreshIntervalSeconds = 250;
+        setInterval(function() {
+            location.reload();
+        }, refreshIntervalSeconds * 1000);
+    </script>
+</body>
+</html>
