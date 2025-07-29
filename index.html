@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ניהול פרויקט</title>
+    <title>אפליקציית הפרודוקטיביות שלי</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -23,7 +23,7 @@
             gap: 25px;
             width: 95%;
             max-width: 1400px;
-            background-color: #374f7a;
+            background-color: #ffffff;
             padding: 30px;
             border-radius: 12px;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
@@ -52,7 +52,7 @@
             grid-column: 2 / 3;
             grid-row: 1 / 2;
             display: grid;
-            grid-template-rows: 2.5fr 1fr;
+            grid-template-rows: 1.5fr 1fr;
             gap: 20px;
         }
         .calendar-container {
@@ -719,7 +719,6 @@
     <script type="module">
         // Firebase SDKs imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-        // import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-analytics.js"; // Not used in this app's functionality
         import { getDatabase, ref, set, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
         // Your web app's Firebase configuration (PASTE YOUR CONFIG HERE)
@@ -736,7 +735,6 @@
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
-        // const analytics = getAnalytics(app); // Analytics is not used in app logic
         const db = getDatabase(app);
 
         // Firebase Realtime Database references
@@ -745,15 +743,15 @@
         const dbRefTodoItems = ref(db, 'todoItems');
 
         // Local data storage (will be synced with Firebase)
-        let projects = {}; // Changed to object for easier Firebase ID mapping
-        let deletedProjects = {}; // Changed to object
-        let todoItems = []; // Still an array for local manipulation
+        let projects = {};
+        let deletedProjects = {};
+        let todoItems = [];
 
         // --- Data Loading and Sync from Firebase ---
         onValue(dbRefProjects, (snapshot) => {
             const data = snapshot.val();
-            projects = data || {}; // If no data, initialize as empty object
-            renderProjects(); // Re-render when data changes in Firebase
+            projects = data || {};
+            renderProjects();
         }, (error) => {
             console.error("Error loading projects from Firebase:", error);
             alert("שגיאה בטעינת פרויקטים מ-Firebase. אנא בדוק את חיבור האינטרנט ואת כללי האבטחה (Security Rules).");
@@ -770,7 +768,7 @@
 
         onValue(dbRefTodoItems, (snapshot) => {
             const data = snapshot.val();
-            todoItems = data || []; // ToDo items are stored as array
+            todoItems = data || [];
             renderTodoItems();
         }, (error) => {
             console.error("Error loading todo items from Firebase:", error);
@@ -793,8 +791,6 @@
         const todoInput = document.getElementById('todoInput');
         const addTodoBtn = document.getElementById('addTodoBtn');
         const todoList = document.getElementById('todoList');
-
-        // renderTodoItems() is now called by onValue listener
 
         function saveTodoItemsToFirebase() {
             set(dbRefTodoItems, todoItems)
@@ -819,12 +815,10 @@
             }
 
             todoItems.push(taskText);
-            saveTodoItemsToFirebase(); // Save to Firebase instead of localStorage
+            saveTodoItemsToFirebase();
             todoInput.value = '';
             todoInput.focus();
-            // renderTodoItems() will be called by the onValue listener
         }
-        // Initial render for To-Do list is handled by onValue listener
 
 
         // --- Calendar Logic ---
@@ -889,19 +883,7 @@
 
         const exportProjectsBtn = document.getElementById('exportProjectsBtn');
 
-        let selectedProject = null; // Stores the local copy of the selected project (including Firebase key)
-
-        // saveProjectsToLocalStorage() will be removed as we directly update Firebase
-        // No need to load projects explicitly here, onValue listeners handle it
-
-        function formatDateTimeLocal(date) {
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            const hours = String(date.getHours()).padStart(2, '0');
-            const minutes = String(date.getMinutes()).padStart(2, '0');
-            return `${year}-${month}-${day}T${hours}:${minutes}`;
-        }
+        let selectedProject = null;
 
         addedTaskDateTimeInput.value = formatDateTimeLocal(new Date());
 
@@ -936,7 +918,6 @@
 
             const allProjectsData = [];
 
-            // Convert projects object to an array for export
             Object.values(projects).forEach(p => {
                 const projectCopy = { ...p,
                     status: 'נוכחי',
@@ -945,7 +926,6 @@
                 allProjectsData.push(projectCopy);
             });
 
-            // Convert deletedProjects object to an array for export
             Object.values(deletedProjects).forEach(p => {
                 const projectCopy = { ...p,
                     status: 'נמחק'
@@ -992,8 +972,6 @@
             alert('נתוני הפרויקטים יוצאו בהצלחה ל-"נתוני_פרויקטים.csv"!');
         }
 
-        // --- CRUD Operations for Projects ---
-
         function saveProject() {
             const projectName = projectNameInput.value.trim();
             const whatNeedsToBeDone = whatNeedsToBeDoneInput.value.trim();
@@ -1004,13 +982,11 @@
             }
 
             const projectData = {
-                // IMPORTANT: Firebase generates the ID (key). We don't use Date.now() for the ID here.
                 name: projectName,
                 address: projectAddressInput.value.trim(),
                 contactInfo: contactInfoInput.value.trim(),
                 whatNeedsToBeDone: whatNeedsToBeDone,
                 whatHasBeenDone: whatHasBeenDoneInput.value.trim(),
-                // Use existing addedDateTime if editing, otherwise current time
                 addedDateTime: selectedProject ? selectedProject.addedDateTime : formatDateTimeLocal(new Date()),
                 whoCreated: whoCreatedTaskInput.value.trim(),
                 progress: taskProgressSelect.value,
@@ -1018,7 +994,6 @@
             };
 
             if (selectedProject && selectedProject.id) {
-                // Editing existing project: update specific child in Firebase
                 update(ref(db, 'projects/' + selectedProject.id), projectData)
                     .then(() => {
                         alert(`הפרויקט "${projectData.name}" עודכן בהצלחה!`);
@@ -1029,7 +1004,6 @@
                         alert("שגיאה בעדכון הפרויקט: " + error.message);
                     });
             } else {
-                // Adding new project: push to generate a new unique key
                 const newProjectRef = push(dbRefProjects);
                 set(newProjectRef, projectData)
                     .then(() => {
@@ -1041,7 +1015,6 @@
                         alert("שגיאה בהוספת הפרויקט: " + error.message);
                     });
             }
-            // renderProjects() will be called by the onValue listener
         }
 
         function selectProjectForEdit(event) {
@@ -1049,15 +1022,14 @@
 
             const listItem = event.target.closest('li');
             if (listItem && listItem.dataset.projectId) {
-                const projectId = listItem.dataset.projectId; // projectId is now the Firebase key
+                const projectId = listItem.dataset.projectId;
                 
                 if (selectedProject && selectedProject.id === projectId) {
-                    clearProjectForm(); // If same project clicked again, deselect
+                    clearProjectForm();
                     return;
                 }
 
-                // Find the project locally from the projects object
-                selectedProject = projects[projectId]; 
+                selectedProject = projects[projectId];
 
                 if (selectedProject) {
                     projectNameInput.value = selectedProject.name;
@@ -1084,17 +1056,15 @@
         function deleteProject(event) {
             event.stopPropagation();
 
-            if (!selectedProject || !selectedProject.id) { // Ensure selectedProject and its ID exist
+            if (!selectedProject || !selectedProject.id) {
                 alert('אנא בחר פרויקט למחיקה.');
                 return;
             }
 
             if (confirm(`האם אתה בטוח שברצונך למחוק את הפרויקט "${selectedProject.name}"? פעולה זו אינה ניתנת לביטול.`)) {
-                // Store the deleted project in the 'deletedProjects' path in Firebase
                 const deletedProjectData = { ...selectedProject, deletedAt: formatDateTimeLocal(new Date()) };
                 set(ref(db, 'deletedProjects/' + selectedProject.id), deletedProjectData)
                     .then(() => {
-                        // Remove from 'projects' path in Firebase
                         return remove(ref(db, 'projects/' + selectedProject.id));
                     })
                     .then(() => {
@@ -1105,7 +1075,6 @@
                         console.error("Error deleting project:", error);
                         alert("שגיאה במחיקת הפרויקט: " + error.message);
                     });
-                // renderProjects() and renderDeletedProjects() will be called by onValue listeners
             }
         }
 
@@ -1116,36 +1085,32 @@
             const listItem = button.closest('li');
             if (!listItem) return;
 
-            const projectId = listItem.dataset.projectId; // Get Firebase key
-            const projectToRestore = deletedProjects[projectId]; // Access directly by key
+            const projectId = listItem.dataset.projectId;
+            const projectToRestore = deletedProjects[projectId];
 
             if (projectToRestore) {
-                // Remove 'deletedAt' and 'status' (if status was added for export)
                 const restoredProjectData = { ...projectToRestore };
                 delete restoredProjectData.deletedAt;
-                delete restoredProjectData.status; // Remove temporary status property
+                delete restoredProjectData.status;
 
-                // Move back to 'projects' path in Firebase
                 set(ref(db, 'projects/' + projectId), restoredProjectData)
                     .then(() => {
-                        // Remove from 'deletedProjects' path in Firebase
                         return remove(ref(db, 'deletedProjects/' + projectId));
                     })
                     .then(() => {
                         alert(`הפרויקט "${projectToRestore.name}" שוחזר בהצלחה.`);
-                        clearProjectForm(); // Clear form, as restored item is not automatically selected for edit
+                        clearProjectForm();
                     })
                     .catch((error) => {
                         console.error("Error restoring project:", error);
                         alert("שגיאה בשחזור הפרויקט: " + error.message);
                     });
-                // renderProjects() and renderDeletedProjects() will be called by onValue listeners
             }
         }
 
         function clearHistory() {
             if (confirm('האם אתה בטוח שברצונך למחוק את כל היסטוריית הפרויקטים? פעולה זו אינה ניתנת לביטול.')) {
-                remove(dbRefDeletedProjects) // Remove all deleted projects from Firebase
+                remove(dbRefDeletedProjects)
                     .then(() => {
                         alert('היסטוריית הפרויקטים נוקתה בהצלחה!');
                         clearProjectForm();
@@ -1154,15 +1119,11 @@
                         console.error("Error clearing history:", error);
                         alert("שגיאה בניקוי היסטוריה: " + error.message);
                     });
-                // renderDeletedProjects() will be called by onValue listener
             }
         }
 
-        // --- Rendering Functions ---
-
         function renderProjects() {
             projectList.innerHTML = '';
-            // Convert projects object to an array for rendering (to use forEach)
             const projectsArray = Object.values(projects || {}); 
             if (projectsArray.length === 0) {
                 projectList.innerHTML = '<p style="text-align: right; color: #888; font-style: italic;">אין פרויקטים נוכחיים. הוסף אחד למעלה!</p>';
@@ -1170,7 +1131,6 @@
             }
             projectsArray.forEach(project => {
                 const listItem = document.createElement('li');
-                // Use project.id (Firebase key) for dataset
                 listItem.dataset.projectId = project.id; 
                 listItem.classList.toggle('selected', selectedProject && selectedProject.id === project.id);
 
@@ -1191,7 +1151,6 @@
 
         function renderDeletedProjects() {
             projectHistoryList.innerHTML = '';
-            // Convert deletedProjects object to an array for rendering
             const deletedProjectsArray = Object.values(deletedProjects || {});
             if (deletedProjectsArray.length === 0) {
                 projectHistoryList.innerHTML = '<p style="text-align: right; color: #888; font-style: italic;">אין פרויקטים שנמחקו בהיסטוריה.</p>';
@@ -1199,7 +1158,7 @@
             }
             deletedProjectsArray.forEach(project => {
                 const listItem = document.createElement('li');
-                listItem.dataset.projectId = project.id; // Use Firebase key for dataset
+                listItem.dataset.projectId = project.id;
                 listItem.classList.add('deleted-project-item');
 
                 const textContentDiv = document.createElement('div');
@@ -1220,18 +1179,8 @@
                 
                 projectHistoryList.appendChild(listItem);
             });
-            // Attach event listener for restore buttons after rendering
-            // This event listener will be removed and re-added by onValue,
-            // so using delegation is more robust.
-            // projectHistoryList.addEventListener('click', function(event) {
-            //     if (event.target.classList.contains('restore-project-btn')) {
-            //         restoreProject(event);
-            //     }
-            // });
-            // Let's use a single delegated listener for projectHistoryList to avoid duplicates
         }
 
-        // Attach a single delegated event listener for restore buttons
         projectHistoryList.addEventListener('click', function(event) {
             if (event.target.classList.contains('restore-project-btn')) {
                 restoreProject(event);
@@ -1277,7 +1226,8 @@
             }
         }
         
-        // Initial render functions removed, onValue listeners handle initial data loading.
+        // Initial renders are handled by onValue listeners, which sync data from Firebase
+        // and then call renderProjects/renderDeletedProjects.
 
 
         // --- Minimize/Maximize Logic ---
@@ -1304,12 +1254,18 @@
                 }
             }
         }
- // --- Page Auto-Refresh Logic ---
-        const refreshIntervalSeconds = 240;
+
+        // --- Page Auto-Refresh Logic (Removed for Firebase integration) ---
+        // With Realtime Database, data syncs automatically. A page refresh every 5 seconds
+        // would be disruptive and unnecessary for data synchronization.
+        // If you still need a full page refresh for other reasons, you can re-add it,
+        // but be aware of the disruptive UX.
+        /*
+        const refreshIntervalSeconds = 5;
         setInterval(function() {
             location.reload();
         }, refreshIntervalSeconds * 1000);
-        
+        */
     </script>
 </body>
 </html>
