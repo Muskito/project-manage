@@ -76,6 +76,7 @@
             grid-column: 1 / 3;
             grid-row: 2 / 3;
             background-color: #f8faff;
+            overflow: visible;
         }
 
         /* --- Container Header & Toggle Button Styles --- */
@@ -117,9 +118,9 @@
             padding-bottom: 0px;
             border-bottom-left-radius: 8px;
             border-bottom-right-radius: 8px;
+            overflow: hidden;
         }
         
-        /* Hide content when minimized */
         .minimized .todo-input-group,
         .minimized .todo-list,
         .minimized .calendar-header:not(h2),
@@ -313,13 +314,14 @@
         /* Styles for the tasks dropdown */
         .tasks-dropdown-container {
             position: relative;
+            /* The grid-column property is removed to make it fit in one cell */
         }
         .tasks-checklist-container {
             display: none;
             position: absolute;
             top: 100%;
-            right: 0; /* Anchor the dropdown to the right */
-            min-width: 350px; /* Set a fixed minimum width */
+            right: 0; 
+            min-width: 350px;
             z-index: 100;
             background: #fff;
             border: 1px solid #ccc;
