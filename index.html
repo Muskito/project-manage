@@ -573,6 +573,10 @@
             .project-list { grid-template-columns: repeat(2, 1fr); }
         }
         @media (max-width: 480px) { .project-list { grid-template-columns: 1fr; } }
+
+        #deleteProjectBtn {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -872,6 +876,7 @@
         furtherNotesInput.value = projectData.furtherNotes || '';
         deleteProjectBtn.disabled = false;
         addProjectBtn.textContent = 'שמור שינויים';
+        deleteProjectBtn.style.display = 'inline-block';
         projectManagementContainer.scrollIntoView({ behavior: 'smooth' });
         hideProjectModal();
     }
@@ -952,6 +957,7 @@
         selectedProjectKey = null;
         currentEditorName = null;
         deleteProjectBtn.disabled = true;
+        deleteProjectBtn.style.display = 'none';
         addProjectBtn.textContent = 'הוסף פרויקט';
         tasksDropdown.classList.remove('open');
     }
