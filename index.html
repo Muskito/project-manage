@@ -1,5 +1,6 @@
 <!-- by n3k0 -->
 <!-- Removing of this lines are a copyright infringement -->
+<!-- Start of app --> 
 
 <!DOCTYPE html>
 <html lang="he">
@@ -25,7 +26,7 @@
         .app-container {
             display: grid;
             grid-template-columns: 3fr 1fr; 
-            grid-template-rows: auto auto auto;
+            grid-template-rows: auto auto;
             gap: 25px;
             width: 95%;
             max-width: 1400px;
@@ -35,8 +36,7 @@
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
         }
         .urgent-todo-container,
-        .calendar-container,
-        .time-container,
+        .datetime-container,
         .project-management-container {
             border: 1px solid #dcdcdc;
             padding: 20px;
@@ -53,27 +53,22 @@
             grid-row: 1 / 2;
             background-color: #f7fcfa;
         }
-        .calendar-time-wrapper {
+        
+        /* UPDATED: Styles for the new single datetime container */
+        .datetime-container {
             grid-column: 2 / 3;
             grid-row: 1 / 2;
-            display: grid;
-            grid-template-rows: 2.5fr 1fr;
-            gap: 20px;
-        }
-        .calendar-container {
-            background-color: #ffffff;
             align-items: center;
-        }
-        .time-container {
-            background-color: #ffffff;
-            text-align: center;
             justify-content: center;
-            align-items: center;
+            text-align: center;
+            gap: 10px; /* Space between elements */
         }
         #currentTime {
-            font-size: 2.5em;
+            font-size: 2.0em; /* Reduced from 2.5em */
             font-weight: bold;
             color: #007bff;
+            margin-bottom: 5px;
+            line-height: 1;
         }
         .project-management-container {
             grid-column: 1 / 3;
@@ -114,8 +109,7 @@
 
         /* --- Minimized State for Containers --- */
         .urgent-todo-container.minimized,
-        .calendar-container.minimized,
-        .time-container.minimized,
+        .datetime-container.minimized,
         .project-management-container.minimized {
             max-height: 55px;
             padding-bottom: 0px;
@@ -202,23 +196,24 @@
         .calendar-header {
             width: 100%;
             text-align: center;
-            margin-bottom: 15px;
-            font-size: 1.3em;
+            margin-bottom: 8px; /* Reduced */
+            font-size: 1.1em; /* Reduced */
             font-weight: bold;
             color: #444;
+            line-height: 1;
         }
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 5px;
+            gap: 3px; /* Reduced */
             width: 100%;
-            max-width: 300px;
+            max-width: 280px; /* Reduced */
             text-align: center;
         }
         .calendar-day-name, .calendar-day {
-            padding: 8px 0;
+            padding: 6px 0; /* Reduced */
             border-radius: 4px;
-            font-size: 0.9em;
+            font-size: 0.75em; /* Reduced */
         }
         .calendar-day-name {
             background-color: #e0e7ee;
@@ -314,7 +309,6 @@
             padding-right: 12px;
         }
         
-        /* Styles for the tasks dropdown */
         .tasks-dropdown-container {
             position: relative;
         }
@@ -459,7 +453,6 @@
             background-color: #eaf6ff;
         }
 
-        /* --- Project Management History Specific Styles --- */
         .project-list-container h3 {
             margin-top: 25px;
             margin-bottom: 15px;
@@ -499,7 +492,6 @@
         }
 
 
-        /* Restore Button Styles */
         .restore-project-btn {
             background-color: #007bff;
             color: white;
@@ -517,7 +509,6 @@
             background-color: #0056b3;
         }
 
-        /* Clear History Button specific styles */
         .clear-history-btn-wrapper {
             width: 100%;
             text-align: left;
@@ -538,7 +529,6 @@
             background-color: #c82333;
         }
 
-        /* --- Export Button Styles --- */
         .export-button-wrapper {
             width: 95%;
             max-width: 1400px;
@@ -564,10 +554,6 @@
             transform: translateY(-1px);
         }
 
-        /* ========================================= */
-        /* === RESPONSIVE STYLES (MEDIA QUERIES) === */
-        /* ========================================= */
-
         @media (max-width: 768px) {
             body {
                 margin: 15px;
@@ -587,7 +573,7 @@
                 padding: 15px;
             }
 
-            .calendar-time-wrapper {
+            .datetime-container {
                 display: none;
             }
             
@@ -620,16 +606,6 @@
             }
             .project-list li p, .project-list li .info-label {
                 font-size: 0.9em;
-            }
-            .calendar-day-name, .calendar-day {
-                font-size: 0.85em;
-                padding: 7px 0;
-            }
-            .calendar-grid {
-                max-width: 100%;
-            }
-            .tasks-checklist-container {
-                grid-template-columns: 1fr;
             }
 
             .export-button-wrapper {
@@ -677,14 +653,6 @@
                 margin-top: 5px;
             }
 
-            .calendar-grid {
-                gap: 2px;
-            }
-            .calendar-day-name, .calendar-day {
-                font-size: 0.75em;
-                padding: 4px 0;
-            }
-
             .project-form input,
             .project-form textarea,
             .project-form select,
@@ -714,31 +682,25 @@
             <ul id="todoList" class="todo-list">
             </ul>
         </div>
-        <div class="calendar-time-wrapper">
-            <div class="calendar-container" id="calendarContainer">
-                <h2 class="container-header">
-                    לוח שנה
-                    <button class="toggle-btn" data-target="calendarContainer" data-state="maximized">&#x2212;</button>
-                </h2>
-                <div id="calendarHeader" class="calendar-header"></div>
-                <div id="calendarGrid" class="calendar-grid">
-                    <div class="calendar-day-name">א</div>
-                    <div class="calendar-day-name">ב</div>
-                    <div class="calendar-day-name">ג</div>
-                    <div class="calendar-day-name">ד</div>
-                    <div class="calendar-day-name">ה</div>
-                    <div class="calendar-day-name">ו</div>
-                    <div class="calendar-day-name">ש</div>
-                </div>
-            </div>
-            <div class="time-container" id="timeContainer">
-                <h2 class="container-header">
-                    שעה נוכחית
-                    <button class="toggle-btn" data-target="timeContainer" data-state="maximized">&#x2212;</button>
-                </h2>
-                <div id="currentTime"></div>
+
+        <div class="datetime-container" id="datetimeContainer">
+            <h2 class="container-header" style="margin-bottom: 10px; border-bottom: none; font-size: 1.4em;">
+                תאריך ושעה
+                <button class="toggle-btn" data-target="datetimeContainer" data-state="maximized">&#x2212;</button>
+            </h2>
+            <div id="currentTime"></div>
+            <div id="calendarHeader" class="calendar-header"></div>
+            <div id="calendarGrid" class="calendar-grid">
+                <div class="calendar-day-name">א</div>
+                <div class="calendar-day-name">ב</div>
+                <div class="calendar-day-name">ג</div>
+                <div class="calendar-day-name">ד</div>
+                <div class="calendar-day-name">ה</div>
+                <div class="calendar-day-name">ו</div>
+                <div class="calendar-day-name">ש</div>
             </div>
         </div>
+
         <div class="project-management-container" id="projectManagementContainer">
             <h2 class="container-header">
                 ניהול פרויקטים
@@ -956,12 +918,13 @@
 
         calendarHeader.textContent = `${monthNames[currentMonth]} ${currentYear}`;
 
-        while (calendarGrid.children.length > 7) {
-            calendarGrid.removeChild(calendarGrid.lastChild);
-        }
+        // Clear previous days
+        const dayNameElements = calendarGrid.querySelectorAll('.calendar-day-name');
+        calendarGrid.innerHTML = '';
+        dayNameElements.forEach(el => calendarGrid.appendChild(el));
+
 
         const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
-
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
 
         for (let i = 0; i < firstDayOfMonth; i++) {
@@ -1106,16 +1069,13 @@
         }
     }
     
-    // --- Data Management (Import/Export) ---
     const dataMgmtBtn = document.getElementById('dataMgmtBtn');
     const csvFileInput = document.getElementById('csvFileInput');
 
     dataMgmtBtn.addEventListener('click', () => {
         if (confirm("האם ברצונך לייבא נתונים? לחץ על 'אישור'.\nלייצוא, לחץ על 'ביטול'.")) {
-            // Import
             csvFileInput.click();
         } else {
-            // Export
             exportProjectsToCsv();
         }
     });
@@ -1132,7 +1092,7 @@
             }
         };
         reader.readAsText(file);
-        csvFileInput.value = ''; // Reset file input
+        csvFileInput.value = ''; 
     });
     
     function parseCsvRow(row) {
@@ -1166,7 +1126,7 @@
         const newDbData = {
             projects: {},
             deletedProjects: {},
-            todoItems: todoItems // Keep existing urgent todos or clear them: todoItems: []
+            todoItems: todoItems 
         };
 
         lines.forEach(line => {
@@ -1189,7 +1149,6 @@
                 tasks: {}
             };
             
-            // Reconstruct tasks object
             if (project["סטטוס מטלות"] && project["סטטוס מטלות"] !== 'לא התחילו מטלות') {
                 const tasksArray = project["סטטוס מטלות"].split('; ');
                 tasksArray.forEach(taskStr => {
@@ -1281,7 +1240,6 @@
         alert('נתוני הפרויקטים יוצאו בהצלחה ל-"נתוני_פרויקטים.csv"!');
     }
 
-    // --- CRUD Operations for Projects ---
     function saveProject() {
         const projectName = projectNameInput.value.trim();
         if (!projectName) {
@@ -1416,7 +1374,6 @@
         }
     }
 
-    // --- Rendering Functions ---
     function renderProjects() {
         projectList.innerHTML = '';
         const projectsArray = Object.entries(projects || {}); 
@@ -1514,7 +1471,6 @@
         return translations[progress] || progress;
     }
     
-    // --- Minimize/Maximize Logic ---
     document.querySelectorAll('.toggle-btn').forEach(button => {
         if(button.id !== 'toggleHistoryBtn') {
            button.addEventListener('click', toggleContainer);
@@ -1538,7 +1494,6 @@
         }
     }
 
-    // --- Toggle History Visibility ---
     const toggleHistoryBtn = document.getElementById('toggleHistoryBtn');
     const projectHistoryList = document.getElementById('projectHistoryList');
     const clearHistoryBtnWrapper = document.querySelector('.clear-history-btn-wrapper');
@@ -1561,3 +1516,5 @@
     </script>
 </body>
 </html>
+
+<!-- End of app -->
