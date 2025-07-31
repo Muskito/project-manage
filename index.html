@@ -930,7 +930,7 @@
             const pToMove = { ...projects[selectedProjectKey], deletedAt: formatDateTime(new Date()), deletedBy: currentEditorName || 'לא ידוע' };
             const updates = { [`/projects/${selectedProjectKey}`]: null, [`/deletedProjects/${selectedProjectKey}`]: pToMove };
             update(ref(db), updates)
-                .then(() => { alert(`הפרויקט הועבר להיסטוריה.`); clearProjectForm(); })
+                .then(() => { alert(`הפרויקט נמחק.`); clearProjectForm(); })
                 .catch(err => alert(`שגיאה במחיקה: ${err.message}`));
         }
     }
@@ -948,7 +948,7 @@
         }
     }
     
-    function clearHistory() { if (confirm('האם למחוק את כל ההיסטוריה?')) set(dbRefDeletedProjects, {}); }
+    function clearHistory() { if (confirm('האם למחוק את כל ההיסטוריה? הפעולה לא ניתנת לביטול!!!')) set(dbRefDeletedProjects, {}); }
 
     function renderProjects() {
         projectList.innerHTML = '';
