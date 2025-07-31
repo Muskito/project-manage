@@ -1,9 +1,10 @@
+<!-- made by n3k0 -->
 <!DOCTYPE html>
 <html lang="he">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>אפליקציית הפרודוקטיביות שלי</title>
+    <title>ניהול פרויקטים</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -23,7 +24,7 @@
             gap: 25px;
             width: 95%;
             max-width: 1400px;
-            background-color: #ffffff;
+            background-color: #293a63;
             padding: 30px;
             border-radius: 12px;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
@@ -52,7 +53,7 @@
             grid-column: 2 / 3;
             grid-row: 1 / 2;
             display: grid;
-            grid-template-rows: 1.5fr 1fr;
+            grid-template-rows: 2.5fr 1fr;
             gap: 20px;
         }
         .calendar-container {
@@ -64,6 +65,11 @@
             text-align: center;
             justify-content: center;
             align-items: center;
+        }
+        #currentTime { /* Moved from inline style */
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #007bff;
         }
         .project-management-container {
             grid-column: 1 / 3;
@@ -120,12 +126,12 @@
         /* Hide content when minimized */
         .minimized .todo-input-group,
         .minimized .todo-list,
-        .minimized .calendar-header:not(h2),
-        .minimized .calendar-grid,
-        .minimized #currentTime,
-        .minimized .project-form,
-        .minimized .project-buttons,
-        .minimized .project-list-container,
+        .minimized .calendar-header:not(h2),\
+        .minimized .calendar-grid,\
+        .minimized #currentTime,\
+        .minimized .project-form,\
+        .minimized .project-buttons,\
+        .minimized .project-list-container,\
         .minimized .clear-history-btn-wrapper {
             display: none;
         }
@@ -638,7 +644,7 @@
                     שעה נוכחית
                     <button class="toggle-btn" data-target="timeContainer" data-state="maximized">&#x2212;</button>
                 </h2>
-                <div id="currentTime" style="font-size: 2.5em; font-weight: bold; color: #007bff;"></div>
+                <div id="currentTime"></div>
             </div>
         </div>
         <div class="project-management-container" id="projectManagementContainer">
@@ -648,7 +654,7 @@
             </h2>
             <div class="project-form">
                 <div class="form-group">
-                    <label for="projectName">שם הפרויקט:</label>
+                    <label for="projectName">שם היזם:</label>
                     <input type="text" id="projectName" placeholder="לדוגמה: עיצוב מחדש של אתר">
                 </div>
                 <div class="form-group">
@@ -717,570 +723,600 @@
     </div>
 
     <script type="module">
-        // Firebase SDKs imports
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-        import { getDatabase, ref, set, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+    // Firebase SDKs imports
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+    import { getDatabase, ref, set, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyB90h6Yllco6LZfdyrSyBl0hc4bt6fbUDg",
-            authDomain: "projmanage.firebaseapp.com",
-            databaseURL: "https://projmanage-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "projmanage",
-            storageBucket: "projmanage.firebasestorage.app",
-            messagingSenderId: "362295689587",
-            appId: "1:362295689587:web:ffe6a847b0e8a7fb920506",
-            measurementId: "G-Z5JJT7XT5F"
+    // Your web app's Firebase configuration (PASTE YOUR CONFIG HERE)
+    const firebaseConfig = {
+        apiKey: "AIzaSyB90h6Yllco6LZfdyrSyBl0hc4bt6fbUDg",
+        authDomain: "projmanage.firebaseapp.com",
+        databaseURL: "https://projmanage-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "projmanage",
+        storageBucket: "projmanage.firebasestorage.app",
+        messagingSenderId: "362295689587",
+        appId: "1:362295689587:web:ffe6a847b0e8a7fb920506",
+        measurementId: "G-Z5JJT7XT5F"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // Firebase Realtime Database references
+    const dbRefProjects = ref(db, 'projects');
+    const dbRefDeletedProjects = ref(db, 'deletedProjects');
+    const dbRefTodoItems = ref(db, 'todoItems');
+
+    // Local data storage (will be synced with Firebase)
+    let projects = {};
+    let deletedProjects = {};
+    let todoItems = [];
+
+    // --- Data Loading and Sync from Firebase ---
+    onValue(dbRefProjects, (snapshot) => {
+        const data = snapshot.val(); // Raw data from Firebase
+        console.log("Firebase raw projects data snapshot:", data); // New log for debugging
+
+        projects = {}; // Reset projects object
+        if (data) {
+            // Transform the Firebase object into our desired structure (adding 'id' property)
+            for (const key in data) {
+                if (data.hasOwnProperty(key)) {
+                    projects[key] = { id: key, ...data[key] };
+                }
+            }
+        }
+        console.log("Transformed local 'projects' object:", projects); // New log for debugging
+        renderProjects(); // Re-render when data changes in Firebase
+    }, (error) => {
+        console.error("Error loading projects from Firebase:", error);
+        alert("שגיאה בטעינת פרויקטים מ-Firebase. אנא בדוק את חיבור האינטרנט ואת כללי האבטחה (Security Rules).");
+    });
+
+    onValue(dbRefDeletedProjects, (snapshot) => {
+        const data = snapshot.val();
+        console.log("Firebase raw deletedProjects data snapshot:", data); // New log for debugging
+
+        deletedProjects = {}; // Reset deletedProjects object
+        if (data) {
+            // Transform the Firebase object (adding 'id' property)
+            for (const key in data) {
+                if (data.hasOwnProperty(key)) {
+                    deletedProjects[key] = { id: key, ...data[key] };
+                }
+            }
+        }
+        console.log("Transformed local 'deletedProjects' object:", deletedProjects); // New log for debugging
+        renderDeletedProjects();
+    }, (error) => {
+        console.error("Error loading deleted projects from Firebase:", error);
+        alert("שגיאה בטעינת פרויקטים שנמחקו מ-Firebase. אנא בדוק את חיבור האינטרנט ואת כללי האבטחה.");
+    });
+
+    onValue(dbRefTodoItems, (snapshot) => {
+        const data = snapshot.val();
+        todoItems = data || []; // ToDo items are stored as array
+        renderTodoItems();
+    }, (error) => {
+        console.error("Error loading todo items from Firebase:", error);
+        alert("שגיאה בטעינת מטלות מ-Firebase. אנא בדוק את חיבור האינטרנט ואת כללי האבטחה.");
+    });
+
+
+    // --- Time Display Logic ---
+    function updateTime() {
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        document.getElementById('currentTime').textContent = `${hours}:${minutes}:${seconds}`;
+    }
+    updateTime();
+    setInterval(updateTime, 1000);
+
+    // --- Urgent To-Do List Logic ---
+    const todoInput = document.getElementById('todoInput');
+    const addTodoBtn = document.getElementById('addTodoBtn');
+    const todoList = document.getElementById('todoList');
+
+    function saveTodoItemsToFirebase() {
+        set(dbRefTodoItems, todoItems)
+            .catch(error => {
+                console.error("Error saving todo items to Firebase:", error);
+                alert("שגיאה בשמירת מטלות ל-Firebase.");
+            });
+    }
+
+    addTodoBtn.addEventListener('click', addTodo);
+    todoInput.addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            addTodo();
+        }
+    });
+
+    function addTodo() {
+        const taskText = todoInput.value.trim();
+        if (taskText === '') {
+            alert('אנא הזן מטלה!');
+            return;
+        }
+
+        todoItems.push(taskText);
+        saveTodoItemsToFirebase(); // Save to Firebase instead of localStorage
+        todoInput.value = '';
+        todoInput.focus();
+    }
+    function renderTodoItems() {
+        todoList.innerHTML = '';
+        if (todoItems.length === 0) {
+             todoList.innerHTML = '<li style="text-align: right; color: #888; font-style: italic; background: none; border: none; box-shadow: none; cursor: default; padding: 10px;">אין מטלות. הוסף אחת למעלה!</li>';
+             return;
+        }
+        todoItems.forEach((taskText, index) => {
+            const listItem = document.createElement('li');
+            listItem.textContent = taskText;
+            listItem.dataset.index = index; // Store index for deletion
+
+            listItem.addEventListener('click', function() {
+                const confirmDelete = confirm(`האם אתה בטוח שברצונך למחוק את "${taskText}"?`);
+                if (confirmDelete) {
+                    todoItems.splice(parseInt(this.dataset.index), 1); // Remove from array
+                    saveTodoItemsToFirebase();
+                }
+            });
+            todoList.appendChild(listItem);
+        });
+    }
+
+
+    // --- Calendar Logic ---
+    function generateCalendar() {
+        const calendarHeader = document.getElementById('calendarHeader');
+        const calendarGrid = document.getElementById('calendarGrid');
+
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth();
+        const today = now.getDate();
+
+        const monthNames = ["ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני",
+                            "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"];
+
+        calendarHeader.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+
+        while (calendarGrid.children.length > 7) {
+            calendarGrid.removeChild(calendarGrid.lastChild);
+        }
+
+        const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
+
+        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+        for (let i = 0; i < firstDayOfMonth; i++) {
+            const emptyDay = document.createElement('div');
+            emptyDay.classList.add('calendar-day', 'empty');
+            calendarGrid.appendChild(emptyDay);
+        }
+
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dayElement = document.createElement('div');
+            dayElement.classList.add('calendar-day');
+            dayElement.textContent = day;
+
+            if (day === today && currentMonth === now.getMonth() && currentYear === now.getFullYear()) {
+                dayElement.classList.add('current-day');
+            }
+            calendarGrid.appendChild(dayElement);
+        }
+    }
+    generateCalendar();
+
+    // --- Project Management Logic ---
+    const projectNameInput = document.getElementById('projectName');
+    const projectAddressInput = document.getElementById('projectAddress');
+    const contactInfoInput = document.getElementById('contactInfo');
+    const whatNeedsToBeDoneInput = document.getElementById('whatNeedsToBeDone');
+    const whatHasBeenDoneInput = document.getElementById('whatHasBeenDone');
+    const addedTaskDateTimeInput = document.getElementById('addedTaskDateTime');
+    const whoCreatedTaskInput = document.getElementById('whoCreatedTask');
+    const taskProgressSelect = document.getElementById('taskProgress');
+    const furtherNotesInput = document.getElementById('furtherNotes');
+
+    const addProjectBtn = document.getElementById('addProjectBtn');
+    const deleteProjectBtn = document.getElementById('deleteProjectBtn');
+    const projectList = document.getElementById('projectList');
+    const projectHistoryList = document.getElementById('projectHistoryList');
+    const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+    const projectManagementContainer = document.getElementById('projectManagementContainer');
+
+    const exportProjectsBtn = document.getElementById('exportProjectsBtn');
+
+    let selectedProject = null;
+
+    function formatDateTimeLocal(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+    }
+
+    addedTaskDateTimeInput.value = formatDateTimeLocal(new Date());
+
+    addProjectBtn.addEventListener('click', saveProject);
+    deleteProjectBtn.addEventListener('click', deleteProject);
+    projectList.addEventListener('click', selectProjectForEdit);
+    clearHistoryBtn.addEventListener('click', clearHistory);
+    exportProjectsBtn.addEventListener('click', exportProjectsToCsv);
+
+    document.body.addEventListener('click', handleGlobalClick);
+
+    function handleGlobalClick(event) {
+        if (selectedProject) {
+            const clickedElement = event.target;
+
+            if (projectManagementContainer.contains(clickedElement) || clickedElement.classList.contains('toggle-btn')) {
+                return;
+            }
+
+            clearProjectForm();
+        }
+    }
+
+    function exportProjectsToCsv() {
+        const BOM = '\uFEFF';
+
+        const headers = [
+            "שם הפרויקט", "כתובת", "פרטי יצירת קשר", "מה צריך לעשות", "מה בוצע עד כה",
+            "תאריך ושעת יצירת מטלה", "מי יצר את המטלה", "התקדמות", "הערות נוספות",
+            "סטטוס", "נמחק בתאריך"
+        ];
+
+        const allProjectsData = [];
+
+        // Convert projects object to an array for export
+        Object.values(projects).forEach(p => {
+            const projectCopy = { ...p,
+                status: 'נוכחי',
+                deletedAt: ''
+            };
+            allProjectsData.push(projectCopy);
+        });
+
+        // Convert deletedProjects object to an array for export
+        Object.values(deletedProjects).forEach(p => {
+            const projectCopy = { ...p,
+                status: 'נמחק'
+            };
+            allProjectsData.push(projectCopy);
+        });
+
+        let csvContent = headers.map(header => `"${header}"`).join(',') + '\n';
+        csvContent = BOM + csvContent;
+
+        allProjectsData.forEach(project => {
+            const row = [
+                project.name,
+                project.address,
+                project.contactInfo,
+                project.whatNeedsToBeDone,
+                project.whatHasBeenDone,
+                new Date(project.addedDateTime).toLocaleString('he-IL'),
+                project.whoCreated,
+                getProgressTranslation(project.progress),
+                project.furtherNotes,
+                project.status,
+                project.deletedAt ? new Date(project.deletedAt).toLocaleString('he-IL') : ''
+            ].map(field => {
+                if (field === null || field === undefined) return '""';
+                let stringField = String(field);
+                if (stringField.includes(',') || stringField.includes('\n') || stringField.includes('"')) {
+                    return `"${stringField.replace(/"/g, '""')}"`;
+                }
+                return `"${stringField}"`;
+            }).join(',');
+            csvContent += row + '\n';
+        });
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'נתוני_פרויקטים.csv';
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        alert('נתוני הפרויקטים יוצאו בהצלחה ל-"נתוני_פרויקטים.csv"!');
+    }
+
+    // --- CRUD Operations for Projects ---
+
+    function saveProject() {
+        const projectName = projectNameInput.value.trim();
+        const whatNeedsToBeDone = whatNeedsToBeDoneInput.value.trim();
+
+        if (!projectName || !whatNeedsToBeDone) {
+            alert('שם פרויקט ו"מה צריך לעשות" הם שדות חובה!');
+            return;
+        }
+
+        const projectData = {
+            name: projectName,
+            address: projectAddressInput.value.trim(),
+            contactInfo: contactInfoInput.value.trim(),
+            whatNeedsToBeDone: whatNeedsToBeDone,
+            whatHasBeenDone: whatHasBeenDoneInput.value.trim(),
+            addedDateTime: selectedProject ? selectedProject.addedDateTime : formatDateTimeLocal(new Date()),
+            whoCreated: whoCreatedTaskInput.value.trim(),
+            progress: taskProgressSelect.value,
+            furtherNotes: furtherNotesInput.value.trim()
         };
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-
-        // Firebase Realtime Database references
-        const dbRefProjects = ref(db, 'projects');
-        const dbRefDeletedProjects = ref(db, 'deletedProjects');
-        const dbRefTodoItems = ref(db, 'todoItems');
-
-        // Local data storage (will be synced with Firebase)
-        let projects = {};
-        let deletedProjects = {};
-        let todoItems = [];
-
-        // --- Data Loading and Sync from Firebase ---
-        onValue(dbRefProjects, (snapshot) => {
-            const data = snapshot.val();
-            projects = {}; // Reset to empty object
-            if (data) {
-                // Iterate through Firebase data, add the key as 'id' property to each project object
-                for (const key in data) {
-                    if (data.hasOwnProperty(key)) {
-                        projects[key] = { ...data[key], id: key };
-                    }
-                }
-            }
-            renderProjects();
-        }, (error) => {
-            console.error("Error loading projects from Firebase:", error);
-            alert("שגיאה בטעינת פרויקטים מ-Firebase. אנא בדוק את חיבור האינטרנט ואת כללי האבטחה (Security Rules).");
-        });
-
-        onValue(dbRefDeletedProjects, (snapshot) => {
-            const data = snapshot.val();
-            deletedProjects = {};
-            if (data) {
-                for (const key in data) {
-                    if (data.hasOwnProperty(key)) {
-                        deletedProjects[key] = { ...data[key], id: key };
-                    }
-                }
-            }
-            renderDeletedProjects();
-        }, (error) => {
-            console.error("Error loading deleted projects from Firebase:", error);
-            alert("שגיאה בטעינת פרויקטים שנמחקו מ-Firebase. אנא בדוק את חיבור האינטרנט ואת כללי האבטחה.");
-        });
-
-        onValue(dbRefTodoItems, (snapshot) => {
-            const data = snapshot.val();
-            todoItems = data || [];
-            renderTodoItems();
-        }, (error) => {
-            console.error("Error loading todo items from Firebase:", error);
-            alert("שגיאה בטעינת מטלות מ-Firebase. אנא בדוק את חיבור האינטרנט ואת כללי האבטחה.");
-        });
-
-
-        // --- Time Display Logic ---
-        function updateTime() {
-            const now = new Date();
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const seconds = String(now.getSeconds()).padStart(2, '0');
-            document.getElementById('currentTime').textContent = `${hours}:${minutes}:${seconds}`;
-        }
-        updateTime();
-        setInterval(updateTime, 1000);
-
-        // --- Urgent To-Do List Logic ---
-        const todoInput = document.getElementById('todoInput');
-        const addTodoBtn = document.getElementById('addTodoBtn');
-        const todoList = document.getElementById('todoList');
-
-        function saveTodoItemsToFirebase() {
-            set(dbRefTodoItems, todoItems)
-                .catch(error => {
-                    console.error("Error saving todo items to Firebase:", error);
-                    alert("שגיאה בשמירת מטלות ל-Firebase.");
+        if (selectedProject && selectedProject.id) {
+            update(ref(db, 'projects/' + selectedProject.id), projectData)
+                .then(() => {
+                    alert(`הפרויקט "${projectData.name}" עודכן בהצלחה!`);
+                    clearProjectForm();
+                })
+                .catch((error) => {
+                    console.error("Error updating project:", error);
+                    alert("שגיאה בעדכון הפרויקט: " + error.message);
+                });
+        } else {
+            const newProjectRef = push(dbRefProjects);
+            set(newProjectRef, projectData)
+                .then(() => {
+                    alert(`הפרויקט "${projectData.name}" נוסף בהצלחה!`);
+                    clearProjectForm();
+                })
+                .catch((error) => {
+                    console.error("Error adding project:", error);
+                    alert("שגיאה בהוספת הפרויקט: " + error.message);
                 });
         }
+    }
 
-        addTodoBtn.addEventListener('click', addTodo);
-        todoInput.addEventListener('keypress', function(event) {
-            if (event.key === 'Enter') {
-                addTodo();
-            }
-        });
+    function selectProjectForEdit(event) {
+        event.stopPropagation();
 
-        function addTodo() {
-            const taskText = todoInput.value.trim();
-            if (taskText === '') {
-                alert('אנא הזן מטלה!');
-                return;
-            }
-
-            todoItems.push(taskText);
-            saveTodoItemsToFirebase();
-            todoInput.value = '';
-            todoInput.focus();
-        }
-
-
-        // --- Calendar Logic ---
-        function generateCalendar() {
-            const calendarHeader = document.getElementById('calendarHeader');
-            const calendarGrid = document.getElementById('calendarGrid');
-
-            const now = new Date();
-            const currentYear = now.getFullYear();
-            const currentMonth = now.getMonth();
-            const today = now.getDate();
-
-            const monthNames = ["ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני",
-                                "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"];
-
-            calendarHeader.textContent = `${monthNames[currentMonth]} ${currentYear}`;
-
-            while (calendarGrid.children.length > 7) {
-                calendarGrid.removeChild(calendarGrid.lastChild);
-            }
-
-            const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
-
-            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-
-            for (let i = 0; i < firstDayOfMonth; i++) {
-                const emptyDay = document.createElement('div');
-                emptyDay.classList.add('calendar-day', 'empty');
-                calendarGrid.appendChild(emptyDay);
-            }
-
-            for (let day = 1; day <= daysInMonth; day++) {
-                const dayElement = document.createElement('div');
-                dayElement.classList.add('calendar-day');
-                dayElement.textContent = day;
-
-                if (day === today && currentMonth === now.getMonth() && currentYear === now.getFullYear()) {
-                    dayElement.classList.add('current-day');
-                }
-                calendarGrid.appendChild(dayElement);
-            }
-        }
-        generateCalendar();
-
-        // --- Project Management Logic ---
-        const projectNameInput = document.getElementById('projectName');
-        const projectAddressInput = document.getElementById('projectAddress');
-        const contactInfoInput = document.getElementById('contactInfo');
-        const whatNeedsToBeDoneInput = document.getElementById('whatNeedsToBeDone');
-        const whatHasBeenDoneInput = document.getElementById('whatHasBeenDone');
-        const addedTaskDateTimeInput = document.getElementById('addedTaskDateTime');
-        const whoCreatedTaskInput = document.getElementById('whoCreatedTask');
-        const taskProgressSelect = document.getElementById('taskProgress');
-        const furtherNotesInput = document.getElementById('furtherNotes');
-
-        const addProjectBtn = document.getElementById('addProjectBtn');
-        const deleteProjectBtn = document.getElementById('deleteProjectBtn');
-        const projectList = document.getElementById('projectList');
-        const projectHistoryList = document.getElementById('projectHistoryList');
-        const clearHistoryBtn = document.getElementById('clearHistoryBtn');
-        const projectManagementContainer = document.getElementById('projectManagementContainer');
-
-        const exportProjectsBtn = document.getElementById('exportProjectsBtn');
-
-        let selectedProject = null;
-
-        addedTaskDateTimeInput.value = formatDateTimeLocal(new Date());
-
-        addProjectBtn.addEventListener('click', saveProject);
-        deleteProjectBtn.addEventListener('click', deleteProject);
-        projectList.addEventListener('click', selectProjectForEdit);
-        clearHistoryBtn.addEventListener('click', clearHistory);
-        exportProjectsBtn.addEventListener('click', exportProjectsToCsv);
-
-        document.body.addEventListener('click', handleGlobalClick);
-
-        function handleGlobalClick(event) {
-            if (selectedProject) {
-                const clickedElement = event.target;
-
-                if (projectManagementContainer.contains(clickedElement) || clickedElement.classList.contains('toggle-btn')) {
-                    return;
-                }
-
-                clearProjectForm();
-            }
-        }
-
-        function exportProjectsToCsv() {
-            const BOM = '\uFEFF';
-
-            const headers = [
-                "שם הפרויקט", "כתובת", "פרטי יצירת קשר", "מה צריך לעשות", "מה בוצע עד כה",
-                "תאריך ושעת יצירת מטלה", "מי יצר את המטלה", "התקדמות", "הערות נוספות",
-                "סטטוס", "נמחק בתאריך"
-            ];
-
-            const allProjectsData = [];
-
-            Object.values(projects).forEach(p => {
-                const projectCopy = { ...p,
-                    status: 'נוכחי',
-                    deletedAt: ''
-                };
-                allProjectsData.push(projectCopy);
-            });
-
-            Object.values(deletedProjects).forEach(p => {
-                const projectCopy = { ...p,
-                    status: 'נמחק'
-                };
-                allProjectsData.push(projectCopy);
-            });
-
-            let csvContent = headers.map(header => `"${header}"`).join(',') + '\n';
-            csvContent = BOM + csvContent;
-
-            allProjectsData.forEach(project => {
-                const row = [
-                    project.name,
-                    project.address,
-                    project.contactInfo,
-                    project.whatNeedsToBeDone,
-                    project.whatHasBeenDone,
-                    new Date(project.addedDateTime).toLocaleString('he-IL'),
-                    project.whoCreated,
-                    getProgressTranslation(project.progress),
-                    project.furtherNotes,
-                    project.status,
-                    project.deletedAt ? new Date(project.deletedAt).toLocaleString('he-IL') : ''
-                ].map(field => {
-                    if (field === null || field === undefined) return '""';
-                    let stringField = String(field);
-                    if (stringField.includes(',') || stringField.includes('\n') || stringField.includes('"')) {
-                        return `"${stringField.replace(/"/g, '""')}"`;
-                    }
-                    return `"${stringField}"`;
-                }).join(',');
-                csvContent += row + '\n';
-            });
-
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = 'נתוני_פרויקטים.csv';
-
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-
-            alert('נתוני הפרויקטים יוצאו בהצלחה ל-"נתוני_פרויקטים.csv"!');
-        }
-
-        function saveProject() {
-            const projectName = projectNameInput.value.trim();
-            const whatNeedsToBeDone = whatNeedsToBeDoneInput.value.trim();
-
-            if (!projectName || !whatNeedsToBeDone) {
-                alert('שם פרויקט ו"מה צריך לעשות" הם שדות חובה!');
-                return;
-            }
-
-            const projectData = {
-                name: projectName,
-                address: projectAddressInput.value.trim(),
-                contactInfo: contactInfoInput.value.trim(),
-                whatNeedsToBeDone: whatNeedsToBeDone,
-                whatHasBeenDone: whatHasBeenDoneInput.value.trim(),
-                addedDateTime: selectedProject ? selectedProject.addedDateTime : formatDateTimeLocal(new Date()),
-                whoCreated: whoCreatedTaskInput.value.trim(),
-                progress: taskProgressSelect.value,
-                furtherNotes: furtherNotesInput.value.trim()
-            };
-
-            if (selectedProject && selectedProject.id) {
-                update(ref(db, 'projects/' + selectedProject.id), projectData)
-                    .then(() => {
-                        alert(`הפרויקט "${projectData.name}" עודכן בהצלחה!`);
-                        clearProjectForm();
-                    })
-                    .catch((error) => {
-                        console.error("Error updating project:", error);
-                        alert("שגיאה בעדכון הפרויקט: " + error.message);
-                    });
-            } else {
-                const newProjectRef = push(dbRefProjects);
-                set(newProjectRef, projectData)
-                    .then(() => {
-                        alert(`הפרויקט "${projectData.name}" נוסף בהצלחה!`);
-                        clearProjectForm();
-                    })
-                    .catch((error) => {
-                        console.error("Error adding project:", error);
-                        alert("שגיאה בהוספת הפרויקט: " + error.message);
-                    });
-            }
-        }
-
-        function selectProjectForEdit(event) {
-            event.stopPropagation();
-
-            const listItem = event.target.closest('li');
-            if (listItem && listItem.dataset.projectId) {
-                const projectId = listItem.dataset.projectId;
-                
-                if (selectedProject && selectedProject.id === projectId) {
-                    clearProjectForm();
-                    return;
-                }
-
-                selectedProject = projects[projectId];
-
-                if (selectedProject) {
-                    projectNameInput.value = selectedProject.name;
-                    projectAddressInput.value = selectedProject.address || '';
-                    contactInfoInput.value = selectedProject.contactInfo || '';
-                    whatNeedsToBeDoneInput.value = selectedProject.whatNeedsToBeDone;
-                    whatHasBeenDoneInput.value = selectedProject.whatHasBeenDone || '';
-                    addedTaskDateTimeInput.value = selectedProject.addedDateTime;
-                    whoCreatedTaskInput.value = selectedProject.whoCreated || '';
-                    taskProgressSelect.value = selectedProject.progress;
-                    furtherNotesInput.value = selectedProject.furtherNotes || '';
-
-                    deleteProjectBtn.disabled = false;
-                    addProjectBtn.textContent = 'שמור שינויים';
-
-                    document.querySelectorAll('.project-list li').forEach(item => {
-                        item.classList.remove('selected');
-                    });
-                    listItem.classList.add('selected');
-                }
-            }
-        }
-
-        function deleteProject(event) {
-            event.stopPropagation();
-
-            if (!selectedProject || !selectedProject.id) {
-                alert('אנא בחר פרויקט למחיקה.');
-                return;
-            }
-
-            if (confirm(`האם אתה בטוח שברצונך למחוק את הפרויקט "${selectedProject.name}"? פעולה זו אינה ניתנת לביטול.`)) {
-                const deletedProjectData = { ...selectedProject, deletedAt: formatDateTimeLocal(new Date()) };
-                set(ref(db, 'deletedProjects/' + selectedProject.id), deletedProjectData)
-                    .then(() => {
-                        return remove(ref(db, 'projects/' + selectedProject.id));
-                    })
-                    .then(() => {
-                        alert(`הפרויקט "${selectedProject.name}" הועבר בהצלחה להיסטוריה.`);
-                        clearProjectForm();
-                    })
-                    .catch((error) => {
-                        console.error("Error deleting project:", error);
-                        alert("שגיאה במחיקת הפרויקט: " + error.message);
-                    });
-            }
-        }
-
-        function restoreProject(event) {
-            event.stopPropagation();
-
-            const button = event.target;
-            const listItem = button.closest('li');
-            if (!listItem) return;
-
+        const listItem = event.target.closest('li');
+        if (listItem && listItem.dataset.projectId) {
             const projectId = listItem.dataset.projectId;
-            const projectToRestore = deletedProjects[projectId];
+            console.log("Clicked listItem projectId:", projectId); // Existing log
 
-            if (projectToRestore) {
-                const restoredProjectData = { ...projectToRestore };
-                delete restoredProjectData.deletedAt;
-                delete restoredProjectData.status;
-
-                set(ref(db, 'projects/' + projectId), restoredProjectData)
-                    .then(() => {
-                        return remove(ref(db, 'deletedProjects/' + projectId));
-                    })
-                    .then(() => {
-                        alert(`הפרויקט "${projectToRestore.name}" שוחזר בהצלחה.`);
-                        clearProjectForm();
-                    })
-                    .catch((error) => {
-                        console.error("Error restoring project:", error);
-                        alert("שגיאה בשחזור הפרויקט: " + error.message);
-                    });
-            }
-        }
-
-        function clearHistory() {
-            if (confirm('האם אתה בטוח שברצונך למחוק את כל היסטוריית הפרויקטים? פעולה זו אינה ניתנת לביטול.')) {
-                remove(dbRefDeletedProjects)
-                    .then(() => {
-                        alert('היסטוריית הפרויקטים נוקתה בהצלחה!');
-                        clearProjectForm();
-                    })
-                    .catch((error) => {
-                        console.error("Error clearing history:", error);
-                        alert("שגיאה בניקוי היסטוריה: " + error.message);
-                    });
-            }
-        }
-
-        function renderProjects() {
-            projectList.innerHTML = '';
-            const projectsArray = Object.values(projects || {}); 
-            if (projectsArray.length === 0) {
-                projectList.innerHTML = '<p style="text-align: right; color: #888; font-style: italic;">אין פרויקטים נוכחיים. הוסף אחד למעלה!</p>';
+            if (selectedProject && selectedProject.id === projectId) {
+                clearProjectForm();
                 return;
             }
-            projectsArray.forEach(project => {
-                const listItem = document.createElement('li');
-                listItem.dataset.projectId = project.id; 
-                listItem.classList.toggle('selected', selectedProject && selectedProject.id === project.id);
 
-                listItem.innerHTML = `
-                    <strong>${project.name}</strong>
-                    <p><span class="info-label">כתובת:</span> ${project.address || 'לא צויין'}</p>
-                    <p><span class="info-label">פרטי יצירת קשר:</span> ${project.contactInfo || 'לא צויין'}</p>
-                    <p><span class="info-label">מה צריך לעשות:</span> ${project.whatNeedsToBeDone}</p>
-                    <p><span class="info-label">מה בוצע עד כה:</span> ${project.whatHasBeenDone || 'עדיין לא בוצע דבר'}</p>
-                    <p><span class="info-label">נוסף בתאריך:</span> ${new Date(project.addedDateTime).toLocaleString('he-IL')}</p>
-                    <p><span class="info-label">נוצר על ידי:</span> ${project.whoCreated || 'לא צויין'}</p>
-                    <p><span class="info-label">התקדמות:</span> <span style="font-weight: bold; color: ${getProgressColor(project.progress)};">${getProgressTranslation(project.progress)}</span></p>
-                    <p><span class="info-label">הערות:</span> ${project.furtherNotes || 'אין'}</p>
-                `;
-                projectList.appendChild(listItem);
-            });
+            selectedProject = projects[projectId]; 
+            console.log("Selected project object from 'projects':", selectedProject); // Existing log
+
+            if (selectedProject) {
+                projectNameInput.value = selectedProject.name;
+                projectAddressInput.value = selectedProject.address || '';
+                contactInfoInput.value = selectedProject.contactInfo || '';
+                whatNeedsToBeDoneInput.value = selectedProject.whatNeedsToBeDone;
+                whatHasBeenDoneInput.value = selectedProject.whatHasBeenDone || '';
+                addedTaskDateTimeInput.value = selectedProject.addedDateTime;
+                whoCreatedTaskInput.value = selectedProject.whoCreated || '';
+                taskProgressSelect.value = selectedProject.progress;
+                furtherNotesInput.value = selectedProject.furtherNotes || '';
+
+                deleteProjectBtn.disabled = false;
+                addProjectBtn.textContent = 'שמור שינויים';
+
+                document.querySelectorAll('.project-list li').forEach(item => {
+                    item.classList.remove('selected');
+                });
+                listItem.classList.add('selected');
+            }
+        }
+    }
+
+    function deleteProject(event) {
+        event.stopPropagation();
+
+        if (!selectedProject || !selectedProject.id) {
+            alert('אנא בחר פרויקט למחיקה.');
+            return;
         }
 
-        function renderDeletedProjects() {
-            projectHistoryList.innerHTML = '';
-            const deletedProjectsArray = Object.values(deletedProjects || {});
-            if (deletedProjectsArray.length === 0) {
-                projectHistoryList.innerHTML = '<p style="text-align: right; color: #888; font-style: italic;">אין פרויקטים שנמחקו בהיסטוריה.</p>';
-                return;
-            }
-            deletedProjectsArray.forEach(project => {
-                const listItem = document.createElement('li');
-                listItem.dataset.projectId = project.id;
-                listItem.classList.add('deleted-project-item');
-
-                const textContentDiv = document.createElement('div');
-                textContentDiv.classList.add('deleted-text-content');
-                textContentDiv.innerHTML = `
-                    <strong>${project.name}</strong>
-                    <p><span class="info-label">מה צריך לעשות (בזמן מחיקה):</span> ${project.whatNeedsToBeDone}</p>
-                    <p><span class="info-label">התקדמות (בזמן מחיקה):</span> ${getProgressTranslation(project.progress)}</p>
-                    <p><span class="info-label">נמחק בתאריך:</span> ${new Date(project.deletedAt).toLocaleString('he-IL')}</p>
-                `;
-                listItem.appendChild(textContentDiv);
-
-                const restoreButton = document.createElement('button');
-                restoreButton.textContent = 'שחזר פרויקט';
-                restoreButton.classList.add('restore-project-btn');
-                restoreButton.dataset.projectId = project.id;
-                listItem.appendChild(restoreButton);
-                
-                projectHistoryList.appendChild(listItem);
-            });
+        if (confirm(`האם אתה בטוח שברצונך למחוק את הפרויקט "${selectedProject.name}"? פעולה זו אינה ניתנת לביטול.`)) {
+            const deletedProjectData = { ...selectedProject, deletedAt: formatDateTimeLocal(new Date()) };
+            set(ref(db, 'deletedProjects/' + selectedProject.id), deletedProjectData)
+                .then(() => {
+                    return remove(ref(db, 'projects/' + selectedProject.id));
+                })
+                .then(() => {
+                    alert(`הפרויקט "${selectedProject.name}" הועבר בהצלחה להיסטוריה.`);
+                    clearProjectForm();
+                })
+                .catch((error) => {
+                    console.error("Error deleting project:", error);
+                    alert("שגיאה במחיקת הפרויקט: " + error.message);
+                });
         }
+    }
 
-        projectHistoryList.addEventListener('click', function(event) {
-            if (event.target.classList.contains('restore-project-btn')) {
-                restoreProject(event);
-            }
+    function restoreProject(event) {
+        event.stopPropagation();
+
+        const button = event.target;
+        const listItem = button.closest('li');
+        if (!listItem) return;
+
+        const projectId = listItem.dataset.projectId;
+        const projectToRestore = deletedProjects[projectId];
+
+        if (projectToRestore) {
+            const restoredProjectData = { ...projectToRestore };
+            delete restoredProjectData.deletedAt;
+            delete restoredProjectData.status;
+
+            set(ref(db, 'projects/' + projectId), restoredProjectData)
+                .then(() => {
+                    return remove(ref(db, 'deletedProjects/' + projectId));
+                })
+                .then(() => {
+                    alert(`הפרויקט "${projectToRestore.name}" שוחזר בהצלחה.`);
+                    clearProjectForm();
+                })
+                .catch((error) => {
+                    console.error("Error restoring project:", error);
+                    alert("שגיאה בשחזור הפרויקט: " + error.message);
+                });
+        }
+    }
+
+    function clearHistory() {
+        if (confirm('האם אתה בטוח שברצונך למחוק את כל היסטוריית הפרויקטים? פעולה זו אינה ניתנת לביטול.')) {
+            remove(dbRefDeletedProjects)
+                .then(() => {
+                    alert('היסטוריית הפרויקטים נוקתה בהצלחה!');
+                    clearProjectForm();
+                })
+                .catch((error) => {
+                    console.error("Error clearing history:", error);
+                    alert("שגיאה בניקוי היסטוריה: " + error.message);
+                });
+        }
+    }
+
+    // --- Rendering Functions ---
+
+    function renderProjects() {
+        projectList.innerHTML = '';
+        const projectsArray = Object.values(projects || {}); 
+        if (projectsArray.length === 0) {
+            projectList.innerHTML = '<li style="text-align: right; color: #888; font-style: italic; background: none; border: none; box-shadow: none; cursor: default; padding: 10px;">אין פרויקטים נוכחיים. הוסף אחד למעלה!</li>';
+            return;
+        }
+        projectsArray.forEach(project => {
+            const listItem = document.createElement('li');
+            listItem.dataset.projectId = project.id; 
+            console.log("Rendering Project:", project.name, "with ID:", project.id, "Set on li dataset:", listItem.dataset.projectId); // Existing log
+            listItem.classList.toggle('selected', selectedProject && selectedProject.id === project.id);
+
+            listItem.innerHTML = `
+                <strong>${project.name}</strong>
+                <p><span class="info-label">כתובת:</span> ${project.address || 'לא צויין'}</p>
+                <p><span class="info-label">פרטי יצירת קשר:</span> ${project.contactInfo || 'לא צויין'}</p>
+                <p><span class="info-label">מה צריך לעשות:</span> ${project.whatNeedsToBeDone}</p>
+                <p><span class="info-label">מה בוצע עד כה:</span> ${project.whatHasBeenDone || 'עדיין לא בוצע דבר'}</p>
+                <p><span class="info-label">נוסף בתאריך:</span> ${new Date(project.addedDateTime).toLocaleString('he-IL')}</p>
+                <p><span class="info-label">נוצר על ידי:</span> ${project.whoCreated || 'לא צויין'}</p>
+                <p><span class="info-label">התקדמות:</span> <span style="font-weight: bold; color: ${getProgressColor(project.progress)};">${getProgressTranslation(project.progress)}</span></p>
+                <p><span class="info-label">הערות:</span> ${project.furtherNotes || 'אין'}</p>
+            `;
+            projectList.appendChild(listItem);
         });
+    }
 
-
-        function clearProjectForm() {
-            projectNameInput.value = '';
-            projectAddressInput.value = '';
-            contactInfoInput.value = '';
-            whatNeedsToBeDoneInput.value = '';
-            whatHasBeenDoneInput.value = '';
-            addedTaskDateTimeInput.value = formatDateTimeLocal(new Date());
-            whoCreatedTaskInput.value = '';
-            taskProgressSelect.value = 'Not Started';
-            furtherNotesInput.value = '';
-            selectedProject = null;
-            deleteProjectBtn.disabled = true;
-            addProjectBtn.textContent = 'הוסף פרויקט';
-            document.querySelectorAll('.project-list li').forEach(item => {
-                item.classList.remove('selected');
-            });
+    function renderDeletedProjects() {
+        projectHistoryList.innerHTML = '';
+        const deletedProjectsArray = Object.values(deletedProjects || {});
+        if (deletedProjectsArray.length === 0) {
+            projectHistoryList.innerHTML = '<li style="text-align: right; color: #888; font-style: italic; background: none; border: none; box-shadow: none; cursor: default; padding: 10px;">אין פרויקטים שנמחקו בהיסטוריה.</li>';
+            return;
         }
+        deletedProjectsArray.forEach(project => {
+            const listItem = document.createElement('li');
+            listItem.dataset.projectId = project.id;
+            listItem.classList.add('deleted-project-item');
 
-        function getProgressColor(progress) {
-            switch (progress) {
-                case 'Not Started': return '#dc3545';
-                case 'In Progress': return '#ffc107';
-                case 'On Hold': return '#6c757d';
-                case 'Completed': return '#28a745';
-                default: return '#333';
-            }
-        }
+            const textContentDiv = document.createElement('div');
+            textContentDiv.classList.add('deleted-text-content');
+            textContentDiv.innerHTML = `
+                <strong>${project.name}</strong>
+                <p><span class="info-label">מה צריך לעשות (בזמן מחיקה):</span> ${project.whatNeedsToBeDone}</p>
+                <p><span class="info-label">התקדמות (בזמן מחיקה):</span> ${getProgressTranslation(project.progress)}</p>
+                <p><span class="info-label">נמחק בתאריך:</span> ${new Date(project.deletedAt).toLocaleString('he-IL')}</p>
+            `;
+            listItem.appendChild(textContentDiv);
 
-        function getProgressTranslation(progress) {
-            switch (progress) {
-                case 'Not Started': return 'לא התחיל';
-                case 'In Progress': return 'בטיפול';
-                case 'On Hold': return 'בהמתנה';
-                case 'Completed': return 'הושלם';
-                default: return progress;
-            }
-        }
-        
-        // Initial renders are handled by onValue listeners, which sync data from Firebase
-        // and then call renderProjects/renderDeletedProjects.
-
-
-        // --- Minimize/Maximize Logic ---
-        document.querySelectorAll('.toggle-btn').forEach(button => {
-            button.addEventListener('click', toggleContainer);
+            const restoreButton = document.createElement('button');
+            restoreButton.textContent = 'שחזר פרויקט';
+            restoreButton.classList.add('restore-project-btn');
+            restoreButton.dataset.projectId = project.id;
+            listItem.appendChild(restoreButton);
+            
+            projectHistoryList.appendChild(listItem);
         });
+    }
 
-        function toggleContainer(event) {
-            event.stopPropagation();
+    projectHistoryList.addEventListener('click', function(event) {
+        if (event.target.classList.contains('restore-project-btn')) {
+            restoreProject(event);
+        }
+    });
 
-            const button = event.target;
-            const containerId = button.dataset.target;
-            const container = document.getElementById(containerId);
 
-            if (container) {
-                if (container.classList.contains('minimized')) {
-                    container.classList.remove('minimized');
-                    button.dataset.state = 'maximized';
-                    button.innerHTML = '&#x2212;';
-                } else {
-                    container.classList.add('minimized');
-                    button.dataset.state = 'minimized';
-                    button.innerHTML = '+';
-                }
+    function clearProjectForm() {
+        projectNameInput.value = '';
+        projectAddressInput.value = '';
+        contactInfoInput.value = '';
+        whatNeedsToBeDoneInput.value = '';
+        whatHasBeenDoneInput.value = '';
+        addedTaskDateTimeInput.value = formatDateTimeLocal(new Date());
+        whoCreatedTaskInput.value = '';
+        taskProgressSelect.value = 'Not Started';
+        furtherNotesInput.value = '';
+        selectedProject = null;
+        deleteProjectBtn.disabled = true;
+        addProjectBtn.textContent = 'הוסף פרויקט';
+        document.querySelectorAll('.project-list li').forEach(item => {
+            item.classList.remove('selected');
+        });
+    }
+
+    function getProgressColor(progress) {
+        switch (progress) {
+            case 'Not Started': return '#dc3545';
+            case 'In Progress': return '#ffc107';
+            case 'On Hold': return '#6c757d';
+            case 'Completed': return '#28a745';
+            default: return '#333';
+        }
+    }
+
+    function getProgressTranslation(progress) {
+        switch (progress) {
+            case 'Not Started': return 'לא התחיל';
+            case 'In Progress': return 'בטיפול';
+            case 'On Hold': return 'בהמתנה';
+            case 'Completed': return 'הושלם';
+            default: return progress;
+        }
+    }
+    
+    // --- Minimize/Maximize Logic ---
+    document.querySelectorAll('.toggle-btn').forEach(button => {
+        button.addEventListener('click', toggleContainer);
+    });
+
+    function toggleContainer(event) {
+        event.stopPropagation();
+
+        const button = event.target;
+        const containerId = button.dataset.target;
+        const container = document.getElementById(containerId);
+
+        if (container) {
+            if (container.classList.contains('minimized')) {
+                container.classList.remove('minimized');
+                button.dataset.state = 'maximized';
+                button.innerHTML = '&#x2212;';
+            } else {
+                container.classList.add('minimized');
+                button.dataset.state = 'minimized';
+                button.innerHTML = '+';
             }
         }
-
-        // --- Page Auto-Refresh Logic (Removed for Firebase integration) ---
-        // With Realtime Database, data syncs automatically. A page refresh every 5 seconds
-        // would be disruptive and unnecessary for data synchronization.
-        // If you still need a full page refresh for other reasons, you can re-add it,
-        // but be aware of the disruptive UX.
-        /*
-        const refreshIntervalSeconds = 5;
-        setInterval(function() {
-            location.reload();
-        }, refreshIntervalSeconds * 1000);
-        */
-    </script>
+    }
+</script>
 </body>
 </html>
