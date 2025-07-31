@@ -790,7 +790,8 @@
     addProjectBtn.addEventListener('click', saveProject);
     deleteProjectBtn.addEventListener('click', deleteProject);
     clearHistoryBtn.addEventListener('click', clearHistory);
-
+    document.getElementById('projectHistoryList').addEventListener('click', restoreProject);
+        
     const dataMgmtBtn = document.getElementById('dataMgmtBtn');
     const csvFileInput = document.getElementById('csvFileInput');
     dataMgmtBtn.addEventListener('click', () => confirm("ייבוא יחליף את כל הנתונים. האם ברצונך לייבא?") ? csvFileInput.click() : exportProjectsToCsv());
