@@ -62,7 +62,7 @@
             gap: 10px;
         }
         #currentTime {
-            font-size: 1.2em; 
+            font-size: 1.8em; 
             font-weight: bold;
             color: #007bff;
             margin-bottom: 5px;
@@ -643,8 +643,6 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-
-    const dbRefRoot = ref(db, '/');
     const dbRefProjects = ref(db, 'projects');
     const dbRefDeletedProjects = ref(db, 'deletedProjects');
     const dbRefTodoItems = ref(db, 'todoItems');
@@ -658,21 +656,30 @@
     onValue(dbRefDeletedProjects, s => { deletedProjects = s.val() || {}; renderDeletedProjects(); });
     onValue(dbRefTodoItems, s => { todoItems = s.val() || []; renderTodoItems(); });
 
-    // RESTORED: All functions are now present and correct
-    function updateTime() {
-        const now = new Date();
-        const timeString = now.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        document.getElementById('currentTime').textContent = timeString;
-    }
-    
     const todoInput = document.getElementById('todoInput');
     const addTodoBtn = document.getElementById('addTodoBtn');
     const todoList = document.getElementById('todoList');
+    const projectNameInput = document.getElementById('projectName'), projectAddressInput = document.getElementById('projectAddress'),
+          contactInfoInput = document.getElementById('contactInfo'), startDateInput = document.getElementById('startDate'),
+          finishDateInput = document.getElementById('finishDate'), tasksDropdown = document.getElementById('tasksDropdown'),
+          tasksDropdownButton = document.getElementById('tasksDropdownButton'), tasksChecklistContainer = document.getElementById('tasksChecklistContainer'),
+          whoCreatedTaskInput = document.getElementById('whoCreatedTask'), taskProgressSelect = document.getElementById('taskProgress'),
+          furtherNotesInput = document.getElementById('furtherNotes'), addProjectBtn = document.getElementById('addProjectBtn'),
+          deleteProjectBtn = document.getElementById('deleteProjectBtn'), projectList = document.getElementById('projectList'),
+          clearHistoryBtn = document.getElementById('clearHistoryBtn'), projectManagementContainer = document.getElementById('projectManagementContainer'),
+          projectModal = document.getElementById('projectModal'), dataMgmtBtn = document.getElementById('dataMgmtBtn'),
+          csvFileInput = document.getElementById('csvFileInput');
+    
+    let selectedProjectKey = null;
+    const masterTaskList = ["מפוחי גג", "מפוחי חניון", "מפוח חדר משאבות", "משתיקים", "דאמפרים", "תעלות", "ברכי לובי", "ברך אשפה", "מהלכי ונטות", "ונטות", "מפוח in-line", "גרילים", "גרילים נגד יתושים", "ארון פיקוד", "ביקורת 1", "ביקורת 2", "ביקורת 3", "ביקורת 4"];
+
+    function updateTime() {
+        document.getElementById('currentTime').textContent = new Date().toLocaleTimeString('he-IL');
+    }
 
     function saveTodoItemsToFirebase() { set(dbRefTodoItems, todoItems).catch(console.error); }
     addTodoBtn.addEventListener('click', addTodo);
     todoInput.addEventListener('keypress', e => e.key === 'Enter' && addTodo());
-
     function addTodo() {
         const taskText = todoInput.value.trim();
         if (!taskText) return alert('אנא הזן מטלה!');
@@ -684,7 +691,7 @@
     function renderTodoItems() {
         todoList.innerHTML = '';
         if (todoItems.length === 0) {
-             todoList.innerHTML = '<li style="text-align: right; color: #888; font-style: italic; background: none; border: none; box-shadow: none; cursor: default; padding: 10px;">אין מטלות. הוסף אחת למעלה!</li>';
+             todoList.innerHTML = '<li style="text-align: right; color: #888; ...">אין מטלות. הוסף אחת למעלה!</li>';
              return;
         }
         todoItems.forEach((taskText, index) => {
@@ -704,7 +711,7 @@
     function generateCalendar() {
         const calendarHeader = document.getElementById('calendarHeader');
         const calendarGrid = document.getElementById('calendarGrid');
-        if (!calendarHeader || !calendarGrid) return; // Defensive check
+        if (!calendarHeader || !calendarGrid) return;
         const now = new Date();
         const year = now.getFullYear(), month = now.getMonth(), today = now.getDate();
         const monthNames = ["ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"];
@@ -722,19 +729,6 @@
             calendarGrid.appendChild(dayEl);
         }
     }
-
-    const projectNameInput = document.getElementById('projectName'), projectAddressInput = document.getElementById('projectAddress'),
-          contactInfoInput = document.getElementById('contactInfo'), startDateInput = document.getElementById('startDate'),
-          finishDateInput = document.getElementById('finishDate'), tasksDropdown = document.getElementById('tasksDropdown'),
-          tasksDropdownButton = document.getElementById('tasksDropdownButton'), tasksChecklistContainer = document.getElementById('tasksChecklistContainer'),
-          whoCreatedTaskInput = document.getElementById('whoCreatedTask'), taskProgressSelect = document.getElementById('taskProgress'),
-          furtherNotesInput = document.getElementById('furtherNotes'), addProjectBtn = document.getElementById('addProjectBtn'),
-          deleteProjectBtn = document.getElementById('deleteProjectBtn'), projectList = document.getElementById('projectList'),
-          clearHistoryBtn = document.getElementById('clearHistoryBtn'), projectManagementContainer = document.getElementById('projectManagementContainer'),
-          projectModal = document.getElementById('projectModal'); 
-    
-    let selectedProjectKey = null;
-    const masterTaskList = ["מפוחי גג", "מפוחי חניון", "מפוח חדר משאבות", "משתיקים", "דאמפרים", "תעלות", "ברכי לובי", "ברך אשפה", "מהלכי ונטות", "ונטות", "מפוח in-line", "גרילים", "גרילים נגד יתושים", "ארון פיקוד", "ביקורת 1", "ביקורת 2", "ביקורת 3", "ביקורת 4"];
 
     function updateTasksButtonText() {
         const checkedCount = tasksChecklistContainer.querySelectorAll('input:checked').length;
@@ -771,12 +765,11 @@
         }
     });
 
-    // FIXED: Added a check for taskName to prevent undefined properties.
     function getTasksDataFromDOM() {
         const data = {};
         tasksChecklistContainer.querySelectorAll('.task-item input').forEach(cb => {
             const taskName = cb.dataset.taskName;
-            if (taskName) { // This check prevents the error
+            if (taskName) {
                 data[taskName] = { 
                     checked: cb.checked, 
                     timestamp: cb.checked ? (cb.dataset.timestamp || new Date().toISOString()) : '' 
@@ -786,14 +779,11 @@
         return data;
     }
     function formatDateTime(d) { return d ? new Date(d).toISOString() : ''; }
-    
+
     addProjectBtn.addEventListener('click', saveProject);
     deleteProjectBtn.addEventListener('click', deleteProject);
     clearHistoryBtn.addEventListener('click', clearHistory);
     document.getElementById('projectHistoryList').addEventListener('click', restoreProject);
-        
-    const dataMgmtBtn = document.getElementById('dataMgmtBtn');
-    const csvFileInput = document.getElementById('csvFileInput');
     dataMgmtBtn.addEventListener('click', () => confirm("ייבוא יחליף את כל הנתונים. האם ברצונך לייבא?") ? csvFileInput.click() : exportProjectsToCsv());
     csvFileInput.addEventListener('change', e => { /* ... */ });
     function parseCsvRow() {/*... content ...*/}
@@ -887,40 +877,37 @@
     }
 
     function deleteProject(event) {
-    event.stopPropagation();
-    if (!selectedProjectKey) return alert('אנא בחר פרויקט למחיקה.');
-    
-    if (confirm(`האם למחוק את "${projects[selectedProjectKey].name}"?`)) {
-        // The second prompt for a name has been removed.
-        // We now use the 'currentEditorName' that was set when you clicked "Edit".
-        const projectToMove = { 
-            ...projects[selectedProjectKey], 
-            deletedAt: formatDateTime(new Date()),
-            deletedBy: currentEditorName || 'לא ידוע' 
-        };
-        
-        const updates = {
-            [`/projects/${selectedProjectKey}`]: null,
-            [`/deletedProjects/${selectedProjectKey}`]: projectToMove
-        };
-        
-        update(ref(db), updates)
-            .then(() => { 
-                alert(`הפרויקט הועבר להיסטוריה.`); 
-                clearProjectForm(); 
-            })
-            .catch(err => alert(`שגיאה במחיקה: ${err.message}`));
+        event.stopPropagation();
+        if (!selectedProjectKey) return alert('אנא בחר פרויקט למחיקה.');
+        if (confirm(`האם למחוק את "${projects[selectedProjectKey].name}"?`)) {
+            const pToMove = { ...projects[selectedProjectKey], deletedAt: formatDateTime(new Date()), deletedBy: currentEditorName || 'לא ידוע' };
+            const updates = { [`/projects/${selectedProjectKey}`]: null, [`/deletedProjects/${selectedProjectKey}`]: pToMove };
+            update(ref(db), updates)
+                .then(() => { alert(`הפרויקט הועבר להיסטוריה.`); clearProjectForm(); })
+                .catch(err => alert(`שגיאה במחיקה: ${err.message}`));
+        }
     }
-}
 
-    function restoreProject(event) { /* ... */ }
-    function clearHistory() { /* ... */ }
+    function restoreProject(event) {
+        const btn = event.target.closest('.restore-project-btn');
+        if (!btn) return;
+        const projectId = btn.dataset.projectId;
+        const pToRestore = { ...deletedProjects[projectId] };
+        if (pToRestore) {
+            delete pToRestore.deletedAt;
+            delete pToRestore.deletedBy;
+            const updates = { [`/deletedProjects/${projectId}`]: null, [`/projects/${projectId}`]: pToRestore };
+            update(ref(db), updates).then(() => alert(`"${pToRestore.name}" שוחזר.`));
+        }
+    }
+    
+    function clearHistory() { if (confirm('האם למחוק את כל ההיסטוריה?')) set(dbRefDeletedProjects, {}); }
 
     function renderProjects() {
         projectList.innerHTML = '';
         const projectsArray = Object.entries(projects || {}); 
         if (projectsArray.length === 0) {
-            projectList.innerHTML = '<li style="grid-column: 1 / -1; ...">אין פרויקטים נוכחיים.</li>';
+            projectList.innerHTML = '<li style="grid-column: 1 / -1; text-align: right; ...">אין פרויקטים נוכחיים.</li>';
             return;
         }
         projectsArray.forEach(([key, project]) => {
@@ -951,8 +938,6 @@
             historyList.appendChild(li);
         });
     }
-    
-    document.getElementById('projectHistoryList').addEventListener('click', restoreProject);
 
     function clearProjectForm() {
         projectNameInput.value = '';
@@ -997,9 +982,11 @@
         toggleHistoryBtn.innerHTML = isCollapsed ? '+' : '&#x2212;';
     });
     
-    // Initial calls to render everything
-    updateTime(); 
+    // Initial calls
+    updateTime();
+    setInterval(updateTime, 1000); 
     generateCalendar();
+    renderChecklist();
     </script>
 </body>
 </html>
