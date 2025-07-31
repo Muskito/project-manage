@@ -886,18 +886,31 @@
     }
 
     function deleteProject(event) {
-        event.stopPropagation();
-        if (!selectedProjectKey) return alert('אנא בחר פרויקט למחיקה.');
-        if (confirm(`האם למחוק את "${projects[selectedProjectKey].name}"?`)) {
-            const deleterName = prompt("מי מוחק את הפרויקט? אנא הזן את שמך:");
-            if (deleterName === null) return;
-            const pToMove = { ...projects[selectedProjectKey], deletedAt: formatDateTime(new Date()), deletedBy: deleterName || 'לא ידוע' };
-            const updates = { [`/projects/${selectedProjectKey}`]: null, [`/deletedProjects/${selectedProjectKey}`]: pToMove };
-            update(ref(db), updates)
-                .then(() => { alert(`הפרויקט הועבר להיסטוריה.`); clearProjectForm(); })
-                .catch(err => alert(`שגיאה במחיקה: ${err.message}`));
-        }
+    event.stopPropagation();
+    if (!selectedProjectKey) return alert('אנא בחר פרויקט למחיקה.');
+    
+    if (confirm(`האם למחוק את "${projects[selectedProjectKey].name}"?`)) {
+        // The second prompt for a name has been removed.
+        // We now use the 'currentEditorName' that was set when you clicked "Edit".
+        const projectToMove = { 
+            ...projects[selectedProjectKey], 
+            deletedAt: formatDateTime(new Date()),
+            deletedBy: currentEditorName || 'לא ידוע' 
+        };
+        
+        const updates = {
+            [`/projects/${selectedProjectKey}`]: null,
+            [`/deletedProjects/${selectedProjectKey}`]: projectToMove
+        };
+        
+        update(ref(db), updates)
+            .then(() => { 
+                alert(`הפרויקט הועבר להיסטוריה.`); 
+                clearProjectForm(); 
+            })
+            .catch(err => alert(`שגיאה במחיקה: ${err.message}`));
     }
+}
 
     function restoreProject(event) { /* ... */ }
     function clearHistory() { /* ... */ }
