@@ -677,7 +677,11 @@
     let todoItems = [];
     let currentEditorName = null;
 
-    onValue(dbRefProjects, s => { projects = s.val() || {}; renderProjects(); });
+    onValue(dbRefProjects, (snapshot) => {
+    console.log("Data received from Firebase 'projects':", snapshot.val());
+    projects = snapshot.val() || {};
+    renderProjects();
+});
     onValue(dbRefDeletedProjects, s => { deletedProjects = s.val() || {}; renderDeletedProjects(); });
     onValue(dbRefTodoItems, s => { todoItems = s.val() || []; renderTodoItems(); });
 
