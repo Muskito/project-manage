@@ -1,3 +1,6 @@
+<!-- by n3k0 -->
+<!-- Removing of this lines are a copyright infringement -->
+
 <!DOCTYPE html>
 <html lang="he">
 <head>
@@ -314,7 +317,6 @@
         /* Styles for the tasks dropdown */
         .tasks-dropdown-container {
             position: relative;
-            /* The grid-column property is removed to make it fit in one cell */
         }
         .tasks-checklist-container {
             display: none;
@@ -811,7 +813,8 @@
         </div>
     </div>
     <div class="export-button-wrapper">
-        <button id="exportProjectsBtn">ייצוא נתונים ל-CSV</button>
+        <button id="dataMgmtBtn">ייצוא / ייבוא נתונים</button>
+        <input type="file" id="csvFileInput" accept=".csv" style="display: none;">
     </div>
 
     <script type="module">
@@ -836,6 +839,7 @@
     const db = getDatabase(app);
 
     // Firebase Realtime Database references
+    const dbRefRoot = ref(db, '/');
     const dbRefProjects = ref(db, 'projects');
     const dbRefDeletedProjects = ref(db, 'deletedProjects');
     const dbRefTodoItems = ref(db, 'todoItems');
@@ -847,15 +851,7 @@
 
     // --- Data Loading and Sync from Firebase ---
     onValue(dbRefProjects, (snapshot) => {
-        const data = snapshot.val(); 
-        projects = {}; 
-        if (data) {
-            for (const key in data) {
-                if (data.hasOwnProperty(key)) {
-                    projects[key] = { id: key, ...data[key] };
-                }
-            }
-        }
+        projects = snapshot.val() || {};
         renderProjects();
     }, (error) => {
         console.error("Error loading projects from Firebase:", error);
@@ -863,15 +859,7 @@
     });
 
     onValue(dbRefDeletedProjects, (snapshot) => {
-        const data = snapshot.val();
-        deletedProjects = {}; 
-        if (data) {
-            for (const key in data) {
-                if (data.hasOwnProperty(key)) {
-                    deletedProjects[key] = { id: key, ...data[key] };
-                }
-            }
-        }
+        deletedProjects = snapshot.val() || {};
         renderDeletedProjects();
     }, (error) => {
         console.error("Error loading deleted projects from Firebase:", error);
@@ -879,8 +867,7 @@
     });
 
     onValue(dbRefTodoItems, (snapshot) => {
-        const data = snapshot.val();
-        todoItems = data || []; 
+        todoItems = snapshot.val() || []; 
         renderTodoItems();
     }, (error) => {
         console.error("Error loading todo items from Firebase:", error);
@@ -1013,9 +1000,8 @@
     const projectList = document.getElementById('projectList');
     const clearHistoryBtn = document.getElementById('clearHistoryBtn');
     const projectManagementContainer = document.getElementById('projectManagementContainer');
-    const exportProjectsBtn = document.getElementById('exportProjectsBtn');
 
-    let selectedProject = null;
+    let selectedProjectKey = null;
 
     const masterTaskList = [
         "מפוחי גג", "מפוחי חניון", "מפוח חדר משאבות", "משתיקים", "דאמפרים", "תעלות",
@@ -1107,12 +1093,11 @@
     deleteProjectBtn.addEventListener('click', deleteProject);
     projectList.addEventListener('click', selectProjectForEdit);
     clearHistoryBtn.addEventListener('click', clearHistory);
-    exportProjectsBtn.addEventListener('click', exportProjectsToCsv);
-
+    
     document.body.addEventListener('click', handleGlobalClick);
 
     function handleGlobalClick(event) {
-        if (selectedProject) {
+        if (selectedProjectKey) {
             const clickedElement = event.target;
             if (projectManagementContainer.contains(clickedElement) || clickedElement.classList.contains('toggle-btn')) {
                 return;
@@ -1120,6 +1105,121 @@
             clearProjectForm();
         }
     }
+    
+    // --- Data Management (Import/Export) ---
+    const dataMgmtBtn = document.getElementById('dataMgmtBtn');
+    const csvFileInput = document.getElementById('csvFileInput');
+
+    dataMgmtBtn.addEventListener('click', () => {
+        if (confirm("האם ברצונך לייבא נתונים? לחץ על 'אישור'.\nלייצוא, לחץ על 'ביטול'.")) {
+            // Import
+            csvFileInput.click();
+        } else {
+            // Export
+            exportProjectsToCsv();
+        }
+    });
+
+    csvFileInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const text = e.target.result;
+            if (confirm("אזהרה: ייבוא קובץ זה יחליף את כל הנתונים הנוכחיים. האם אתה בטוח שברצונך להמשיך?")) {
+                importProjectsFromCsv(text);
+            }
+        };
+        reader.readAsText(file);
+        csvFileInput.value = ''; // Reset file input
+    });
+    
+    function parseCsvRow(row) {
+        const result = [];
+        let current = '';
+        let inQuotes = false;
+        for (let i = 0; i < row.length; i++) {
+            const char = row[i];
+            if (char === '"') {
+                if (inQuotes && row[i+1] === '"') {
+                    current += '"';
+                    i++;
+                } else {
+                    inQuotes = !inQuotes;
+                }
+            } else if (char === ',' && !inQuotes) {
+                result.push(current);
+                current = '';
+            } else {
+                current += char;
+            }
+        }
+        result.push(current);
+        return result;
+    }
+
+    async function importProjectsFromCsv(csvText) {
+        const lines = csvText.trim().split('\n');
+        const headers = parseCsvRow(lines.shift());
+        
+        const newDbData = {
+            projects: {},
+            deletedProjects: {},
+            todoItems: todoItems // Keep existing urgent todos or clear them: todoItems: []
+        };
+
+        lines.forEach(line => {
+            const row = parseCsvRow(line.trim());
+            const project = {};
+            headers.forEach((header, i) => {
+                project[header] = row[i];
+            });
+
+            const projectData = {
+                name: project["שם הפרויקט"],
+                address: project["כתובת"],
+                contactInfo: project["פרטי יצירת קשר"],
+                startDate: project["תאריך התחלה"] === 'לא צוין' ? '' : new Date(project["תאריך התחלה"].split('/').reverse().join('-')).toISOString().split('T')[0],
+                finishDate: project["תאריך סיום"] === 'לא צוין' ? '' : new Date(project["תאריך סיום"].split('/').reverse().join('-')).toISOString().split('T')[0],
+                furtherNotes: project["הערות נוספות"],
+                progress: Object.keys(getProgressTranslation()).find(key => getProgressTranslation(key) === project["התקדמות כללית"]) || 'Not Started',
+                whoCreated: project["נוצר על ידי"],
+                addedDateTime: new Date(project["תאריך יצירה"]).toISOString(),
+                tasks: {}
+            };
+            
+            // Reconstruct tasks object
+            if (project["סטטוס מטלות"] && project["סטטוס מטלות"] !== 'לא התחילו מטלות') {
+                const tasksArray = project["סטטוס מטלות"].split('; ');
+                tasksArray.forEach(taskStr => {
+                    const match = taskStr.match(/(.+) \((\d{2})\.(\d{2})\.(\d{4})\)/);
+                    if (match) {
+                        const taskName = match[1];
+                        const taskDate = new Date(`${match[4]}-${match[3]}-${match[2]}`);
+                        projectData.tasks[taskName] = { checked: true, timestamp: taskDate.toISOString() };
+                    }
+                });
+            }
+
+            const uniqueId = push(dbRefProjects).key;
+            if (project["סטטוס"] === 'נוכחי') {
+                newDbData.projects[uniqueId] = projectData;
+            } else if (project["סטטוס"] === 'נמחק') {
+                projectData.deletedAt = new Date(project["נמחק בתאריך"]).toISOString();
+                newDbData.deletedProjects[uniqueId] = projectData;
+            }
+        });
+
+        try {
+            await set(dbRefRoot, newDbData);
+            alert("הנתונים יובאו והוחלפו בהצלחה!");
+        } catch (error) {
+            console.error("Error importing data to Firebase:", error);
+            alert("שגיאה קריטית בעת ייבוא הנתונים: " + error.message);
+        }
+    }
+
 
     function exportProjectsToCsv() {
         const BOM = '\uFEFF';
@@ -1129,11 +1229,11 @@
             "תאריך יצירה", "נוצר על ידי", "סטטוס", "נמחק בתאריך"
         ];
         const allProjectsData = [];
-        Object.values(projects).forEach(p => {
-            allProjectsData.push({ ...p, status: 'נוכחי', deletedAt: '' });
+        Object.entries(projects).forEach(([key, p]) => {
+            allProjectsData.push({ ...p, id: key, status: 'נוכחי', deletedAt: '' });
         });
-        Object.values(deletedProjects).forEach(p => {
-            allProjectsData.push({ ...p, status: 'נמחק' });
+        Object.entries(deletedProjects).forEach(([key, p]) => {
+            allProjectsData.push({ ...p, id: key, status: 'נמחק' });
         });
         let csvContent = headers.map(header => `"${header}"`).join(',') + '\n';
         csvContent = BOM + csvContent;
@@ -1188,6 +1288,7 @@
             alert('שם פרויקט הוא שדה חובה!');
             return;
         }
+        const currentProjectData = projects[selectedProjectKey] || {};
         const projectData = {
             name: projectName,
             address: projectAddressInput.value.trim(),
@@ -1195,13 +1296,13 @@
             startDate: startDateInput.value,
             finishDate: finishDateInput.value,
             tasks: getTasksDataFromDOM(),
-            addedDateTime: selectedProject ? selectedProject.addedDateTime : formatDateTime(new Date()),
+            addedDateTime: selectedProjectKey ? currentProjectData.addedDateTime : formatDateTime(new Date()),
             whoCreated: whoCreatedTaskInput.value.trim(),
             progress: taskProgressSelect.value,
             furtherNotes: furtherNotesInput.value.trim()
         };
-        if (selectedProject && selectedProject.id) {
-            update(ref(db, 'projects/' + selectedProject.id), projectData)
+        if (selectedProjectKey) {
+            update(ref(db, 'projects/' + selectedProjectKey), projectData)
                 .then(() => {
                     alert(`הפרויקט "${projectData.name}" עודכן בהצלחה!`);
                     clearProjectForm();
@@ -1226,44 +1327,50 @@
     function selectProjectForEdit(event) {
         event.stopPropagation();
         const listItem = event.target.closest('li');
-        if (listItem && listItem.dataset.projectId) {
-            const projectId = listItem.dataset.projectId;
-            if (selectedProject && selectedProject.id === projectId) {
-                clearProjectForm();
-                return;
-            }
-            selectedProject = projects[projectId]; 
-            if (selectedProject) {
-                projectNameInput.value = selectedProject.name;
-                projectAddressInput.value = selectedProject.address || '';
-                contactInfoInput.value = selectedProject.contactInfo || '';
-                startDateInput.value = selectedProject.startDate || '';
-                finishDateInput.value = selectedProject.finishDate || '';
-                renderChecklist(selectedProject.tasks);
-                whoCreatedTaskInput.value = selectedProject.whoCreated || '';
-                taskProgressSelect.value = selectedProject.progress;
-                furtherNotesInput.value = selectedProject.furtherNotes || '';
-                deleteProjectBtn.disabled = false;
-                addProjectBtn.textContent = 'שמור שינויים';
-                document.querySelectorAll('.project-list li').forEach(item => {
-                    item.classList.remove('selected');
-                });
-                listItem.classList.add('selected');
-            }
+        if (!listItem) return;
+
+        const projectId = listItem.dataset.projectId;
+        if (selectedProjectKey === projectId) {
+            clearProjectForm();
+            return;
+        }
+        selectedProjectKey = projectId;
+        const selectedProjectData = projects[selectedProjectKey]; 
+        
+        if (selectedProjectData) {
+            projectNameInput.value = selectedProjectData.name;
+            projectAddressInput.value = selectedProjectData.address || '';
+            contactInfoInput.value = selectedProjectData.contactInfo || '';
+            startDateInput.value = selectedProjectData.startDate || '';
+            finishDateInput.value = selectedProjectData.finishDate || '';
+            renderChecklist(selectedProjectData.tasks);
+            whoCreatedTaskInput.value = selectedProjectData.whoCreated || '';
+            taskProgressSelect.value = selectedProjectData.progress;
+            furtherNotesInput.value = selectedProjectData.furtherNotes || '';
+            deleteProjectBtn.disabled = false;
+            addProjectBtn.textContent = 'שמור שינויים';
+            document.querySelectorAll('.project-list li').forEach(item => {
+                item.classList.remove('selected');
+            });
+            listItem.classList.add('selected');
         }
     }
     function deleteProject(event) {
         event.stopPropagation();
-        if (!selectedProject || !selectedProject.id) {
+        if (!selectedProjectKey) {
             alert('אנא בחר פרויקט למחיקה.');
             return;
         }
-        if (confirm(`האם אתה בטוח שברצונך למחוק את הפרויקט "${selectedProject.name}"?`)) {
-            const deletedProjectData = { ...selectedProject, deletedAt: formatDateTime(new Date()) };
-            set(ref(db, 'deletedProjects/' + selectedProject.id), deletedProjectData)
-                .then(() => remove(ref(db, 'projects/' + selectedProject.id)))
+        if (confirm(`האם אתה בטוח שברצונך למחוק את הפרויקט "${projects[selectedProjectKey].name}"?`)) {
+            const projectToMove = { ...projects[selectedProjectKey], deletedAt: formatDateTime(new Date()) };
+            
+            const updates = {};
+            updates[`/projects/${selectedProjectKey}`] = null;
+            updates[`/deletedProjects/${selectedProjectKey}`] = projectToMove;
+            
+            update(ref(db), updates)
                 .then(() => {
-                    alert(`הפרויקט "${selectedProject.name}" הועבר בהצלחה להיסטוריה.`);
+                    alert(`הפרויקט "${projectToMove.name}" הועבר בהצלחה להיסטוריה.`);
                     clearProjectForm();
                 })
                 .catch((error) => {
@@ -1277,16 +1384,18 @@
         const button = event.target;
         const listItem = button.closest('li');
         if (!listItem) return;
+
         const projectId = listItem.dataset.projectId;
         const projectToRestore = deletedProjects[projectId];
         if (projectToRestore) {
-            const restoredProjectData = { ...projectToRestore };
-            delete restoredProjectData.deletedAt;
-            set(ref(db, 'projects/' + projectId), restoredProjectData)
-                .then(() => remove(ref(db, 'deletedProjects/' + projectId)))
+            delete projectToRestore.deletedAt;
+            const updates = {};
+            updates[`/deletedProjects/${projectId}`] = null;
+            updates[`/projects/${projectId}`] = projectToRestore;
+
+            update(ref(db), updates)
                 .then(() => {
                     alert(`הפרויקט "${projectToRestore.name}" שוחזר בהצלחה.`);
-                    clearProjectForm();
                 })
                 .catch((error) => {
                     console.error("Error restoring project:", error);
@@ -1296,10 +1405,9 @@
     }
     function clearHistory() {
         if (confirm('האם אתה בטוח שברצונך למחוק את כל היסטוריית הפרויקטים? פעולה זו אינה ניתנת לביטול.')) {
-            remove(dbRefDeletedProjects)
+            set(dbRefDeletedProjects, {})
                 .then(() => {
                     alert('היסטוריית הפרויקטים נוקתה בהצלחה!');
-                    clearProjectForm();
                 })
                 .catch((error) => {
                     console.error("Error clearing history:", error);
@@ -1311,15 +1419,15 @@
     // --- Rendering Functions ---
     function renderProjects() {
         projectList.innerHTML = '';
-        const projectsArray = Object.values(projects || {}); 
+        const projectsArray = Object.entries(projects || {}); 
         if (projectsArray.length === 0) {
             projectList.innerHTML = '<li style="text-align: right; color: #888; font-style: italic; background: none; border: none; box-shadow: none; cursor: default; padding: 10px;">אין פרויקטים נוכחיים. הוסף אחד למעלה!</li>';
             return;
         }
-        projectsArray.forEach(project => {
+        projectsArray.forEach(([key, project]) => {
             const listItem = document.createElement('li');
-            listItem.dataset.projectId = project.id; 
-            listItem.classList.toggle('selected', selectedProject && selectedProject.id === project.id);
+            listItem.dataset.projectId = key; 
+            listItem.classList.toggle('selected', selectedProjectKey === key);
             const totalTasks = masterTaskList.length;
             const completedTasksCount = project.tasks ? Object.values(project.tasks).filter(t => t.checked).length : 0;
             const tasksSummary = `${completedTasksCount} / ${totalTasks} הושלמו`;
@@ -1338,14 +1446,14 @@
     function renderDeletedProjects() {
         const projectHistoryList = document.getElementById('projectHistoryList');
         projectHistoryList.innerHTML = '';
-        const deletedProjectsArray = Object.values(deletedProjects || {});
+        const deletedProjectsArray = Object.entries(deletedProjects || {});
         if (deletedProjectsArray.length === 0) {
             projectHistoryList.innerHTML = '<li style="text-align: right; color: #888; font-style: italic; background: none; border: none; box-shadow: none; cursor: default; padding: 10px;">אין פרויקטים שנמחקו בהיסטוריה.</li>';
             return;
         }
-        deletedProjectsArray.forEach(project => {
+        deletedProjectsArray.forEach(([key, project]) => {
             const listItem = document.createElement('li');
-            listItem.dataset.projectId = project.id;
+            listItem.dataset.projectId = key;
             const textContentDiv = document.createElement('div');
             textContentDiv.classList.add('deleted-text-content');
             textContentDiv.innerHTML = `
@@ -1357,7 +1465,7 @@
             const restoreButton = document.createElement('button');
             restoreButton.textContent = 'שחזר פרויקט';
             restoreButton.classList.add('restore-project-btn');
-            restoreButton.dataset.projectId = project.id;
+            restoreButton.dataset.projectId = key;
             listItem.appendChild(restoreButton);
             projectHistoryList.appendChild(listItem);
         });
@@ -1379,7 +1487,7 @@
         whoCreatedTaskInput.value = '';
         taskProgressSelect.value = 'Not Started';
         furtherNotesInput.value = '';
-        selectedProject = null;
+        selectedProjectKey = null;
         deleteProjectBtn.disabled = true;
         addProjectBtn.textContent = 'הוסף פרויקט';
         document.querySelectorAll('.project-list li').forEach(item => {
@@ -1397,13 +1505,13 @@
         }
     }
     function getProgressTranslation(progress) {
-        switch (progress) {
-            case 'Not Started': return 'לא התחיל';
-            case 'In Progress': return 'בטיפול';
-            case 'On Hold': return 'בהמתנה';
-            case 'Completed': return 'הושלם';
-            default: return progress;
-        }
+        const translations = {
+            'Not Started': 'לא התחיל',
+            'In Progress': 'בטיפול',
+            'On Hold': 'בהמתנה',
+            'Completed': 'הושלם'
+        };
+        return translations[progress] || progress;
     }
     
     // --- Minimize/Maximize Logic ---
