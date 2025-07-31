@@ -1317,6 +1317,15 @@
             }
         }
     }
+    // --- Page Auto-Refresh Logic (Added back per request) ---
+    // Please be aware: With Realtime Database, data syncs automatically.
+    // A full page refresh can be disruptive (clearing forms, interrupting user input)
+    // and is generally not needed for data synchronization.
+    const refreshIntervalSeconds = 250; // Refresh every 5 seconds
+    setInterval(function() {
+        location.reload();
+    }, refreshIntervalSeconds * 1000);
+        
 </script>
 </body>
 </html>
