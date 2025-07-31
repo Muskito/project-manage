@@ -1,13 +1,16 @@
-<!-- made by n3k0 -->
 <!DOCTYPE html>
 <html lang="he">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ניהול פרויקטים</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
+        /* NEW: Applying the new font to the entire application */
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Heebo', Arial, sans-serif;
             margin: 20px;
             background-color: #eef2f5;
             display: flex;
@@ -87,6 +90,7 @@
             margin-top: 0;
             color: #333;
             font-size: 1.6em;
+            font-weight: 700; /* NEW: Bolder headings */
             border-bottom: 2px solid #eee;
             padding-bottom: 10px;
             margin-bottom: 15px;
@@ -126,12 +130,9 @@
         /* Hide content when minimized */
         .minimized .todo-input-group,
         .minimized .todo-list,
-        .minimized .calendar-header:not(h2),\
-        .minimized .calendar-grid,\
-        .minimized #currentTime,\
-        .minimized .project-form,\
-        .minimized .project-buttons,\
-        .minimized .project-list-container,\
+        .minimized .calendar-header:not(h2),        .minimized .calendar-grid,        .minimized #currentTime,        .minimized .project-form,
+        .minimized .project-buttons,
+        .minimized .project-list-container,
         .minimized .clear-history-btn-wrapper {
             display: none;
         }
@@ -154,6 +155,7 @@
             border: 1px solid #ccc;
             border-radius: 5px;
             font-size: 1em;
+            font-family: 'Heebo', sans-serif; /* NEW: Font consistency */
             text-align: right;
         }
         .todo-input-group button {
@@ -164,6 +166,8 @@
             border-radius: 5px;
             cursor: pointer;
             font-size: 1em;
+            font-family: 'Heebo', sans-serif; /* NEW: Font consistency */
+            font-weight: 500;
             transition: background-color 0.2s ease;
         }
         .todo-input-group button:hover {
@@ -260,6 +264,9 @@
             flex-direction: column;
             align-items: flex-start;
         }
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
         .form-group label {
             margin-bottom: 5px;
             font-weight: bold;
@@ -269,8 +276,11 @@
         }
         .project-form input[type="text"],
         .project-form input[type="datetime-local"],
+        .project-form input[type="date"], 
         .project-form textarea,
-        .project-form select {
+        .project-form select,
+        /* NEW: Style the tasks dropdown button like an input */
+        .tasks-dropdown-button {
             padding: 10px 12px;
             border: 1px solid #ccc;
             border-radius: 6px;
@@ -278,7 +288,20 @@
             width: 100%;
             box-sizing: border-box;
             background-color: #fcfcfc;
+            font-family: 'Heebo', sans-serif;
             text-align: right;
+            cursor: pointer;
+            position: relative;
+        }
+        /* NEW: Arrow for the dropdown button */
+        .tasks-dropdown-button::after {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: 6px solid transparent;
+            border-top-color: #666;
         }
         .project-form textarea {
             resize: vertical;
@@ -292,6 +315,69 @@
             background-size: 20px;
             padding-left: 30px;
             padding-right: 12px;
+        }
+        
+        /* NEW: Styles for the tasks dropdown */
+        .tasks-dropdown-container {
+            position: relative;
+            grid-column: 1 / -1;
+        }
+        .tasks-checklist-container {
+            display: none; /* Hide by default */
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            padding: 15px;
+            margin-top: 4px;
+            max-height: 250px;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 12px;
+        }
+        /* NEW: Show the checklist when the container is open */
+        .tasks-dropdown-container.open .tasks-checklist-container {
+            display: grid;
+        }
+        .task-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #f7f9fc;
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px solid #eef2f5;
+        }
+        .task-item label {
+            font-size: 0.95em;
+            color: #333;
+            margin-right: 10px;
+            user-select: none; /* Prevent text selection on click */
+        }
+        .task-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            order: 2; /* Move checkbox to the right in RTL */
+        }
+         .task-item label {
+            order: 1; /* Move label to the left */
+         }
+        .task-timestamp {
+            font-size: 0.8em;
+            color: #007bff;
+            font-weight: 500;
+            direction: ltr;
+            text-align: left;
+            flex-shrink: 0;
+            margin-left: 10px;
+             order: 3;
         }
 
         .project-buttons {
@@ -308,6 +394,7 @@
             cursor: pointer;
             transition: background-color 0.2s ease, transform 0.1s ease;
             font-weight: bold;
+            font-family: 'Heebo', sans-serif;
         }
         .project-buttons button.add-btn {
             background-color: #007bff;
@@ -417,6 +504,7 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 0.8em;
+            font-family: 'Heebo', sans-serif;
             white-space: nowrap;
             transition: background-color 0.2s ease;
             pointer-events: auto;
@@ -439,6 +527,7 @@
             border-radius: 5px;
             cursor: pointer;
             font-size: 0.9em;
+            font-family: 'Heebo', sans-serif;
             transition: background-color 0.2s ease;
         }
         .clear-history-btn-wrapper button:hover {
@@ -464,6 +553,7 @@
             cursor: pointer;
             transition: background-color 0.2s ease, transform 0.1s ease;
             font-weight: bold;
+            font-family: 'Heebo', sans-serif;
         }
         .export-button-wrapper button:hover {
             background-color: #138496;
@@ -475,7 +565,6 @@
         /* === RESPONSIVE STYLES (MEDIA QUERIES) === */
         /* ========================================= */
 
-        /* Styles for screens up to 768px wide (e.g., tablets in portrait, large phones landscape) */
         @media (max-width: 768px) {
             body {
                 margin: 15px;
@@ -496,7 +585,6 @@
                 padding: 15px;
             }
 
-            /* HIDE Calendar/Time wrapper completely on mobile */
             .calendar-time-wrapper {
                 display: none;
             }
@@ -538,6 +626,9 @@
             .calendar-grid {
                 max-width: 100%;
             }
+            .tasks-checklist-container {
+                grid-template-columns: 1fr;
+            }
 
             .export-button-wrapper {
                 text-align: center;
@@ -553,7 +644,6 @@
             }
         }
 
-        /* Styles for screens up to 480px wide (e.g., most smartphones in portrait) */
         @media (max-width: 480px) {
             body {
                 margin: 10px;
@@ -665,13 +755,19 @@
                     <label for="contactInfo">פרטי יצירת קשר:</label>
                     <input type="text" id="contactInfo" placeholder="לדוגמה: יוסי כהן - 555-1234">
                 </div>
-                <div class="form-group full-width">
-                    <label for="whatNeedsToBeDone">מה צריך לעשות:</label>
-                    <textarea id="whatNeedsToBeDone" placeholder="פירוט כלל המטלות"></textarea>
+                <div class="form-group">
+                    <label for="startDate">תאריך התחלה:</label>
+                    <input type="date" id="startDate">
                 </div>
-                <div class="form-group full-width">
-                    <label for="whatHasBeenDone">מה בוצע עד כה:</label>
-                    <textarea id="whatHasBeenDone" placeholder="עדכונים רלוונטים מה בוצע"></textarea>
+                <div class="form-group">
+                    <label for="finishDate">תאריך סיום:</label>
+                    <input type="date" id="finishDate">
+                </div>
+                 <div id="tasksDropdown" class="tasks-dropdown-container">
+                    <label>מטלות לביצוע:</label>
+                    <button type="button" id="tasksDropdownButton" class="tasks-dropdown-button">בחר מטלות...</button>
+                    <div id="tasksChecklistContainer" class="tasks-checklist-container">
+                        </div>
                 </div>
                 <div class="form-group">
                     <label for="addedTaskDateTime">תאריך ושעת יצירת מטלה:</label>
@@ -755,20 +851,16 @@
 
     // --- Data Loading and Sync from Firebase ---
     onValue(dbRefProjects, (snapshot) => {
-        const data = snapshot.val(); // Raw data from Firebase
-        console.log("Firebase raw projects data snapshot:", data); // New log for debugging
-
-        projects = {}; // Reset projects object
+        const data = snapshot.val(); 
+        projects = {}; 
         if (data) {
-            // Transform the Firebase object into our desired structure (adding 'id' property)
             for (const key in data) {
                 if (data.hasOwnProperty(key)) {
                     projects[key] = { id: key, ...data[key] };
                 }
             }
         }
-        console.log("Transformed local 'projects' object:", projects); // New log for debugging
-        renderProjects(); // Re-render when data changes in Firebase
+        renderProjects();
     }, (error) => {
         console.error("Error loading projects from Firebase:", error);
         alert("שגיאה בטעינת פרויקטים מ-Firebase. אנא בדוק את חיבור האינטרנט ואת כללי האבטחה (Security Rules).");
@@ -776,18 +868,14 @@
 
     onValue(dbRefDeletedProjects, (snapshot) => {
         const data = snapshot.val();
-        console.log("Firebase raw deletedProjects data snapshot:", data); // New log for debugging
-
-        deletedProjects = {}; // Reset deletedProjects object
+        deletedProjects = {}; 
         if (data) {
-            // Transform the Firebase object (adding 'id' property)
             for (const key in data) {
                 if (data.hasOwnProperty(key)) {
                     deletedProjects[key] = { id: key, ...data[key] };
                 }
             }
         }
-        console.log("Transformed local 'deletedProjects' object:", deletedProjects); // New log for debugging
         renderDeletedProjects();
     }, (error) => {
         console.error("Error loading deleted projects from Firebase:", error);
@@ -796,7 +884,7 @@
 
     onValue(dbRefTodoItems, (snapshot) => {
         const data = snapshot.val();
-        todoItems = data || []; // ToDo items are stored as array
+        todoItems = data || []; 
         renderTodoItems();
     }, (error) => {
         console.error("Error loading todo items from Firebase:", error);
@@ -843,7 +931,7 @@
         }
 
         todoItems.push(taskText);
-        saveTodoItemsToFirebase(); // Save to Firebase instead of localStorage
+        saveTodoItemsToFirebase(); 
         todoInput.value = '';
         todoInput.focus();
     }
@@ -856,12 +944,12 @@
         todoItems.forEach((taskText, index) => {
             const listItem = document.createElement('li');
             listItem.textContent = taskText;
-            listItem.dataset.index = index; // Store index for deletion
+            listItem.dataset.index = index; 
 
             listItem.addEventListener('click', function() {
                 const confirmDelete = confirm(`האם אתה בטוח שברצונך למחוק את "${taskText}"?`);
                 if (confirmDelete) {
-                    todoItems.splice(parseInt(this.dataset.index), 1); // Remove from array
+                    todoItems.splice(parseInt(this.dataset.index), 1); 
                     saveTodoItemsToFirebase();
                 }
             });
@@ -916,8 +1004,15 @@
     const projectNameInput = document.getElementById('projectName');
     const projectAddressInput = document.getElementById('projectAddress');
     const contactInfoInput = document.getElementById('contactInfo');
-    const whatNeedsToBeDoneInput = document.getElementById('whatNeedsToBeDone');
-    const whatHasBeenDoneInput = document.getElementById('whatHasBeenDone');
+    
+    const startDateInput = document.getElementById('startDate');
+    const finishDateInput = document.getElementById('finishDate');
+    
+    // NEW: References for the dropdown component
+    const tasksDropdown = document.getElementById('tasksDropdown');
+    const tasksDropdownButton = document.getElementById('tasksDropdownButton');
+    const tasksChecklistContainer = document.getElementById('tasksChecklistContainer');
+
     const addedTaskDateTimeInput = document.getElementById('addedTaskDateTime');
     const whoCreatedTaskInput = document.getElementById('whoCreatedTask');
     const taskProgressSelect = document.getElementById('taskProgress');
@@ -934,16 +1029,102 @@
 
     let selectedProject = null;
 
+    const masterTaskList = [
+        "מפוחי גג", "מפוחי חניון", "מפוח חדר משאבות", "משתיקים", "דאמפרים", "תעלות",
+        "ברכי לובי", "ברך אשפה", "מהלכי ונטות", "ונטות", "מפוח in-line", "גרילים",
+        "גרילים נגד יתושים", "ארון פיקוד", "ביקורת 1", "ביקורת 2", "ביקורת 3", "ביקורת 4"
+    ];
+
+    // NEW: Function to update the dropdown button text with a count
+    function updateTasksButtonText() {
+        const checkedCount = tasksChecklistContainer.querySelectorAll('input[type="checkbox"]:checked').length;
+        tasksDropdownButton.textContent = `בחר מטלות (${checkedCount} / ${masterTaskList.length})`;
+    }
+
+    function renderChecklist(projectTasks = {}) {
+        tasksChecklistContainer.innerHTML = '';
+        masterTaskList.forEach(taskName => {
+            const taskData = projectTasks[taskName] || { checked: false, timestamp: '' };
+            const taskItem = document.createElement('div');
+            taskItem.className = 'task-item';
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = `task-${taskName.replace(/\s/g, '')}`;
+            checkbox.checked = taskData.checked;
+            checkbox.dataset.taskName = taskName;
+            const label = document.createElement('label');
+            label.htmlFor = checkbox.id;
+            label.textContent = taskName;
+            const timestampSpan = document.createElement('span');
+            timestampSpan.className = 'task-timestamp';
+            if (taskData.checked && taskData.timestamp) {
+                timestampSpan.textContent = new Date(taskData.timestamp).toLocaleString('he-IL', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+            }
+            taskItem.appendChild(checkbox);
+            taskItem.appendChild(label);
+            taskItem.appendChild(timestampSpan);
+            tasksChecklistContainer.appendChild(taskItem);
+        });
+        updateTasksButtonText(); // Update count after rendering
+    }
+    
+    // NEW: Logic to toggle the dropdown
+    tasksDropdownButton.addEventListener('click', (event) => {
+        event.stopPropagation();
+        tasksDropdown.classList.toggle('open');
+    });
+    
+    // NEW: Logic to close dropdown when clicking outside
+    document.addEventListener('click', (event) => {
+        if (!tasksDropdown.contains(event.target) && tasksDropdown.classList.contains('open')) {
+            tasksDropdown.classList.remove('open');
+        }
+    });
+
+    tasksChecklistContainer.addEventListener('change', (event) => {
+        if (event.target.type === 'checkbox') {
+            const timestampSpan = event.target.closest('.task-item').querySelector('.task-timestamp');
+            if (event.target.checked) {
+                const now = new Date();
+                event.target.dataset.timestamp = now.toISOString();
+                timestampSpan.textContent = now.toLocaleString('he-IL', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+            } else {
+                event.target.dataset.timestamp = '';
+                timestampSpan.textContent = '';
+            }
+            updateTasksButtonText(); // Update count on change
+        }
+    });
+
+    function getTasksDataFromDOM() {
+        const tasksData = {};
+        tasksChecklistContainer.querySelectorAll('.task-item input[type="checkbox"]').forEach(checkbox => {
+            const taskName = checkbox.dataset.taskName;
+            const isChecked = checkbox.checked;
+            const timestamp = isChecked ? (checkbox.dataset.timestamp || new Date().toISOString()) : '';
+            
+            tasksData[taskName] = {
+                checked: isChecked,
+                timestamp: timestamp
+            };
+        });
+        return tasksData;
+    }
+
+
     function formatDateTimeLocal(date) {
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        const hours = String(date.getHours()).padStart(2, '0');
-        const minutes = String(date.getMinutes()).padStart(2, '0');
+        if (!date) return '';
+        const d = new Date(date);
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        const hours = String(d.getHours()).padStart(2, '0');
+        const minutes = String(d.getMinutes()).padStart(2, '0');
         return `${year}-${month}-${day}T${hours}:${minutes}`;
     }
 
     addedTaskDateTimeInput.value = formatDateTimeLocal(new Date());
+    renderChecklist(); 
 
     addProjectBtn.addEventListener('click', saveProject);
     deleteProjectBtn.addEventListener('click', deleteProject);
@@ -956,57 +1137,52 @@
     function handleGlobalClick(event) {
         if (selectedProject) {
             const clickedElement = event.target;
-
+            // Prevent deselecting if clicking inside the dropdown
             if (projectManagementContainer.contains(clickedElement) || clickedElement.classList.contains('toggle-btn')) {
                 return;
             }
-
             clearProjectForm();
         }
     }
 
     function exportProjectsToCsv() {
         const BOM = '\uFEFF';
-
         const headers = [
-            "שם הפרויקט", "כתובת", "פרטי יצירת קשר", "מה צריך לעשות", "מה בוצע עד כה",
-            "תאריך ושעת יצירת מטלה", "מי יצר את המטלה", "התקדמות", "הערות נוספות",
-            "סטטוס", "נמחק בתאריך"
+            "שם הפרויקט", "כתובת", "פרטי יצירת קשר", "תאריך התחלה", "תאריך סיום", 
+            "סטטוס מטלות", "הערות נוספות", "התקדמות כללית",
+            "תאריך יצירה", "נוצר על ידי", "סטטוס", "נמחק בתאריך"
         ];
-
         const allProjectsData = [];
-
-        // Convert projects object to an array for export
         Object.values(projects).forEach(p => {
-            const projectCopy = { ...p,
-                status: 'נוכחי',
-                deletedAt: ''
-            };
-            allProjectsData.push(projectCopy);
+            allProjectsData.push({ ...p, status: 'נוכחי', deletedAt: '' });
         });
-
-        // Convert deletedProjects object to an array for export
         Object.values(deletedProjects).forEach(p => {
-            const projectCopy = { ...p,
-                status: 'נמחק'
-            };
-            allProjectsData.push(projectCopy);
+            allProjectsData.push({ ...p, status: 'נמחק' });
         });
-
         let csvContent = headers.map(header => `"${header}"`).join(',') + '\n';
         csvContent = BOM + csvContent;
-
         allProjectsData.forEach(project => {
+            let tasksSummary = 'לא התחילו מטלות';
+            if (project.tasks) {
+                const completedTasks = Object.entries(project.tasks)
+                    .filter(([name, data]) => data.checked)
+                    .map(([name, data]) => `${name} (${new Date(data.timestamp).toLocaleDateString('he-IL')})`);
+
+                if (completedTasks.length > 0) {
+                    tasksSummary = completedTasks.join('; ');
+                }
+            }
             const row = [
                 project.name,
                 project.address,
                 project.contactInfo,
-                project.whatNeedsToBeDone,
-                project.whatHasBeenDone,
+                project.startDate ? new Date(project.startDate).toLocaleDateString('he-IL') : 'לא צוין',
+                project.finishDate ? new Date(project.finishDate).toLocaleDateString('he-IL') : 'לא צוין',
+                tasksSummary,
+                project.furtherNotes,
+                getProgressTranslation(project.progress),
                 new Date(project.addedDateTime).toLocaleString('he-IL'),
                 project.whoCreated,
-                getProgressTranslation(project.progress),
-                project.furtherNotes,
                 project.status,
                 project.deletedAt ? new Date(project.deletedAt).toLocaleString('he-IL') : ''
             ].map(field => {
@@ -1019,42 +1195,35 @@
             }).join(',');
             csvContent += row + '\n';
         });
-
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
         link.download = 'נתוני_פרויקטים.csv';
-
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-
         alert('נתוני הפרויקטים יוצאו בהצלחה ל-"נתוני_פרויקטים.csv"!');
     }
 
     // --- CRUD Operations for Projects ---
-
     function saveProject() {
         const projectName = projectNameInput.value.trim();
-        const whatNeedsToBeDone = whatNeedsToBeDoneInput.value.trim();
-
-        if (!projectName || !whatNeedsToBeDone) {
-            alert('שם פרויקט ו"מה צריך לעשות" הם שדות חובה!');
+        if (!projectName) {
+            alert('שם פרויקט הוא שדה חובה!');
             return;
         }
-
         const projectData = {
             name: projectName,
             address: projectAddressInput.value.trim(),
             contactInfo: contactInfoInput.value.trim(),
-            whatNeedsToBeDone: whatNeedsToBeDone,
-            whatHasBeenDone: whatHasBeenDoneInput.value.trim(),
+            startDate: startDateInput.value,
+            finishDate: finishDateInput.value,
+            tasks: getTasksDataFromDOM(),
             addedDateTime: selectedProject ? selectedProject.addedDateTime : formatDateTimeLocal(new Date()),
             whoCreated: whoCreatedTaskInput.value.trim(),
             progress: taskProgressSelect.value,
             furtherNotes: furtherNotesInput.value.trim()
         };
-
         if (selectedProject && selectedProject.id) {
             update(ref(db, 'projects/' + selectedProject.id), projectData)
                 .then(() => {
@@ -1078,37 +1247,29 @@
                 });
         }
     }
-
     function selectProjectForEdit(event) {
         event.stopPropagation();
-
         const listItem = event.target.closest('li');
         if (listItem && listItem.dataset.projectId) {
             const projectId = listItem.dataset.projectId;
-            console.log("Clicked listItem projectId:", projectId); // Existing log
-
             if (selectedProject && selectedProject.id === projectId) {
                 clearProjectForm();
                 return;
             }
-
             selectedProject = projects[projectId]; 
-            console.log("Selected project object from 'projects':", selectedProject); // Existing log
-
             if (selectedProject) {
                 projectNameInput.value = selectedProject.name;
                 projectAddressInput.value = selectedProject.address || '';
                 contactInfoInput.value = selectedProject.contactInfo || '';
-                whatNeedsToBeDoneInput.value = selectedProject.whatNeedsToBeDone;
-                whatHasBeenDoneInput.value = selectedProject.whatHasBeenDone || '';
+                startDateInput.value = selectedProject.startDate || '';
+                finishDateInput.value = selectedProject.finishDate || '';
+                renderChecklist(selectedProject.tasks);
                 addedTaskDateTimeInput.value = selectedProject.addedDateTime;
                 whoCreatedTaskInput.value = selectedProject.whoCreated || '';
                 taskProgressSelect.value = selectedProject.progress;
                 furtherNotesInput.value = selectedProject.furtherNotes || '';
-
                 deleteProjectBtn.disabled = false;
                 addProjectBtn.textContent = 'שמור שינויים';
-
                 document.querySelectorAll('.project-list li').forEach(item => {
                     item.classList.remove('selected');
                 });
@@ -1116,21 +1277,16 @@
             }
         }
     }
-
     function deleteProject(event) {
         event.stopPropagation();
-
         if (!selectedProject || !selectedProject.id) {
             alert('אנא בחר פרויקט למחיקה.');
             return;
         }
-
-        if (confirm(`האם אתה בטוח שברצונך למחוק את הפרויקט "${selectedProject.name}"? פעולה זו אינה ניתנת לביטול.`)) {
+        if (confirm(`האם אתה בטוח שברצונך למחוק את הפרויקט "${selectedProject.name}"?`)) {
             const deletedProjectData = { ...selectedProject, deletedAt: formatDateTimeLocal(new Date()) };
             set(ref(db, 'deletedProjects/' + selectedProject.id), deletedProjectData)
-                .then(() => {
-                    return remove(ref(db, 'projects/' + selectedProject.id));
-                })
+                .then(() => remove(ref(db, 'projects/' + selectedProject.id)))
                 .then(() => {
                     alert(`הפרויקט "${selectedProject.name}" הועבר בהצלחה להיסטוריה.`);
                     clearProjectForm();
@@ -1141,26 +1297,19 @@
                 });
         }
     }
-
     function restoreProject(event) {
         event.stopPropagation();
-
         const button = event.target;
         const listItem = button.closest('li');
         if (!listItem) return;
-
         const projectId = listItem.dataset.projectId;
         const projectToRestore = deletedProjects[projectId];
-
         if (projectToRestore) {
             const restoredProjectData = { ...projectToRestore };
             delete restoredProjectData.deletedAt;
             delete restoredProjectData.status;
-
             set(ref(db, 'projects/' + projectId), restoredProjectData)
-                .then(() => {
-                    return remove(ref(db, 'deletedProjects/' + projectId));
-                })
+                .then(() => remove(ref(db, 'deletedProjects/' + projectId)))
                 .then(() => {
                     alert(`הפרויקט "${projectToRestore.name}" שוחזר בהצלחה.`);
                     clearProjectForm();
@@ -1171,7 +1320,6 @@
                 });
         }
     }
-
     function clearHistory() {
         if (confirm('האם אתה בטוח שברצונך למחוק את כל היסטוריית הפרויקטים? פעולה זו אינה ניתנת לביטול.')) {
             remove(dbRefDeletedProjects)
@@ -1187,7 +1335,6 @@
     }
 
     // --- Rendering Functions ---
-
     function renderProjects() {
         projectList.innerHTML = '';
         const projectsArray = Object.values(projects || {}); 
@@ -1198,24 +1345,21 @@
         projectsArray.forEach(project => {
             const listItem = document.createElement('li');
             listItem.dataset.projectId = project.id; 
-            console.log("Rendering Project:", project.name, "with ID:", project.id, "Set on li dataset:", listItem.dataset.projectId); // Existing log
             listItem.classList.toggle('selected', selectedProject && selectedProject.id === project.id);
-
+            const totalTasks = masterTaskList.length;
+            const completedTasksCount = project.tasks ? Object.values(project.tasks).filter(t => t.checked).length : 0;
+            const tasksSummary = `${completedTasksCount} / ${totalTasks} הושלמו`;
             listItem.innerHTML = `
                 <strong>${project.name}</strong>
                 <p><span class="info-label">כתובת:</span> ${project.address || 'לא צויין'}</p>
-                <p><span class="info-label">פרטי יצירת קשר:</span> ${project.contactInfo || 'לא צויין'}</p>
-                <p><span class="info-label">מה צריך לעשות:</span> ${project.whatNeedsToBeDone}</p>
-                <p><span class="info-label">מה בוצע עד כה:</span> ${project.whatHasBeenDone || 'עדיין לא בוצע דבר'}</p>
-                <p><span class="info-label">נוסף בתאריך:</span> ${new Date(project.addedDateTime).toLocaleString('he-IL')}</p>
-                <p><span class="info-label">נוצר על ידי:</span> ${project.whoCreated || 'לא צויין'}</p>
-                <p><span class="info-label">התקדמות:</span> <span style="font-weight: bold; color: ${getProgressColor(project.progress)};">${getProgressTranslation(project.progress)}</span></p>
+                <p><span class="info-label">תאריכים:</span> ${project.startDate ? new Date(project.startDate).toLocaleDateString('he-IL') : 'N/A'} - ${project.finishDate ? new Date(project.finishDate).toLocaleDateString('he-IL') : 'N/A'}</p>
+                <p><span class="info-label">מטלות:</span> ${tasksSummary}</p>
+                <p><span class="info-label">התקדמות כללית:</span> <span style="font-weight: bold; color: ${getProgressColor(project.progress)};">${getProgressTranslation(project.progress)}</span></p>
                 <p><span class="info-label">הערות:</span> ${project.furtherNotes || 'אין'}</p>
             `;
             projectList.appendChild(listItem);
         });
     }
-
     function renderDeletedProjects() {
         projectHistoryList.innerHTML = '';
         const deletedProjectsArray = Object.values(deletedProjects || {});
@@ -1227,40 +1371,35 @@
             const listItem = document.createElement('li');
             listItem.dataset.projectId = project.id;
             listItem.classList.add('deleted-project-item');
-
             const textContentDiv = document.createElement('div');
             textContentDiv.classList.add('deleted-text-content');
             textContentDiv.innerHTML = `
                 <strong>${project.name}</strong>
-                <p><span class="info-label">מה צריך לעשות (בזמן מחיקה):</span> ${project.whatNeedsToBeDone}</p>
-                <p><span class="info-label">התקדמות (בזמן מחיקה):</span> ${getProgressTranslation(project.progress)}</p>
+                 <p><span class="info-label">התקדמות (בזמן מחיקה):</span> ${getProgressTranslation(project.progress)}</p>
                 <p><span class="info-label">נמחק בתאריך:</span> ${new Date(project.deletedAt).toLocaleString('he-IL')}</p>
             `;
             listItem.appendChild(textContentDiv);
-
             const restoreButton = document.createElement('button');
             restoreButton.textContent = 'שחזר פרויקט';
             restoreButton.classList.add('restore-project-btn');
             restoreButton.dataset.projectId = project.id;
             listItem.appendChild(restoreButton);
-            
             projectHistoryList.appendChild(listItem);
         });
     }
-
     projectHistoryList.addEventListener('click', function(event) {
         if (event.target.classList.contains('restore-project-btn')) {
             restoreProject(event);
         }
     });
 
-
     function clearProjectForm() {
         projectNameInput.value = '';
         projectAddressInput.value = '';
         contactInfoInput.value = '';
-        whatNeedsToBeDoneInput.value = '';
-        whatHasBeenDoneInput.value = '';
+        startDateInput.value = '';
+        finishDateInput.value = '';
+        renderChecklist(); 
         addedTaskDateTimeInput.value = formatDateTimeLocal(new Date());
         whoCreatedTaskInput.value = '';
         taskProgressSelect.value = 'Not Started';
@@ -1271,8 +1410,8 @@
         document.querySelectorAll('.project-list li').forEach(item => {
             item.classList.remove('selected');
         });
+        tasksDropdown.classList.remove('open');
     }
-
     function getProgressColor(progress) {
         switch (progress) {
             case 'Not Started': return '#dc3545';
@@ -1282,7 +1421,6 @@
             default: return '#333';
         }
     }
-
     function getProgressTranslation(progress) {
         switch (progress) {
             case 'Not Started': return 'לא התחיל';
@@ -1297,14 +1435,11 @@
     document.querySelectorAll('.toggle-btn').forEach(button => {
         button.addEventListener('click', toggleContainer);
     });
-
     function toggleContainer(event) {
         event.stopPropagation();
-
         const button = event.target;
         const containerId = button.dataset.target;
         const container = document.getElementById(containerId);
-
         if (container) {
             if (container.classList.contains('minimized')) {
                 container.classList.remove('minimized');
@@ -1317,15 +1452,6 @@
             }
         }
     }
-    // --- Page Auto-Refresh Logic (Added back per request) ---
-    // Please be aware: With Realtime Database, data syncs automatically.
-    // A full page refresh can be disruptive (clearing forms, interrupting user input)
-    // and is generally not needed for data synchronization.
-    const refreshIntervalSeconds = 250; // Refresh every 5 seconds
-    setInterval(function() {
-        location.reload();
-    }, refreshIntervalSeconds * 1000);
-        
 </script>
 </body>
 </html>
