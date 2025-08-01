@@ -104,7 +104,7 @@
         .form-group label { margin-bottom: 5px; font-weight: bold; color: #555; font-size: 0.95em; text-align: right; }
         .project-form input[type="text"], .project-form input[type="date"], .project-form textarea, .project-form select, .tasks-dropdown-button { padding: 10px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 1em; width: 100%; box-sizing: border-box; background-color: #fcfcfc; font-family: 'Heebo', sans-serif; text-align: right; }
         .project-form input.date-input { cursor: pointer; background-image: url('data:image/svg+xml;utf8,<svg fill="%23666" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); background-repeat: no-repeat; background-position: left 10px center; background-size: 20px; padding-left: 35px; }
-        .tasks-dropdown-button { cursor: pointer; position: relative; }
+        .tasks-dropdown-button { cursor: pointer; position: relative; width: 100%; }
         .tasks-dropdown-button::after { content: ''; position: absolute; left: 15px; top: 50%; transform: translateY(-50%); border: 6px solid transparent; border-top-color: #666; }
         .project-form textarea { resize: vertical; min-height: 80px; }
         .project-form select { appearance: none; background-image: url('data:image/svg+xml;utf8,<svg fill="%23666" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); background-repeat: no-repeat; background-position: left 10px center; background-size: 20px; padding-left: 30px; padding-right: 12px; }
@@ -144,49 +144,15 @@
         .export-button-wrapper { width: 95%; max-width: 1400px; text-align: center; margin-top: 25px; margin-bottom: 20px; direction: rtl; }
         .export-button-wrapper button { background-color: #17a2b8; color: white; border: none; padding: 12px 25px; border-radius: 6px; font-size: 1.05em; cursor: pointer; transition: background-color 0.2s ease, transform 0.1s ease; font-weight: bold; font-family: 'Heebo', sans-serif; }
         .export-button-wrapper button:hover { background-color: #138496; transform: translateY(-1px); }
-        
-        /* CORRECTED AND CONSOLIDATED MODAL STYLES */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.65);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0s 0.3s;
-            z-index: 1000;
-        }
-        .modal-overlay.visible {
-            opacity: 1;
-            visibility: visible;
-            transition: opacity 0.3s ease;
-        }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.65); display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0s 0.3s; z-index: 1000; }
+        .modal-overlay.visible { opacity: 1; visibility: visible; transition: opacity 0.3s ease; }
         #loginModal { z-index: 2000; }
-        #confirmModal { z-index: 3000; }
-
-        .modal-content, .project-modal-content, .login-modal-content {
-            background-color: #fff;
-            padding: 25px 30px;
-            border-radius: 10px;
-            width: 90%;
-            transform: scale(0.9);
-            transition: transform 0.3s ease;
-        }
-        .modal-overlay.visible .modal-content, 
-        .modal-overlay.visible .project-modal-content, 
-        .modal-overlay.visible .login-modal-content {
-            transform: scale(1);
-        }
-
-        .project-modal-content { max-width: 600px; text-align: right; }
+        #confirmModal, #dataActionModal { z-index: 3000; }
+        .modal-content, .project-modal-content, .login-modal-content { background-color: #fff; padding: 25px 30px; border-radius: 10px; width: 90%; transform: scale(0.9); transition: transform 0.3s ease; }
+        .modal-overlay.visible .modal-content, .modal-overlay.visible .project-modal-content, .modal-overlay.visible .login-modal-content { transform: scale(1); }
+        .project-modal-content { max-width: 600px; text-align: right; position: relative; }
         .modal-content { max-width: 500px; text-align: right; }
         .login-modal-content { max-width: 400px; text-align: center; }
-
         .project-modal-close { position: absolute; top: 10px; left: 15px; font-size: 2em; font-weight: bold; color: #888; cursor: pointer; line-height: 1; }
         .project-modal-close:hover { color: #000; }
         .project-modal-content h3 { margin-top: 0; color: #0056b3; }
@@ -202,7 +168,8 @@
         .btn-success:hover { background-color: #218838; }
         .btn-secondary { background-color: #6c757d; color: white; }
         .btn-secondary:hover { background-color: #5a6268; }
-        
+        .btn-primary { background-color: #007bff; color: white; }
+        .btn-primary:hover { background-color: #0056b3; }
         #csvFileInput { display: none; }
         .login-modal-content h2 { border-bottom: none; padding-bottom: 0; margin-bottom: 25px; }
         #googleSignInBtn { display: inline-flex; align-items: center; justify-content: center; gap: 15px; background-color: #4285F4; color: white; border-radius: 8px; border: none; padding: 12px 24px; font-size: 1.1em; font-weight: bold; font-family: 'Heebo', sans-serif; cursor: pointer; transition: background-color 0.2s ease; width: 100%; }
@@ -270,6 +237,18 @@
         </div>
     </div>
 
+    <div id="dataActionModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>ניהול נתונים</h3>
+            <p>בחר את הפעולה הרצויה. שים לב, ייבוא נתונים יחליף את כל המידע הקיים במערכת.</p>
+            <div class="modal-actions">
+                <button id="dataActionCancelBtn" class="btn-secondary">ביטול</button>
+                <button id="dataActionExportBtn" class="btn-primary">ייצוא לקובץ CSV</button>
+                <button id="dataActionImportBtn" class="btn-success">ייבוא מקובץ CSV</button>
+            </div>
+        </div>
+    </div>
+
     <div id="projectModal" class="modal-overlay">
         </div>
 
@@ -309,10 +288,12 @@
                     <label for="finishDate">תאריך סיום:</label>
                     <input type="text" id="finishDate" class="date-input" placeholder="dd/mm/yyyy" readonly>
                 </div>
-                <div id="tasksDropdown" class="tasks-dropdown-container form-group full-width">
+                <div class="form-group">
                     <label>מטלות לביצוע:</label>
-                    <button type="button" id="tasksDropdownButton" class="tasks-dropdown-button">בחר מטלות...</button>
-                    <div id="tasksChecklistContainer" class="tasks-checklist-container"></div>
+                    <div class="tasks-dropdown-container">
+                        <button type="button" id="tasksDropdownButton" class="tasks-dropdown-button">בחר מטלות...</button>
+                        <div id="tasksChecklistContainer" class="tasks-checklist-container"></div>
+                    </div>
                 </div>
                 <div class="form-group"><label for="taskProgress">התקדמות מטלה:</label><select id="taskProgress"><option value="Not Started">לא התחיל</option><option value="In Progress">בטיפול</option><option value="On Hold">בהמתנה</option><option value="Completed">הושלם</option></select></div>
                 <div class="form-group full-width"><label for="furtherNotes">הערות נוספות:</label><textarea id="furtherNotes" placeholder="כל הערה נוספת..."></textarea></div>
@@ -332,7 +313,7 @@
     </div>
     
     <div class="export-button-wrapper auth-controlled">
-        <button id="dataMgmtBtn">ייצוא / ייבוא נתונים</button>
+        <button id="dataMgmtBtn">ניהול נתונים</button>
         <label for="csvFileInput" class="visually-hidden">Upload CSV File</label>
         <input type="file" id="csvFileInput" accept=".csv">
     </div>
@@ -367,16 +348,18 @@
     const adminOverrideBtn = document.getElementById('adminOverride');
     const datePickerModal = document.getElementById('datePickerModal');
     const confirmModal = document.getElementById('confirmModal');
+    const dataActionModal = document.getElementById('dataActionModal');
     const allElements = {
         todoInput: document.getElementById('todoInput'), addTodoBtn: document.getElementById('addTodoBtn'),
         todoList: document.getElementById('todoList'), projectNameInput: document.getElementById('projectName'),
         projectAddressInput: document.getElementById('projectAddress'), contactInfoInput: document.getElementById('contactInfo'),
         startDateInput: document.getElementById('startDate'), finishDateInput: document.getElementById('finishDate'),
-        tasksDropdown: document.getElementById('tasksDropdown'), tasksDropdownButton: document.getElementById('tasksDropdownButton'),
+        tasksDropdown: document.querySelector('.tasks-dropdown-container'), tasksDropdownButton: document.getElementById('tasksDropdownButton'),
         tasksChecklistContainer: document.getElementById('tasksChecklistContainer'), 
         taskProgressSelect: document.getElementById('taskProgress'), furtherNotesInput: document.getElementById('furtherNotes'),
         addProjectBtn: document.getElementById('addProjectBtn'), deleteProjectBtn: document.getElementById('deleteProjectBtn'),
-        projectList: document.getElementById('projectList'), clearHistoryBtn: document.getElementById('clearHistoryBtn'),
+        projectList: document.getElementById('projectList'), projectHistoryList: document.getElementById('projectHistoryList'),
+        clearHistoryBtn: document.getElementById('clearHistoryBtn'),
         projectManagementContainer: document.getElementById('projectManagementContainer'), projectModal: document.getElementById('projectModal'),
         dataMgmtBtn: document.getElementById('dataMgmtBtn'), csvFileInput: document.getElementById('csvFileInput')
     };
@@ -394,7 +377,6 @@
 
     // --- 4. FUNCTION DEFINITIONS ---
     function updateUIForAuthState() {
-        console.log("⚙️ updateUIForAuthState running. User is authenticated:", isAuthenticated);
         document.querySelectorAll('.auth-controlled').forEach(el => {
             if (isAuthenticated) { el.classList.remove('hidden-for-guest'); } 
             else { el.classList.add('hidden-for-guest'); }
@@ -425,8 +407,8 @@
             titleEl.textContent = title;
             textEl.textContent = text;
             okBtn.textContent = confirmText;
-            okBtn.className = ""; // Clear existing classes
-            okBtn.classList.add(confirmClass);
+            okBtn.className = ""; okBtn.classList.add('modal-action-btn', confirmClass);
+            cancelBtn.className = "modal-action-btn btn-secondary";
             confirmModal.classList.add('visible');
             const onOk = () => { cleanup(); resolve(true); };
             const onCancel = () => { cleanup(); resolve(false); };
@@ -595,10 +577,6 @@
         const finishDateFormatted = project.finishDate ? formatDate(project.finishDate) : 'N/A';
         const createdDateFormatted = project.addedDateTime ? new Date(project.addedDateTime).toLocaleString('he-IL', dateOptions) : '';
         const editedDateFormatted = project.lastEditedAt ? new Date(project.lastEditedAt).toLocaleString('he-IL', dateOptions) : '';
-        const projectModalContent = projectModal.querySelector('.project-modal-content');
-        if (projectModalContent) {
-            projectModal.innerHTML = ''; // Clear previous content if any
-        }
         projectModal.innerHTML = `<div class="project-modal-content"><span class="project-modal-close">&times;</span><h3>${project.name}</h3><p><span class="info-label">כתובת:</span> ${project.address || 'לא צויין'}</p><p><span class="info-label">תאריכים:</span> ${startDateFormatted} - ${finishDateFormatted}</p><p><span class="info-label">מטלות:</span> ${tasksSummary}</p><p><span class="info-label">נוצר ב:</span> ${createdDateFormatted} על ידי <strong>${project.whoCreated || 'לא ידוע'}</strong></p>${project.lastEditedAt ? `<p><span class="info-label">עודכן לאחרונה:</span> ${editedDateFormatted} על ידי <strong>${project.lastEditedBy || 'לא ידוע'}</strong></p>` : ''}<p><span class="info-label">התקדמות כללית:</span> <span style="font-weight: bold; color: ${getProgressColor(project.progress)};">${getProgressTranslation(project.progress)}</span></p><p><span class="info-label">הערות:</span> ${project.furtherNotes || 'אין'}</p><div class="project-modal-actions"><button class="add-btn auth-controlled">ערוך פרויקט</button></div></div>`;
         requestAnimationFrame(() => projectModal.classList.add('visible'));
         projectModal.querySelector('.project-modal-close').addEventListener('click', hideProjectModal);
@@ -682,10 +660,21 @@
     document.querySelectorAll('.toggle-btn').forEach(btn => btn.id !== 'toggleHistoryBtn' && btn.addEventListener('click', toggleContainer));
     const toggleHistoryBtn = document.getElementById('toggleHistoryBtn');
     toggleHistoryBtn.addEventListener('click', () => { const projectHistoryList = document.getElementById('projectHistoryList'); const clearHistoryBtnWrapper = document.querySelector('.clear-history-btn-wrapper'); const isCollapsed = projectHistoryList.classList.toggle('collapsed'); clearHistoryBtnWrapper.classList.toggle('collapsed'); toggleHistoryBtn.innerHTML = isCollapsed ? '+' : '&#x2212;'; });
-    allElements.dataMgmtBtn.addEventListener('click', async () => {
-        const confirmed = await showConfirmation("ייבוא או ייצוא נתונים?", "לחץ 'אישור' כדי לייבא קובץ (פעולה זו תחליף את כל הנתונים). לחץ 'ביטול' כדי לייצא את הנתונים הנוכחיים.", "ייבוא", "btn-success");
-        if(confirmed) { allElements.csvFileInput.click(); } else { /* Will add export function back later */ console.log("Export action triggered."); }
+    
+    allElements.dataMgmtBtn.addEventListener('click', () => dataActionModal.classList.add('visible'));
+    document.getElementById('dataActionCancelBtn').addEventListener('click', () => dataActionModal.classList.remove('visible'));
+    document.getElementById('dataActionExportBtn').addEventListener('click', () => {
+        dataActionModal.classList.remove('visible');
+        exportProjectsToCsv();
     });
+    document.getElementById('dataActionImportBtn').addEventListener('click', async () => {
+        dataActionModal.classList.remove('visible');
+        const confirmed = await showConfirmation("אזהרה: פעולה הרסנית", "ייבוא קובץ יחליף לצמיתות את כל הנתונים הנוכחיים. האם אתה בטוח שברצונך להמשיך?", "כן, יבא את הקובץ", "btn-danger");
+        if(confirmed) { allElements.csvFileInput.click(); }
+    });
+    allElements.projectHistoryList.addEventListener('click', restoreProject);
+    allElements.tasksDropdownButton.addEventListener('click', (e) => { e.stopPropagation(); allElements.tasksDropdown.classList.toggle('open'); });
+    document.addEventListener('click', (e) => { if (!allElements.tasksDropdown.contains(e.target)) { allElements.tasksDropdown.classList.remove('open'); } });
 
     updateTime();
     setInterval(updateTime, 1000); 
@@ -695,5 +684,4 @@
     </script>
 </body>
 </html>
-
 <!-- End of app -->
