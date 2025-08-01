@@ -144,20 +144,66 @@
         .export-button-wrapper { width: 95%; max-width: 1400px; text-align: center; margin-top: 25px; margin-bottom: 20px; direction: rtl; }
         .export-button-wrapper button { background-color: #17a2b8; color: white; border: none; padding: 12px 25px; border-radius: 6px; font-size: 1.05em; cursor: pointer; transition: background-color 0.2s ease, transform 0.1s ease; font-weight: bold; font-family: 'Heebo', sans-serif; }
         .export-button-wrapper button:hover { background-color: #138496; transform: translateY(-1px); }
-        #projectModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); z-index: 1000; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0s 0.3s; }
-        #projectModal.visible { opacity: 1; visibility: visible; transition: opacity 0.3s ease; }
-        .project-modal-content { background-color: #fff; padding: 25px 30px; border-radius: 10px; width: 90%; max-width: 600px; position: relative; transform: scale(0.9); transition: transform 0.3s ease; text-align: right; }
-        #projectModal.visible .project-modal-content { transform: scale(1); }
+        
+        /* CORRECTED AND CONSOLIDATED MODAL STYLES */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.65);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0s 0.3s;
+            z-index: 1000;
+        }
+        .modal-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.3s ease;
+        }
+        #loginModal { z-index: 2000; }
+        #confirmModal { z-index: 3000; }
+
+        .modal-content, .project-modal-content, .login-modal-content {
+            background-color: #fff;
+            padding: 25px 30px;
+            border-radius: 10px;
+            width: 90%;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+        .modal-overlay.visible .modal-content, 
+        .modal-overlay.visible .project-modal-content, 
+        .modal-overlay.visible .login-modal-content {
+            transform: scale(1);
+        }
+
+        .project-modal-content { max-width: 600px; text-align: right; }
+        .modal-content { max-width: 500px; text-align: right; }
+        .login-modal-content { max-width: 400px; text-align: center; }
+
         .project-modal-close { position: absolute; top: 10px; left: 15px; font-size: 2em; font-weight: bold; color: #888; cursor: pointer; line-height: 1; }
         .project-modal-close:hover { color: #000; }
         .project-modal-content h3 { margin-top: 0; color: #0056b3; }
+        .modal-content h3 { margin-top: 0; text-align: center; }
+        .modal-content p { margin: 10px 0 20px; color: #444; text-align: center; }
         .project-modal-content p { margin: 10px 0; color: #444; }
         .project-modal-content .info-label { font-weight: bold; color: #666; margin-left: 5px; }
-        .project-modal-actions { margin-top: 20px; text-align: left; }
+        .modal-actions, .project-modal-actions { margin-top: 20px; text-align: left; display: flex; gap: 10px; justify-content: flex-end; }
+        .modal-actions button { padding: 10px 20px; border-radius: 6px; font-size: 1em; font-weight: bold; cursor: pointer; border: none; }
+        .btn-danger { background-color: #dc3545; color: white; }
+        .btn-danger:hover { background-color: #c82333; }
+        .btn-success { background-color: #28a745; color: white; }
+        .btn-success:hover { background-color: #218838; }
+        .btn-secondary { background-color: #6c757d; color: white; }
+        .btn-secondary:hover { background-color: #5a6268; }
+        
         #csvFileInput { display: none; }
-        #loginModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.75); z-index: 2000; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: opacity 0.3s ease; }
-        #loginModal.visible { opacity: 1; visibility: visible; }
-        .login-modal-content { background-color: #fff; padding: 30px; border-radius: 10px; width: 90%; max-width: 400px; text-align: center; }
         .login-modal-content h2 { border-bottom: none; padding-bottom: 0; margin-bottom: 25px; }
         #googleSignInBtn { display: inline-flex; align-items: center; justify-content: center; gap: 15px; background-color: #4285F4; color: white; border-radius: 8px; border: none; padding: 12px 24px; font-size: 1.1em; font-weight: bold; font-family: 'Heebo', sans-serif; cursor: pointer; transition: background-color 0.2s ease; width: 100%; }
         #googleSignInBtn:hover { background-color: #357ae8; }
@@ -186,7 +232,7 @@
     </style>
 </head>
 <body>
-    <div id="loginModal">
+    <div id="loginModal" class="modal-overlay">
         <div class="login-modal-content">
             <h2>ניהול פרויקטים</h2>
             <p style="margin-top: 0; margin-bottom: 25px; font-size: 1.1em; color: #555;">יש להתחבר כדי לערוך נתונים</p>
@@ -213,6 +259,20 @@
         <div class="date-picker-grid-days"></div>
     </div>
 
+    <div id="confirmModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 id="confirmModalTitle"></h3>
+            <p id="confirmModalText"></p>
+            <div class="modal-actions">
+                <button id="confirmCancelBtn" class="btn-secondary">ביטול</button>
+                <button id="confirmOkBtn"></button>
+            </div>
+        </div>
+    </div>
+
+    <div id="projectModal" class="modal-overlay">
+        </div>
+
     <div class="app-container">
         <div class="urgent-todo-container" id="urgentTodoContainer">
             <h2 class="container-header">רשימת מטלות דחופות<button class="toggle-btn" data-target="urgentTodoContainer" data-state="maximized">&#x2212;</button></h2>
@@ -221,7 +281,6 @@
             </div>
             <ul id="todoList" class="todo-list"></ul>
         </div>
-
         <div class="datetime-container" id="datetimeContainer">
             <h2 class="container-header">לוח שנה<button class="toggle-btn" data-target="datetimeContainer" data-state="maximized">&#x2212;</button></h2>
             <div class="calendar-nav">
@@ -236,7 +295,6 @@
                 <div id="currentTime"></div>
             </div>
         </div>
-
         <div class="project-management-container" id="projectManagementContainer">
             <h2 class="container-header">ניהול פרויקטים<button class="toggle-btn" data-target="projectManagementContainer" data-state="maximized">&#x2212;</button></h2>
             <div class="project-form auth-controlled">
@@ -272,7 +330,7 @@
             </div>
         </div>
     </div>
-    <div id="projectModal"></div>
+    
     <div class="export-button-wrapper auth-controlled">
         <button id="dataMgmtBtn">ייצוא / ייבוא נתונים</button>
         <label for="csvFileInput" class="visually-hidden">Upload CSV File</label>
@@ -308,6 +366,7 @@
     const guestLoginBtn = document.getElementById('guestLoginBtn');
     const adminOverrideBtn = document.getElementById('adminOverride');
     const datePickerModal = document.getElementById('datePickerModal');
+    const confirmModal = document.getElementById('confirmModal');
     const allElements = {
         todoInput: document.getElementById('todoInput'), addTodoBtn: document.getElementById('addTodoBtn'),
         todoList: document.getElementById('todoList'), projectNameInput: document.getElementById('projectName'),
@@ -346,7 +405,7 @@
     async function handleGoogleSignIn() {
         const provider = new GoogleAuthProvider();
         try { await signInWithPopup(auth, provider); } 
-        catch (error) { console.error("Google Sign-In failed:", error); alert("ההתחברות עם גוגל נכשלה. נסה שוב."); }
+        catch (error) { console.error("Google Sign-In failed:", error); }
     }
     
     function getColorForName(name) {
@@ -355,6 +414,30 @@
         for (let i = 0; i < name.length; i++) { hash = name.charCodeAt(i) + ((hash << 5) - hash); }
         const colors = ['#ffadad', '#ffd6a5', '#fdffb6', '#caffbf', '#9bf6ff', '#a0c4ff', '#bdb2ff', '#ffc6ff'];
         return colors[Math.abs(hash % colors.length)];
+    }
+
+    function showConfirmation(title, text, confirmText = 'אישור', confirmClass = 'btn-danger') {
+        return new Promise((resolve) => {
+            const titleEl = document.getElementById('confirmModalTitle');
+            const textEl = document.getElementById('confirmModalText');
+            const okBtn = document.getElementById('confirmOkBtn');
+            const cancelBtn = document.getElementById('confirmCancelBtn');
+            titleEl.textContent = title;
+            textEl.textContent = text;
+            okBtn.textContent = confirmText;
+            okBtn.className = ""; // Clear existing classes
+            okBtn.classList.add(confirmClass);
+            confirmModal.classList.add('visible');
+            const onOk = () => { cleanup(); resolve(true); };
+            const onCancel = () => { cleanup(); resolve(false); };
+            const cleanup = () => {
+                confirmModal.classList.remove('visible');
+                okBtn.removeEventListener('click', onOk);
+                cancelBtn.removeEventListener('click', onCancel);
+            };
+            okBtn.addEventListener('click', onOk, { once: true });
+            cancelBtn.addEventListener('click', onCancel, { once: true });
+        });
     }
 
     function renderDatePicker() {
@@ -430,10 +513,10 @@
         if (selectedProjectKey) {
             projectData.addedDateTime = projects[selectedProjectKey].addedDateTime; projectData.whoCreated = projects[selectedProjectKey].whoCreated;
             projectData.lastEditedAt = formatDateTime(new Date()); projectData.lastEditedBy = currentUser.displayName;
-            update(ref(db, `projects/${selectedProjectKey}`), projectData).then(() => { alert(`הפרויקט "${projectData.name}" עודכן בהצלחה!`); clearProjectForm(); }).catch(err => alert(`שגיאה בעדכון: ${err.message}`));
+            update(ref(db, `projects/${selectedProjectKey}`), projectData).then(() => { clearProjectForm(); }).catch(err => alert(`שגיאה בעדכון: ${err.message}`));
         } else {
             projectData.addedDateTime = formatDateTime(new Date()); projectData.whoCreated = currentUser.displayName;
-            set(push(dbRefProjects), projectData).then(() => { alert(`הפרויקט "${projectData.name}" נוסף בהצלחה!`); clearProjectForm(); }).catch(err => alert(`שגיאה בהוספה: ${err.message}`));
+            set(push(dbRefProjects), projectData).then(() => { clearProjectForm(); }).catch(err => alert(`שגיאה בהוספה: ${err.message}`));
         }
     }
 
@@ -450,12 +533,13 @@
         hideProjectModal();
     }
 
-    function deleteProject(event) {
+    async function deleteProject(event) {
         event.stopPropagation();
         if (!selectedProjectKey || !isAuthenticated) return;
-        if (confirm(`האם למחוק את "${projects[selectedProjectKey].name}"?`)) {
+        const confirmed = await showConfirmation("אישור מחיקה", `האם אתה בטוח שברצונך למחוק את "${projects[selectedProjectKey].name}"?`);
+        if (confirmed) {
             const pToMove = { ...projects[selectedProjectKey], deletedAt: formatDateTime(new Date()), deletedBy: currentUser.displayName };
-            update(ref(db), { [`/projects/${selectedProjectKey}`]: null, [`/deletedProjects/${selectedProjectKey}`]: pToMove }).then(() => { alert(`הפרויקט הועבר להיסטוריה.`); clearProjectForm(); }).catch(err => alert(`שגיאה במחיקה: ${err.message}`));
+            update(ref(db), { [`/projects/${selectedProjectKey}`]: null, [`/deletedProjects/${selectedProjectKey}`]: pToMove }).then(() => { clearProjectForm(); }).catch(err => alert(`שגיאה במחיקה: ${err.message}`));
         }
     }
 
@@ -474,7 +558,7 @@
     function saveTodoItemsToFirebase() { set(dbRefTodoItems, todoItems).catch(console.error); }
     
     function addTodo() {
-        const taskText = allElements.todoInput.value.trim(); if (!taskText) return alert('אנא הזן מטלה!');
+        const taskText = allElements.todoInput.value.trim(); if (!taskText) return;
         const newTodo = { id: push(dbRefTodoItems).key, text: taskText, createdBy: currentUser.displayName, createdAt: new Date().toISOString(), color: getColorForName(currentUser.displayName) };
         if(!todoItems) todoItems = [];
         todoItems.push(newTodo);
@@ -511,20 +595,34 @@
         const finishDateFormatted = project.finishDate ? formatDate(project.finishDate) : 'N/A';
         const createdDateFormatted = project.addedDateTime ? new Date(project.addedDateTime).toLocaleString('he-IL', dateOptions) : '';
         const editedDateFormatted = project.lastEditedAt ? new Date(project.lastEditedAt).toLocaleString('he-IL', dateOptions) : '';
-        projectModal.className = 'project-modal-container'; 
+        const projectModalContent = projectModal.querySelector('.project-modal-content');
+        if (projectModalContent) {
+            projectModal.innerHTML = ''; // Clear previous content if any
+        }
         projectModal.innerHTML = `<div class="project-modal-content"><span class="project-modal-close">&times;</span><h3>${project.name}</h3><p><span class="info-label">כתובת:</span> ${project.address || 'לא צויין'}</p><p><span class="info-label">תאריכים:</span> ${startDateFormatted} - ${finishDateFormatted}</p><p><span class="info-label">מטלות:</span> ${tasksSummary}</p><p><span class="info-label">נוצר ב:</span> ${createdDateFormatted} על ידי <strong>${project.whoCreated || 'לא ידוע'}</strong></p>${project.lastEditedAt ? `<p><span class="info-label">עודכן לאחרונה:</span> ${editedDateFormatted} על ידי <strong>${project.lastEditedBy || 'לא ידוע'}</strong></p>` : ''}<p><span class="info-label">התקדמות כללית:</span> <span style="font-weight: bold; color: ${getProgressColor(project.progress)};">${getProgressTranslation(project.progress)}</span></p><p><span class="info-label">הערות:</span> ${project.furtherNotes || 'אין'}</p><div class="project-modal-actions"><button class="add-btn auth-controlled">ערוך פרויקט</button></div></div>`;
         requestAnimationFrame(() => projectModal.classList.add('visible'));
         projectModal.querySelector('.project-modal-close').addEventListener('click', hideProjectModal);
-        projectModal.addEventListener('click', (e) => e.target === projectModal && hideProjectModal());
         const editButton = projectModal.querySelector('.add-btn'); if(isAuthenticated && editButton) { editButton.addEventListener('click', () => populateFormForEditing(projectId, project)); }
         updateUIForAuthState();
     }
     
     function hideProjectModal() { projectModal.classList.remove('visible'); }
     
-    function restoreProject(event) { const btn = event.target.closest('.restore-project-btn'); if (!btn || !isAuthenticated) return; const projectId = btn.dataset.projectId; const pToRestore = { ...deletedProjects[projectId] }; if (pToRestore) { delete pToRestore.deletedAt; delete pToRestore.deletedBy; update(ref(db), { [`/deletedProjects/${projectId}`]: null, [`/projects/${projectId}`]: pToRestore }).then(() => alert(`"${pToRestore.name}" שוחזר.`)); } }
+    async function restoreProject(event) {
+        const btn = event.target.closest('.restore-project-btn'); if (!btn || !isAuthenticated) return;
+        const projectId = btn.dataset.projectId;
+        const confirmed = await showConfirmation("אישור שחזור", `האם לשחזר את הפרויקט "${deletedProjects[projectId].name}"?`, 'שחזר', 'btn-success');
+        if (confirmed) {
+            const pToRestore = { ...deletedProjects[projectId] };
+            if (pToRestore) { delete pToRestore.deletedAt; delete pToRestore.deletedBy; update(ref(db), { [`/deletedProjects/${projectId}`]: null, [`/projects/${projectId}`]: pToRestore }); }
+        }
+    }
     
-    function clearHistory() { if (isAuthenticated && confirm('האם למחוק את כל ההיסטוריה?')) set(dbRefDeletedProjects, {}); }
+    async function clearHistory() {
+        if (!isAuthenticated) return;
+        const confirmed = await showConfirmation("אישור ניקוי היסטוריה", "פעולה זו תמחק לצמיתות את כל הפרויקטים שבארכיון. האם להמשיך?");
+        if (confirmed) { set(dbRefDeletedProjects, {}); }
+    }
     
     function renderProjects() {
         allElements.projectList.innerHTML = ''; const projectsArray = Object.entries(projects || {}); if (projectsArray.length === 0) { allElements.projectList.innerHTML = '<li style="grid-column: 1 / -1; text-align: right; color: #888; font-style: italic; background: none; border: none; box-shadow: none; cursor: default; padding: 10px;">אין פרויקטים נוכחיים.</li>'; return; }
@@ -562,7 +660,11 @@
 
     googleSignInBtn.addEventListener('click', handleGoogleSignIn);
     guestLoginBtn.addEventListener('click', () => { isAuthenticated = false; currentUser = null; updateUIForAuthState(); loginModal.classList.remove('visible'); });
-    adminOverrideBtn.addEventListener('click', () => { const pin = prompt("הזן קוד גישה למנהל:"); if (pin === "1598") { isAuthenticated = true; currentUser = { displayName: 'Admin' }; updateUIForAuthState(); loginModal.classList.remove('visible'); } else if (pin !== null) { alert("קוד גישה שגוי."); } });
+    adminOverrideBtn.addEventListener('click', async () => {
+        const pin = prompt("הזן קוד גישה למנהל:");
+        if (pin === "1598") { isAuthenticated = true; currentUser = { displayName: 'Admin' }; updateUIForAuthState(); loginModal.classList.remove('visible'); } 
+        else if (pin !== null) { await showConfirmation("שגיאה", "קוד הגישה שהוזן שגוי.", "הבנתי", "btn-secondary"); }
+    });
     document.getElementById('prevMonthBtn').addEventListener('click', () => { displayedDate.setMonth(displayedDate.getMonth() - 1); generateCalendar(); });
     document.getElementById('nextMonthBtn').addEventListener('click', () => { displayedDate.setMonth(displayedDate.getMonth() + 1); generateCalendar(); });
     allElements.addTodoBtn.addEventListener('click', addTodo);
@@ -580,6 +682,10 @@
     document.querySelectorAll('.toggle-btn').forEach(btn => btn.id !== 'toggleHistoryBtn' && btn.addEventListener('click', toggleContainer));
     const toggleHistoryBtn = document.getElementById('toggleHistoryBtn');
     toggleHistoryBtn.addEventListener('click', () => { const projectHistoryList = document.getElementById('projectHistoryList'); const clearHistoryBtnWrapper = document.querySelector('.clear-history-btn-wrapper'); const isCollapsed = projectHistoryList.classList.toggle('collapsed'); clearHistoryBtnWrapper.classList.toggle('collapsed'); toggleHistoryBtn.innerHTML = isCollapsed ? '+' : '&#x2212;'; });
+    allElements.dataMgmtBtn.addEventListener('click', async () => {
+        const confirmed = await showConfirmation("ייבוא או ייצוא נתונים?", "לחץ 'אישור' כדי לייבא קובץ (פעולה זו תחליף את כל הנתונים). לחץ 'ביטול' כדי לייצא את הנתונים הנוכחיים.", "ייבוא", "btn-success");
+        if(confirmed) { allElements.csvFileInput.click(); } else { /* Will add export function back later */ console.log("Export action triggered."); }
+    });
 
     updateTime();
     setInterval(updateTime, 1000); 
