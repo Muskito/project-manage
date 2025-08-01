@@ -11,7 +11,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        /* All CSS is unchanged */
         body {
             font-family: 'Heebo', Arial, sans-serif;
             margin: 20px;
@@ -164,24 +163,38 @@
             overflow-y: auto;
             flex-grow: 1;
         }
+        /* UPDATED: To-Do item styles */
         .todo-list li {
-            background-color: #FFC0CB;
-            border: 1px solid #e0b0b0;
-            padding: 12px 15px;
+            /* background-color is now set dynamically */
+            border: 1px solid #e0e0e0;
+            padding: 10px 15px;
             margin-bottom: 8px;
             border-radius: 5px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             cursor: pointer;
-            transition: background-color 0.2s ease, transform 0.1s ease;
+            transition: transform 0.1s ease;
             word-wrap: break-word;
             text-align: right;
+            flex-wrap: wrap; /* Allow wrapping for metadata */
         }
         .todo-list li:hover {
-            background-color: #FFB6C1;
             transform: translateY(-2px);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+        }
+        .todo-text {
+            font-size: 1.05em;
+            color: #333;
+            width: 100%;
+            margin-bottom: 5px;
+        }
+        .todo-meta {
+            width: 100%;
+            text-align: left;
+            font-size: 0.75em;
+            color: #555;
+            direction: ltr;
         }
 
         .datetime-container {
@@ -767,7 +780,6 @@
         appId: "1:362295689587:web:ffe6a847b0e8a7fb920506",
         measurementId: "G-Z5JJT7XT5F"
     };
-
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     const auth = getAuth(app);
@@ -820,6 +832,19 @@
             console.error("Google Sign-In failed:", error);
             alert("ההתחברות עם גוגל נכשלה. נסה שוב.");
         }
+    }
+    
+    function getColorForName(name) {
+        if (!name) return '#e0e0e0'; // Default gray color
+        let hash = 0;
+        for (let i = 0; i < name.length; i++) {
+            hash = name.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        const colors = [
+            '#ffadad', '#ffd6a5', '#fdffb6', '#caffbf', '#9bf6ff',
+            '#a0c4ff', '#bdb2ff', '#ffc6ff', '#fffffc'
+        ];
+        return colors[Math.abs(hash % colors.length)];
     }
 
     function saveProject() {
@@ -884,11 +909,53 @@
     
     function saveTodoItemsToFirebase() { set(dbRefTodoItems, todoItems).catch(console.error); }
     
-    function addTodo() { const taskText = allElements.todoInput.value.trim(); if (!taskText) return alert('אנא הזן מטלה!'); todoItems.push(taskText); saveTodoItemsToFirebase(); allElements.todoInput.value = ''; allElements.todoInput.focus(); }
+    function addTodo() {
+        const taskText = allElements.todoInput.value.trim();
+        if (!taskText) return alert('אנא הזן מטלה!');
+        
+        const newTodo = {
+            id: push(dbRefTodoItems).key, // Unique ID for each task
+            text: taskText,
+            createdBy: currentUser.displayName,
+            createdAt: new Date().toISOString(),
+            color: getColorForName(currentUser.displayName)
+        };
+
+        if(!todoItems) todoItems = [];
+        todoItems.push(newTodo);
+        saveTodoItemsToFirebase(); 
+        allElements.todoInput.value = ''; 
+        allElements.todoInput.focus();
+    }
     
     function renderTodoItems() {
-        allElements.todoList.innerHTML = ''; if (todoItems.length === 0) { allElements.todoList.innerHTML = '<li style="text-align: right; color: #888; font-style: italic; background: none; border: none; box-shadow: none; cursor: default; padding: 10px;">אין מטלות.</li>'; return; }
-        todoItems.forEach((taskText, index) => { const li = document.createElement('li'); li.textContent = taskText; li.dataset.index = index; li.addEventListener('click', function() { if(!isAuthenticated) return; todoItems.splice(parseInt(this.dataset.index), 1); saveTodoItemsToFirebase(); }); allElements.todoList.appendChild(li); });
+        allElements.todoList.innerHTML = '';
+        if (!todoItems || todoItems.length === 0) {
+            allElements.todoList.innerHTML = '<li style="text-align: right; color: #888; font-style: italic; background: none; border: none; box-shadow: none; cursor: default; padding: 10px;">אין מטלות.</li>';
+            return;
+        }
+        todoItems.forEach((task, index) => {
+            // Backwards compatibility check
+            if(typeof task === 'string') {
+                console.warn("Found old string-based todo item. It will not be displayed correctly.", task);
+                return;
+            }
+
+            const li = document.createElement('li');
+            li.style.backgroundColor = task.color;
+            li.innerHTML = `
+                <span class="todo-text">${task.text}</span>
+                <span class="todo-meta">נוצר על ידי ${task.createdBy} ב-${new Date(task.createdAt).toLocaleDateString('he-IL')}</span>
+            `;
+            
+            li.addEventListener('click', function() { 
+                if(!isAuthenticated) return; 
+                // Find the task by ID to delete, which is safer than using index
+                todoItems = todoItems.filter(item => item.id !== task.id);
+                saveTodoItemsToFirebase(); 
+            });
+            allElements.todoList.appendChild(li);
+        });
     }
     
     function updateTasksButtonText() { allElements.tasksDropdownButton.textContent = `בחר מטלות (${allElements.tasksChecklistContainer.querySelectorAll('input:checked').length} / ${masterTaskList.length})`; }
