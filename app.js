@@ -51,8 +51,7 @@ const dom = {
     projectModal: document.getElementById('projectModal'),
     dataMgmtBtn: document.getElementById('dataMgmtBtn'), 
     csvFileInput: document.getElementById('csvFileInput'),
-    projectManagementContainer: document.getElementById('projectManagementContainer'),
-    emailLink: document.getElementById('emailLink')
+    projectManagementContainer: document.getElementById('projectManagementContainer')
 };
 
 // --- 3. STATE MANAGEMENT ---
@@ -217,7 +216,7 @@ async function saveProject() {
         'פרטי יצירת קשר': dom.contactInfoInput.value.trim()
     };
     
-    if (!AppState.selectedProjectKey) {
+    if (!AppState.selectedProjectKey) { 
         const emptyFields = Object.entries(requiredFields).filter(([_, value]) => !value).map(([key]) => key);
         if (emptyFields.length > 0) {
             await showConfirmation("שדות חובה", `נא למלא את השדות הבאים:<br>- ${emptyFields.join('<br>- ')}`, "הבנתי", "btn-secondary", false);
@@ -376,8 +375,7 @@ async function restoreProject(event) {
         if (pToRestore) { 
             delete pToRestore.deletedAt; 
             delete pToRestore.deletedBy; 
-            await update(ref(db), { [`/deletedProjects/${projectId}`]: null, [`/projects/${projectId}`]: pToRestore });
-            await showConfirmation("הצלחה", `הפרויקט "${pToRestore.name}" שוחזר.`, "אישור", "btn-success", false);
+            update(ref(db), { [`/deletedProjects/${projectId}`]: null, [`/projects/${projectId}`]: pToRestore });
         }
     }
 }
@@ -558,13 +556,6 @@ dom.csvFileInput.addEventListener('change', (event) => {
     const file = event.target.files[0];
     if (file) { importProjectsFromCsv(file); }
 });
-dom.emailLink.addEventListener('click', (e) => {
-    e.preventDefault();
-    dom.contactModal.classList.add('visible');
-});
-document.getElementById('contactCancelBtn').addEventListener('click', () => dom.contactModal.classList.remove('visible'));
-document.getElementById('contactSendBtn').addEventListener('click', sendContactEmail);
-
 
 updateTime();
 setInterval(updateTime, 1000); 
