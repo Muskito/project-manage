@@ -157,10 +157,6 @@
         .calendar-footer { margin-top: 15px; padding-top: 10px; border-top: 1px solid var(--border-color); text-align: center; }
         #currentTime { font-size: 1.5em; font-weight: 500; color: var(--accent-primary); }
         
-        .dev-credit { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-color); text-align: center; }
-        .dev-credit a { font-size: 0.8em; color: var(--text-secondary); text-decoration: none; transition: color 0.2s; }
-        .dev-credit a:hover { color: var(--accent-primary); text-decoration: underline; }
-        
         .project-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color); }
         .form-group { display: flex; flex-direction: column; }
         .form-group.full-width { grid-column: 1 / -1; }
@@ -219,8 +215,13 @@
             width: 100%;
             max-width: 1400px;
             margin: 25px auto 0;
-            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
         }
+        .dev-credit a { font-size: 0.8em; color: var(--text-secondary); text-decoration: none; transition: color 0.2s; }
+        .dev-credit a:hover { color: var(--accent-primary); text-decoration: underline; }
 
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(30, 41, 59, 0.7); display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0s 0.3s; z-index: 1000; }
         .modal-overlay.visible { opacity: 1; visibility: visible; transition: opacity 0.3s ease; }
@@ -407,21 +408,22 @@
                 <div class="calendar-footer">
                     <div id="currentTime"></div>
                 </div>
-                 <div class="dev-credit">
-                    <a href="mailto:mustakis@gmail.com">Net-Ease app.dev.</a>
-                 </div>
             </section>
         </aside>
     </div>
     
-    <div class="footer-actions auth-controlled">
-        <button id="dataMgmtBtn" class="btn btn-secondary">ניהול נתונים</button>
+    <div class="footer-actions">
+        <button id="dataMgmtBtn" class="btn btn-secondary auth-controlled">ניהול נתונים</button>
         <input type="file" id="csvFileInput" class="visually-hidden" accept=".csv">
+        <div class="dev-credit">
+            <a href="mailto:mustakis@gmail.com">Net-Ease app.dev.</a>
+        </div>
     </div>
 
     <script type="module">
-        // --- ALL JAVASCRIPT CODE ---
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+    // --- All JavaScript code is below ---
+    
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
 import { getDatabase, ref, set, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
@@ -746,9 +748,11 @@ function renderChecklist(projectTasks = {}) {
         const formattedDate = timestamp ? new Date(timestamp).toLocaleString('he-IL', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }) : '';
         dom.tasksChecklistContainer.insertAdjacentHTML('beforeend', 
             `<div class="task-item">
+                <div class="task-item__details">
+                    <label for="task-${taskName.replace(/\s/g, '')}">${taskName}</label>
+                    <span class="task-timestamp">${checked && user ? `${user} - ${formattedDate}` : ''}</span>
+                </div>
                 <input type="checkbox" id="task-${taskName.replace(/\s/g, '')}" data-task-name="${taskName}" ${checked ? 'checked' : ''} data-timestamp="${timestamp}" data-user="${user}">
-                <label for="task-${taskName.replace(/\s/g, '')}">${taskName}</label>
-                <span class="task-timestamp">${checked && user ? `${user} - ${formattedDate}` : ''}</span>
              </div>`
         ); 
     });
@@ -828,7 +832,6 @@ function clearProjectForm() {
 
 function getProgressColor(p) { return {'Not Started': '#dc3545', 'In Progress': '#ffc107', 'On Hold': '#6c757d', 'Completed': '#28a745'}[p] || '#333'; }
 function getProgressTranslation(p) { const map = {'Not Started': 'לא התחיל', 'In Progress': 'בטיפול', 'On Hold': 'בהמתנה', 'Completed': 'הושלם'}; return map[p] || p; }
-function toggleContainer(event) { const btn = event.target; const container = document.getElementById(btn.dataset.target); if (container) { container.classList.toggle('minimized'); btn.innerHTML = container.classList.contains('minimized') ? '+' : '&#x2212;'; } }
 
 function exportProjectsToCsv() {
     const headers = ["name", "address", "contactInfo", "startDate", "finishDate", "tasks", "progress", "furtherNotes", "addedDateTime", "whoCreated", "lastEditedAt", "lastEditedBy", "deletedAt", "deletedBy"];
@@ -946,17 +949,25 @@ document.addEventListener('click', (event) => {
     if (datePickerModal.style.display === 'block' && !datePickerModal.contains(event.target) && !event.target.classList.contains('date-input')) { hideDatePicker(); }
     if (dom.tasksDropdownGroup.classList.contains('open') && !dom.tasksDropdownGroup.contains(event.target)) { dom.tasksDropdownGroup.classList.remove('open'); }
 });
-document.querySelectorAll('.card__toggle-btn').forEach(btn => btn.addEventListener('click', (e) => {
-    const targetId = e.target.dataset.target;
-    if (!targetId) return; 
-    const targetCard = document.getElementById(targetId);
-    if (targetCard) {
-        const isMinimized = targetCard.classList.toggle('minimized');
-        e.target.innerHTML = isMinimized ? '+' : '&#x2212;';
-    }
-}));
-const toggleHistoryBtn = document.getElementById('toggleHistoryBtn');
-toggleHistoryBtn.addEventListener('click', () => { const projectHistoryList = dom.projectHistoryList; const clearHistoryBtnWrapper = document.querySelector('.clear-history-btn-wrapper'); const isCollapsed = projectHistoryList.classList.toggle('collapsed'); clearHistoryBtnWrapper.classList.toggle('collapsed'); toggleHistoryBtn.innerHTML = isCollapsed ? '+' : '&#x2212;'; });
+document.querySelectorAll('.card__toggle-btn').forEach(btn => {
+    // Exclude the history toggle from this generic listener, as it has custom behavior
+    if (btn.id === 'toggleHistoryBtn') return;
+    btn.addEventListener('click', (e) => {
+        const targetId = e.target.dataset.target;
+        const targetCard = document.getElementById(targetId);
+        if (targetCard) {
+            const isMinimized = targetCard.classList.toggle('minimized');
+            e.target.innerHTML = isMinimized ? '+' : '&#x2212;';
+        }
+    })
+});
+document.getElementById('toggleHistoryBtn').addEventListener('click', (e) => {
+    const projectHistoryList = dom.projectHistoryList;
+    const clearHistoryBtnWrapper = document.querySelector('.clear-history-btn-wrapper');
+    const isCollapsed = projectHistoryList.classList.toggle('collapsed');
+    clearHistoryBtnWrapper.classList.toggle('collapsed');
+    e.target.innerHTML = isCollapsed ? '+' : '&#x2212;';
+});
 dom.dataMgmtBtn.addEventListener('click', () => dataActionModal.classList.add('visible'));
 document.getElementById('dataActionCancelBtn').addEventListener('click', () => dataActionModal.classList.remove('visible'));
 document.getElementById('dataActionExportBtn').addEventListener('click', () => {
@@ -977,8 +988,7 @@ updateTime();
 setInterval(updateTime, 1000); 
 generateCalendar();
 clearProjectForm();
-        
-        // (This block is complete)
+    
     </script>
 </body>
 </html>
