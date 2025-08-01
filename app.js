@@ -40,6 +40,7 @@ const dom = {
     finishDateInput: document.getElementById('finishDate'),
     tasksDropdownGroup: document.querySelector('.tasks-dropdown-group'), 
     tasksDropdownButton: document.getElementById('tasksDropdownButton'),
+    tasksDropdownText: document.querySelector('.tasks-dropdown-button__text'),
     tasksChecklistContainer: document.getElementById('tasksChecklistContainer'), 
     taskProgressSelect: document.getElementById('taskProgress'), 
     furtherNotesInput: document.getElementById('furtherNotes'),
@@ -216,7 +217,7 @@ async function saveProject() {
         'פרטי יצירת קשר': dom.contactInfoInput.value.trim()
     };
     
-    if (!AppState.selectedProjectKey) {
+    if (!AppState.selectedProjectKey) { 
         const emptyFields = Object.entries(requiredFields).filter(([_, value]) => !value).map(([key]) => key);
         if (emptyFields.length > 0) {
             await showConfirmation("שדות חובה", `נא למלא את השדות הבאים:<br>- ${emptyFields.join('<br>- ')}`, "הבנתי", "btn-secondary", false);
@@ -380,8 +381,7 @@ async function restoreProject(event) {
         if (pToRestore) { 
             delete pToRestore.deletedAt; 
             delete pToRestore.deletedBy; 
-            await update(ref(db), { [`/deletedProjects/${projectId}`]: null, [`/projects/${projectId}`]: pToRestore });
-            await showConfirmation("הצלחה", `הפרויקט "${pToRestore.name}" שוחזר.`, "אישור", "btn-success", false);
+            update(ref(db), { [`/deletedProjects/${projectId}`]: null, [`/projects/${projectId}`]: pToRestore });
         }
     }
 }
