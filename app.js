@@ -11,7 +11,7 @@ const firebaseConfig = {
     storageBucket: "projmanage.firebasestorage.app",
     messagingSenderId: "362295689587",
     appId: "1:362295689587:web:ffe6a847b0e8a7fb920506",
-    measurementId: "G-Z5JJT7XT5F"
+    measurementId: "G-Z5JJTT7XT5F"
 };
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
@@ -375,7 +375,8 @@ async function restoreProject(event) {
         if (pToRestore) { 
             delete pToRestore.deletedAt; 
             delete pToRestore.deletedBy; 
-            update(ref(db), { [`/deletedProjects/${projectId}`]: null, [`/projects/${projectId}`]: pToRestore });
+            await update(ref(db), { [`/deletedProjects/${projectId}`]: null, [`/projects/${projectId}`]: pToRestore });
+            await showConfirmation("הצלחה", `הפרויקט "${pToRestore.name}" שוחזר.`, "אישור", "btn-success", false);
         }
     }
 }
@@ -527,18 +528,18 @@ document.addEventListener('click', (event) => {
 document.querySelectorAll('.card__toggle-btn').forEach(btn => {
     if (btn.id === 'toggleHistoryBtn') return;
     btn.addEventListener('click', (e) => {
-        const targetId = e.target.dataset.target;
+        const targetId = e.currentTarget.dataset.target;
         const targetCard = document.getElementById(targetId);
         if (targetCard) {
             const isMinimized = targetCard.classList.toggle('minimized');
-            e.target.innerHTML = isMinimized ? '+' : '&#x2212;';
+            e.currentTarget.innerHTML = isMinimized ? '+' : '&#x2212;';
         }
-    })
+    });
 });
 document.getElementById('toggleHistoryBtn').addEventListener('click', (e) => { 
     const isCollapsed = dom.projectHistoryList.classList.toggle('collapsed');
     document.querySelector('.clear-history-btn-wrapper').classList.toggle('collapsed');
-    e.target.innerHTML = isCollapsed ? '+' : '&#x2212;'; 
+    e.currentTarget.innerHTML = isCollapsed ? '+' : '&#x2212;'; 
 });
 dom.dataMgmtBtn.addEventListener('click', () => dataActionModal.classList.add('visible'));
 document.getElementById('dataActionCancelBtn').addEventListener('click', () => dataActionModal.classList.remove('visible'));
