@@ -81,10 +81,15 @@
             max-width: 1400px;
         }
         
+        #projectManagementContainer { order: 2; }
+        .sidebar { order: 1; }
+
         @media (min-width: 992px) {
             .app-container {
                 grid-template-columns: 3fr 1fr;
             }
+            #projectManagementContainer { order: 0; }
+            .sidebar { order: 0; }
         }
         
         .sidebar {
@@ -192,11 +197,12 @@
         .history-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
         .history-list { display: flex; flex-direction: column; gap: 10px; }
         .history-list li { background-color: #FFF3F3; border-color: #FED7D7; }
+        .history-list li .deleted-text-content { flex-grow: 1; text-align: right; }
         .history-list li strong { color: var(--accent-danger); }
         .history-list.collapsed, .clear-history-btn-wrapper.collapsed { display: none; }
         .restore-project-btn { background-color: var(--accent-primary); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8em; font-family: var(--font-family); white-space: nowrap; transition: background-color 0.2s ease; pointer-events: auto; }
         .restore-project-btn:hover { background-color: var(--accent-primary-hover); }
-        .clear-history-btn-wrapper { width: 100%; text-align: left; margin-top: 15px; }
+        .clear-history-btn-wrapper { width: 100%; text-align: left; margin-top: 15px; margin-right: auto; }
         
         .footer-actions {
             width: 100%;
@@ -223,7 +229,12 @@
         .project-modal-content .info-label { font-weight: bold; color: var(--text-secondary); margin-left: 5px; }
         .modal-actions, .project-modal-actions { margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end; }
         .modal-actions button { padding: 10px 20px; border-radius: 6px; font-size: 1em; font-weight: bold; cursor: pointer; border: none; }
-        #googleSignInBtn { background-color: #4285F4; }
+        
+        .login-modal-actions { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+        .login-modal-actions .btn { width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 12px; font-size: 1em; }
+        .btn-google { background-color: #4285F4; color: white; }
+        .btn-google svg { width: 20px; height: 20px; }
+
         .admin-override-container { margin-top: 20px; text-align: center; }
         .admin-override-container svg { width: 24px; height: 24px; opacity: 0.5; cursor: pointer; transition: opacity 0.2s; }
         .admin-override-container svg:hover { opacity: 1; }
@@ -239,14 +250,12 @@
         .date-picker-day.selected { background-color: var(--accent-primary); color: white; }
         .date-picker-day.today { border: 1px solid var(--accent-primary); }
         .date-picker-day.empty { cursor: default; }
-        @media (max-width: 1200px) { .project-list { grid-template-columns: repeat(4, 1fr); } }
-        @media (max-width: 992px) { .app-container { grid-template-columns: 1fr; } }
+        
         @media (max-width: 768px) {
             #datetimeContainer { display: none; }
             .project-form { grid-template-columns: 1fr; } 
-            .project-list { grid-template-columns: repeat(2, 1fr); } 
+            .project-list { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); } 
         }
-        @media (max-width: 480px) { .project-list { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -254,11 +263,13 @@
         <div class="login-modal-content">
             <h2>ניהול פרויקטים</h2>
             <p>יש להתחבר כדי לערוך נתונים</p>
-            <button id="googleSignInBtn" class="btn">
-                <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; margin-left: 10px;"><path fill="white" d="M22.56,12.25C22.56,11.47 22.5,10.72 22.38,10H12V14.5H18.04C17.72,16.53 16.37,18.13 14.25,18.13C11.88,18.13 10,16.25 10,13.88C10,11.5 11.88,9.63 14.25,9.63C15.28,9.63 16.2,10 16.89,10.61L19.78,7.72C18.13,6.13 16.37,5.25 14.25,5.25C10.08,5.25 6.63,8.38 6.63,12.5C6.63,16.62 10.08,19.75 14.25,19.75C18.42,19.75 22.68,16.56 22.68,12.63C22.68,12.44 22.56,12.25 22.56,12.25Z"></path></svg>
-                <span>התחברות עם גוגל</span>
-            </button>
-            <button id="guestLoginBtn" type="button" class="btn btn-secondary" style="margin-top: 10px; width: 100%;">המשך כאורח (צפייה בלבד)</button>
+            <div class="login-modal-actions">
+                <button id="googleSignInBtn" class="btn btn-google">
+                    <svg viewBox="0 0 24 24"><path fill="currentColor" d="M22.56,12.25C22.56,11.47 22.5,10.72 22.38,10H12V14.5H18.04C17.72,16.53 16.37,18.13 14.25,18.13C11.88,18.13 10,16.25 10,13.88C10,11.5 11.88,9.63 14.25,9.63C15.28,9.63 16.2,10 16.89,10.61L19.78,7.72C18.13,6.13 16.37,5.25 14.25,5.25C10.08,5.25 6.63,8.38 6.63,12.5C6.63,16.62 10.08,19.75 14.25,19.75C18.42,19.75 22.68,16.56 22.68,12.63C22.68,12.44 22.56,12.25 22.56,12.25Z"></path></svg>
+                    <span>התחברות עם גוגל</span>
+                </button>
+                <button id="guestLoginBtn" type="button" class="btn btn-secondary">המשך כאורח (צפייה בלבד)</button>
+            </div>
             <div id="adminOverride" class="admin-override-container">
                 <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 17c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6-9h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM8.9 6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1v2H8.9V6z"/></svg>
             </div>
@@ -498,7 +509,7 @@
             const okBtn = document.getElementById('confirmOkBtn');
             const cancelBtn = document.getElementById('confirmCancelBtn');
             titleEl.textContent = title;
-            textEl.innerHTML = text; // Use innerHTML to support <br> tags
+            textEl.innerHTML = text;
             okBtn.textContent = confirmText;
             okBtn.className = ""; okBtn.classList.add('btn', confirmClass);
             cancelBtn.style.display = showCancel ? 'inline-block' : 'none';
@@ -626,11 +637,11 @@
             projectData.whoCreated = AppState.projects[AppState.selectedProjectKey].whoCreated;
             projectData.lastEditedAt = formatDateTime(new Date()); 
             projectData.lastEditedBy = AppState.currentUser.displayName;
-            update(ref(db, `projects/${AppState.selectedProjectKey}`), projectData).then(clearProjectForm).catch(err => alert(`שגיאה בעדכון: ${err.message}`));
+            update(ref(db, `projects/${AppState.selectedProjectKey}`), projectData).then(clearProjectForm);
         } else {
             projectData.addedDateTime = formatDateTime(new Date()); 
             projectData.whoCreated = AppState.currentUser.displayName;
-            set(push(dbRefProjects), projectData).then(clearProjectForm).catch(err => alert(`שגיאה בהוספה: ${err.message}`));
+            set(push(dbRefProjects), projectData).then(clearProjectForm);
         }
     }
 
@@ -643,7 +654,8 @@
         renderChecklist(projectData.tasks);
         dom.taskProgressSelect.value = projectData.progress; dom.furtherNotesInput.value = projectData.furtherNotes || '';
         dom.deleteProjectBtn.disabled = false; dom.deleteProjectBtn.style.display = 'inline-block';
-        dom.addProjectBtn.textContent = 'שמור שינויים'; dom.projectManagementContainer.scrollIntoView({ behavior: 'smooth' });
+        dom.addProjectBtn.textContent = 'שמור שינויים';
+        dom.projectManagementContainer.scrollIntoView({ behavior: 'smooth' });
         hideProjectModal();
     }
 
@@ -653,7 +665,7 @@
         const confirmed = await showConfirmation("אישור מחיקה", `האם אתה בטוח שברצונך למחוק את "${projectToDelete.name}"?`);
         if (confirmed) {
             const pToMove = { ...projectToDelete, deletedAt: formatDateTime(new Date()), deletedBy: AppState.currentUser.displayName };
-            update(ref(db), { [`/projects/${AppState.selectedProjectKey}`]: null, [`/deletedProjects/${AppState.selectedProjectKey}`]: pToMove }).then(clearProjectForm).catch(err => alert(`שגיאה במחיקה: ${err.message}`));
+            update(ref(db), { [`/projects/${AppState.selectedProjectKey}`]: null, [`/deletedProjects/${AppState.selectedProjectKey}`]: pToMove }).then(clearProjectForm);
         }
     }
 
@@ -669,7 +681,7 @@
         for (let day = 1; day <= daysInMonth; day++) { const dayEl = document.createElement('div'); dayEl.className = 'calendar-day'; dayEl.textContent = day; if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) { dayEl.classList.add('current-day'); } calendarGrid.appendChild(dayEl); }
     }
     
-    function saveTodoItemsToFirebase() { set(dbRefTodoItems, AppState.todoItems).catch(console.error); }
+    function saveTodoItemsToFirebase() { set(dbRefTodoItems, AppState.todoItems); }
     
     function addTodo() {
         const taskText = dom.todoInput.value.trim(); if (!taskText) return;
@@ -787,9 +799,8 @@
     
     function exportProjectsToCsv() {
         const headers = ["name", "address", "contactInfo", "startDate", "finishDate", "tasks", "progress", "furtherNotes", "addedDateTime", "whoCreated", "lastEditedAt", "lastEditedBy", "deletedAt", "deletedBy"];
-        const allProjects = [...Object.values(AppState.projects), ...Object.values(AppState.deletedProjects)];
         let csvContent = "\uFEFF" + headers.join(",") + "\n"; 
-        allProjects.forEach(p => {
+        Object.values(AppState.projects).forEach(p => {
             const row = headers.map(header => {
                 let value = p[header] || "";
                 if (header === 'tasks' && typeof value === 'object') { value = `"${JSON.stringify(value).replace(/"/g, '""')}"`; }
@@ -799,11 +810,13 @@
             });
             csvContent += row.join(",") + "\n";
         });
+        const todoJsonString = JSON.stringify(AppState.todoItems).replace(/"/g, '""');
+        csvContent += `__TODOLIST__,"${todoJsonString}"\n`;
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
         const url = URL.createObjectURL(blob);
         link.setAttribute("href", url);
-        link.setAttribute("download", "projects_export.csv");
+        link.setAttribute("download", "projects_and_todos_export.csv");
         link.style.visibility = 'hidden';
         document.body.appendChild(link);
         link.click();
@@ -815,30 +828,32 @@
         reader.onload = async (event) => {
             const csv = event.target.result;
             const lines = csv.split("\n").filter(line => line.trim());
-            if(lines.length < 2) return await showConfirmation("שגיאת קובץ", "קובץ ה-CSV חייב להכיל שורת כותרת ולפחות שורת נתונים אחת.", "הבנתי", "btn-danger", false);
-            
+            if(lines.length < 1) return await showConfirmation("שגיאת קובץ", "קובץ ה-CSV ריק.", "הבנתי", "btn-danger", false);
             const headers = lines.shift().split(",").map(h => h.trim());
-            const newProjects = {};
+            const newDbState = { projects: {}, deletedProjects: {}, todoItems: AppState.todoItems };
             lines.forEach(line => {
                 const values = line.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g).map(v => v.replace(/^"|"$/g, '').replace(/""/g, '"'));
-                const projectData = {};
-                headers.forEach((header, index) => {
-                    let value = values[index];
-                    if (header === 'tasks' && value) {
-                        try { value = JSON.parse(value); } 
-                        catch (e) { value = {}; }
-                    }
-                    projectData[header] = value;
-                });
-                const newKey = push(dbRefProjects).key;
-                newProjects[newKey] = projectData;
+                if(values[0] === '__TODOLIST__') {
+                    try { newDbState.todoItems = JSON.parse(values[1]); } catch (e) { console.error("Could not parse todoItems JSON", e); }
+                } else {
+                    const projectData = {};
+                    headers.forEach((header, index) => {
+                        let value = values[index];
+                        if (header === 'tasks' && value) {
+                            try { value = JSON.parse(value); } 
+                            catch (e) { value = {}; }
+                        }
+                        projectData[header] = value;
+                    });
+                    const newKey = push(dbRefProjects).key;
+                    newDbState.projects[newKey] = projectData;
+                }
             });
-            
             try {
-                await set(dbRefProjects, newProjects);
-                await showConfirmation("הצלחה", "הפרויקטים יובאו בהצלחה!", "אישור", "btn-success", false);
+                await set(ref(db, '/'), newDbState);
+                await showConfirmation("הצלחה", "הנתונים יובאו בהצלחה!", "אישור", "btn-success", false);
             } catch (error) {
-                await showConfirmation("שגיאה", "נכשל בייבוא הפרויקטים.", "הבנתי", "btn-danger", false);
+                await showConfirmation("שגיאה", `נכשל בייבוא הנתונים: ${error.message}`, "הבנתי", "btn-danger", false);
             }
         };
         reader.readAsText(file);
@@ -899,10 +914,14 @@
     });
     document.querySelectorAll('.card__toggle-btn').forEach(btn => btn.addEventListener('click', (e) => {
         const targetId = e.target.dataset.target;
-        document.getElementById(targetId)?.classList.toggle('minimized');
+        const targetCard = document.getElementById(targetId);
+        if (targetCard) {
+            targetCard.classList.toggle('minimized');
+            e.target.innerHTML = targetCard.classList.contains('minimized') ? '+' : '&#x2212;';
+        }
     }));
     const toggleHistoryBtn = document.getElementById('toggleHistoryBtn');
-    toggleHistoryBtn.addEventListener('click', () => { const projectHistoryList = document.getElementById('projectHistoryList'); const clearHistoryBtnWrapper = document.querySelector('.clear-history-btn-wrapper'); const isCollapsed = projectHistoryList.classList.toggle('collapsed'); clearHistoryBtnWrapper.classList.toggle('collapsed'); toggleHistoryBtn.innerHTML = isCollapsed ? '+' : '&#x2212;'; });
+    toggleHistoryBtn.addEventListener('click', () => { const projectHistoryList = dom.projectHistoryList; const clearHistoryBtnWrapper = document.querySelector('.clear-history-btn-wrapper'); const isCollapsed = projectHistoryList.classList.toggle('collapsed'); clearHistoryBtnWrapper.classList.toggle('collapsed'); toggleHistoryBtn.innerHTML = isCollapsed ? '+' : '&#x2212;'; });
     dom.dataMgmtBtn.addEventListener('click', () => dataActionModal.classList.add('visible'));
     document.getElementById('dataActionCancelBtn').addEventListener('click', () => dataActionModal.classList.remove('visible'));
     document.getElementById('dataActionExportBtn').addEventListener('click', () => {
