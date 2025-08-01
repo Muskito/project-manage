@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        /* All CSS is unchanged from the previous version */
+        /* All CSS is unchanged */
         body {
             font-family: 'Heebo', Arial, sans-serif;
             margin: 20px;
@@ -756,6 +756,7 @@
     import { getDatabase, ref, set, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
     import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
+    // --- 1. INITIALIZATION ---
     const firebaseConfig = {
         apiKey: "AIzaSyB90h6Yllco6LZfdyrSyBl0hc4bt6fbUDg",
         authDomain: "projmanage.firebaseapp.com",
@@ -774,13 +775,9 @@
     const dbRefDeletedProjects = ref(db, 'deletedProjects');
     const dbRefTodoItems = ref(db, 'todoItems');
 
-    let isAuthenticated = false;
-    let currentUser = null;
+    // --- 2. DOM ELEMENT REFERENCES ---
     const loginModal = document.getElementById('loginModal');
     const googleSignInBtn = document.getElementById('googleSignInBtn');
-    
-    let projects = {}, deletedProjects = {}, todoItems = [], displayedDate = new Date();
-    
     const allElements = {
         todoInput: document.getElementById('todoInput'), addTodoBtn: document.getElementById('addTodoBtn'),
         todoList: document.getElementById('todoList'), projectNameInput: document.getElementById('projectName'),
@@ -795,29 +792,14 @@
         dataMgmtBtn: document.getElementById('dataMgmtBtn'), csvFileInput: document.getElementById('csvFileInput')
     };
     
+    // --- 3. GLOBAL STATE VARIABLES ---
+    let isAuthenticated = false;
+    let currentUser = null;
+    let projects = {}, deletedProjects = {}, todoItems = [], displayedDate = new Date();
     let selectedProjectKey = null;
     const masterTaskList = ["מפוחי גג", "מפוחי חניון", "מפוח חדר משאבות", "משתיקים", "דאמפרים", "תעלות", "ברכי לובי", "ברך אשפה", "מהלכי ונטות", "ונטות", "מפוח in-line", "גרילים", "גרילים נגד יתושים", "ארון פיקוד", "ביקורת 1", "ביקורת 2", "ביקורת 3", "ביקורת 4"];
 
-    onValue(dbRefProjects, (snapshot) => { projects = snapshot.val() || {}; renderProjects(); });
-    onValue(dbRefDeletedProjects, s => { deletedProjects = s.val() || {}; renderDeletedProjects(); });
-    onValue(dbRefTodoItems, s => { todoItems = s.val() || []; renderTodoItems(); });
-
-    // --- Authentication and UI Control ---
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            console.log("✔️ Auth state changed: User is LOGGED IN", user.displayName);
-            currentUser = user;
-            isAuthenticated = true;
-            loginModal.classList.remove('visible');
-        } else {
-            console.log("Auth state changed: User is LOGGED OUT");
-            currentUser = null;
-            isAuthenticated = false;
-            loginModal.classList.add('visible');
-        }
-        updateUIForAuthState();
-    });
-
+    // --- 4. FUNCTION DEFINITIONS ---
     function updateUIForAuthState() {
         console.log("⚙️ updateUIForAuthState running. User is authenticated:", isAuthenticated);
         document.querySelectorAll('.auth-controlled').forEach(el => {
@@ -839,22 +821,15 @@
             alert("ההתחברות עם גוגל נכשלה. נסה שוב.");
         }
     }
-    googleSignInBtn.addEventListener('click', handleGoogleSignIn);
-    
-    // The rest of the functions are unchanged and included for completeness
+
     function saveProject() {
         if (!isAuthenticated) return alert("You must be logged in to save projects.");
         const projectName = allElements.projectNameInput.value.trim();
         if (!projectName) return alert('שם היזם הוא שדה חובה!');
         const projectData = {
-            name: projectName,
-            address: allElements.projectAddressInput.value.trim(),
-            contactInfo: allElements.contactInfoInput.value.trim(),
-            startDate: allElements.startDateInput.value,
-            finishDate: allElements.finishDateInput.value,
-            tasks: getTasksDataFromDOM(),
-            progress: allElements.taskProgressSelect.value,
-            furtherNotes: allElements.furtherNotesInput.value.trim()
+            name: projectName, address: allElements.projectAddressInput.value.trim(), contactInfo: allElements.contactInfoInput.value.trim(),
+            startDate: allElements.startDateInput.value, finishDate: allElements.finishDateInput.value, tasks: getTasksDataFromDOM(),
+            progress: allElements.taskProgressSelect.value, furtherNotes: allElements.furtherNotesInput.value.trim()
         };
         if (selectedProjectKey) {
             projectData.addedDateTime = projects[selectedProjectKey].addedDateTime;
@@ -868,6 +843,7 @@
             set(push(dbRefProjects), projectData).then(() => { alert(`הפרויקט "${projectData.name}" נוסף בהצלחה!`); clearProjectForm(); }).catch(err => alert(`שגיאה בהוספה: ${err.message}`));
         }
     }
+
     function populateFormForEditing(projectId, projectData) {
         selectedProjectKey = projectId;
         allElements.projectNameInput.value = projectData.name;
@@ -884,6 +860,7 @@
         allElements.projectManagementContainer.scrollIntoView({ behavior: 'smooth' });
         hideProjectModal();
     }
+
     function deleteProject(event) {
         event.stopPropagation();
         if (!selectedProjectKey || !isAuthenticated) return;
@@ -892,7 +869,9 @@
             update(ref(db), { [`/projects/${selectedProjectKey}`]: null, [`/deletedProjects/${selectedProjectKey}`]: pToMove }).then(() => { alert(`הפרויקט הועבר להיסטוריה.`); clearProjectForm(); }).catch(err => alert(`שגיאה במחיקה: ${err.message}`));
         }
     }
+
     function updateTime() { document.getElementById('currentTime').textContent = new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit', second: '2-digit' }); }
+    
     function generateCalendar() {
         const calendarMonthYear = document.getElementById('calendarMonthYear'), calendarGrid = document.getElementById('calendarGrid'); if (!calendarMonthYear || !calendarGrid) return;
         const today = new Date(), year = displayedDate.getFullYear(), month = displayedDate.getMonth(); const monthNames = ["ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"];
@@ -902,29 +881,28 @@
         for (let i = 0; i < firstDayOfMonth; i++) { calendarGrid.insertAdjacentHTML('beforeend', '<div class="calendar-day other-month"></div>'); }
         for (let day = 1; day <= daysInMonth; day++) { const dayEl = document.createElement('div'); dayEl.className = 'calendar-day'; dayEl.textContent = day; if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) { dayEl.classList.add('current-day'); } calendarGrid.appendChild(dayEl); }
     }
-    document.getElementById('prevMonthBtn').addEventListener('click', () => { displayedDate.setMonth(displayedDate.getMonth() - 1); generateCalendar(); });
-    document.getElementById('nextMonthBtn').addEventListener('click', () => { displayedDate.setMonth(displayedDate.getMonth() + 1); generateCalendar(); });
+    
     function saveTodoItemsToFirebase() { set(dbRefTodoItems, todoItems).catch(console.error); }
+    
     function addTodo() { const taskText = allElements.todoInput.value.trim(); if (!taskText) return alert('אנא הזן מטלה!'); todoItems.push(taskText); saveTodoItemsToFirebase(); allElements.todoInput.value = ''; allElements.todoInput.focus(); }
+    
     function renderTodoItems() {
         allElements.todoList.innerHTML = ''; if (todoItems.length === 0) { allElements.todoList.innerHTML = '<li style="text-align: right; color: #888; font-style: italic; background: none; border: none; box-shadow: none; cursor: default; padding: 10px;">אין מטלות.</li>'; return; }
         todoItems.forEach((taskText, index) => { const li = document.createElement('li'); li.textContent = taskText; li.dataset.index = index; li.addEventListener('click', function() { if(!isAuthenticated) return; todoItems.splice(parseInt(this.dataset.index), 1); saveTodoItemsToFirebase(); }); allElements.todoList.appendChild(li); });
     }
+    
     function updateTasksButtonText() { allElements.tasksDropdownButton.textContent = `בחר מטלות (${allElements.tasksChecklistContainer.querySelectorAll('input:checked').length} / ${masterTaskList.length})`; }
+    
     function renderChecklist(projectTasks = {}) {
         allElements.tasksChecklistContainer.innerHTML = '';
         masterTaskList.forEach(taskName => { const { checked = false, timestamp = '' } = projectTasks[taskName] || {}; allElements.tasksChecklistContainer.insertAdjacentHTML('beforeend', `<div class="task-item"><input type="checkbox" id="task-${taskName.replace(/\s/g, '')}" data-task-name="${taskName}" ${checked ? 'checked' : ''} data-timestamp="${timestamp}"><label for="task-${taskName.replace(/\s/g, '')}">${taskName}</label><span class="task-timestamp">${checked && timestamp ? new Date(timestamp).toLocaleString('he-IL', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : ''}</span></div>`); });
         updateTasksButtonText();
     }
-    allElements.tasksDropdownButton.addEventListener('click', e => { e.stopPropagation(); allElements.tasksDropdown.classList.toggle('open'); });
-    document.addEventListener('click', e => { if (!allElements.tasksDropdown.contains(e.target)) allElements.tasksDropdown.classList.remove('open'); });
-    allElements.tasksChecklistContainer.addEventListener('change', e => { if (e.target.type === 'checkbox') { const tsSpan = e.target.closest('.task-item').querySelector('.task-timestamp'); if (e.target.checked) { const now = new Date(); e.target.dataset.timestamp = now.toISOString(); tsSpan.textContent = now.toLocaleString('he-IL', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }); } else { e.target.dataset.timestamp = ''; tsSpan.textContent = ''; } updateTasksButtonText(); } });
+    
     function getTasksDataFromDOM() { const data = {}; allElements.tasksChecklistContainer.querySelectorAll('.task-item input[type="checkbox"]').forEach(cb => { const taskName = cb.dataset.taskName; if (taskName) { data[taskName] = { checked: cb.checked, timestamp: cb.checked ? (cb.dataset.timestamp || new Date().toISOString()) : '' }; } }); return data; }
+    
     function formatDateTime(d) { return d ? new Date(d).toISOString() : ''; }
-    allElements.addProjectBtn.addEventListener('click', saveProject);
-    allElements.deleteProjectBtn.addEventListener('click', deleteProject);
-    allElements.clearHistoryBtn.addEventListener('click', clearHistory);
-    allElements.projectList.addEventListener('click', (event) => { const listItem = event.target.closest('li'); if (!listItem) return; const projectId = listItem.dataset.projectId; if (projects[projectId]) showProjectModal(projectId, projects[projectId]); });
+    
     function showProjectModal(projectId, project) {
         const completedTasks = project.tasks ? Object.values(project.tasks).filter(t => t.checked).length : 0; const tasksSummary = `${completedTasks} / ${masterTaskList.length} הושלמו`;
         projectModal.className = 'project-modal-container'; projectModal.innerHTML = `<div class="project-modal-content"><span class="project-modal-close">&times;</span><h3>${project.name}</h3><p><span class="info-label">כתובת:</span> ${project.address || 'לא צויין'}</p><p><span class="info-label">תאריכים:</span> ${project.startDate ? new Date(project.startDate).toLocaleDateString('he-IL') : 'N/A'} - ${project.finishDate ? new Date(project.finishDate).toLocaleDateString('he-IL') : 'N/A'}</p><p><span class="info-label">מטלות:</span> ${tasksSummary}</p><p><span class="info-label">נוצר ב:</span> ${project.addedDateTime ? new Date(project.addedDateTime).toLocaleString('he-IL') : ''} על ידי <strong>${project.whoCreated || 'לא ידוע'}</strong></p>${project.lastEditedAt ? `<p><span class="info-label">עודכן לאחרונה:</span> ${new Date(project.lastEditedAt).toLocaleString('he-IL')} על ידי <strong>${project.lastEditedBy || 'לא ידוע'}</strong></p>` : ''}<p><span class="info-label">התקדמות כללית:</span> <span style="font-weight: bold; color: ${getProgressColor(project.progress)};">${getProgressTranslation(project.progress)}</span></p><p><span class="info-label">הערות:</span> ${project.furtherNotes || 'אין'}</p><div class="project-modal-actions"><button class="add-btn auth-controlled">ערוך פרויקט</button></div></div>`;
@@ -934,28 +912,75 @@
         const editButton = projectModal.querySelector('.add-btn'); if(isAuthenticated && editButton) { editButton.addEventListener('click', () => populateFormForEditing(projectId, project)); }
         updateUIForAuthState();
     }
+    
     function hideProjectModal() { projectModal.classList.remove('visible'); }
-    function restoreProject(event) { const btn = event.target.closest('.restore-project-btn'); if (!btn || !isAuthenticated) return; const projectId = btn.dataset.projectId; const pToRestore = { ...deletedProjects[projectId] }; if (pToRestore) { delete pToRestore.deletedAt; delete pToRestore.deletedBy; update(ref(db), { [`/deletedProjects/${projectId}`]: null, [`/projects/${projectId}`]: pToRestore }).then(() => alert(`"${pToRestore.name}" שוחזר.`)); } }
+    
+    function restoreProject(event) {
+        const btn = event.target.closest('.restore-project-btn'); if (!btn || !isAuthenticated) return; const projectId = btn.dataset.projectId;
+        const pToRestore = { ...deletedProjects[projectId] };
+        if (pToRestore) { delete pToRestore.deletedAt; delete pToRestore.deletedBy; update(ref(db), { [`/deletedProjects/${projectId}`]: null, [`/projects/${projectId}`]: pToRestore }).then(() => alert(`"${pToRestore.name}" שוחזר.`)); }
+    }
+    
     function clearHistory() { if (isAuthenticated && confirm('האם למחוק את כל ההיסטוריה?')) set(dbRefDeletedProjects, {}); }
+    
+    function renderProjects() {
+        allElements.projectList.innerHTML = ''; const projectsArray = Object.entries(projects || {}); if (projectsArray.length === 0) { allElements.projectList.innerHTML = '<li style="grid-column: 1 / -1; text-align: right; color: #888; font-style: italic; background: none; border: none; box-shadow: none; cursor: default; padding: 10px;">אין פרויקטים נוכחיים.</li>'; return; }
+        projectsArray.forEach(([key, project]) => { const li = document.createElement('li'); li.dataset.projectId = key; li.innerHTML = `<strong>${project.name}</strong>`; allElements.projectList.appendChild(li); });
+    }
+    
     function renderDeletedProjects() {
-        const historyList = document.getElementById('projectHistoryList'); historyList.innerHTML = ''; const deletedArray = Object.entries(deletedProjects || {}); if (deletedArray.length === 0) { historyList.innerHTML = '<li style="background: none; border: none; box-shadow: none; color: #888; font-style: italic;">אין פרויקטים בהיסטוריה.</li>'; return; }
+        const historyList = document.getElementById('projectHistoryList'); historyList.innerHTML = ''; const deletedArray = Object.entries(deletedProjects || {});
+        if (deletedArray.length === 0) { historyList.innerHTML = '<li style="background: none; border: none; box-shadow: none; color: #888; font-style: italic;">אין פרויקטים בהיסטוריה.</li>'; return; }
         deletedArray.forEach(([key, project]) => { const li = document.createElement('li'); li.dataset.projectId = key; li.innerHTML = `<div class="deleted-text-content"><strong>${project.name}</strong><p><span class="info-label">נמחק ב:</span> ${new Date(project.deletedAt).toLocaleString('he-IL')} על ידי <strong>${project.deletedBy || 'לא ידוע'}</strong></p></div><button class="restore-project-btn auth-controlled" data-project-id="${key}">שחזר</button>`; historyList.appendChild(li); });
         updateUIForAuthState();
     }
+    
     function clearProjectForm() {
         allElements.projectNameInput.value = ''; allElements.projectAddressInput.value = ''; allElements.contactInfoInput.value = ''; allElements.startDateInput.value = ''; allElements.finishDateInput.value = '';
         renderChecklist(); allElements.taskProgressSelect.value = 'Not Started'; allElements.furtherNotesInput.value = ''; selectedProjectKey = null;
         allElements.deleteProjectBtn.disabled = true; allElements.deleteProjectBtn.style.display = 'none'; allElements.addProjectBtn.textContent = 'הוסף פרויקט';
         allElements.tasksDropdown.classList.remove('open');
     }
-    function getProgressColor(p) { return {'Not Started': '#dc3545', 'In Progress': '#ffc107', 'On Hold': '#6c757d', 'Completed': '#28a745'}[p] || '#333'; }
-    function getProgressTranslation(p) { const map = {'Not Started': 'לא התחיל', 'In Progress': 'בטיפול', 'On Hold': 'בהמתנה', 'Completed': 'הושלם'}; return map[p] || p; }
-    function toggleContainer(event) { const btn = event.target; const container = document.getElementById(btn.dataset.target); if (container) { container.classList.toggle('minimized'); btn.innerHTML = container.classList.contains('minimized') ? '+' : '&#x2212;'; } }
-    document.querySelectorAll('.toggle-btn').forEach(btn => btn.id !== 'toggleHistoryBtn' && btn.addEventListener('click', toggleContainer));
-    const toggleHistoryBtn = document.getElementById('toggleHistoryBtn'), projectHistoryList = document.getElementById('projectHistoryList'), clearHistoryBtnWrapper = document.querySelector('.clear-history-btn-wrapper');
-    toggleHistoryBtn.addEventListener('click', () => { const isCollapsed = projectHistoryList.classList.toggle('collapsed'); clearHistoryBtnWrapper.classList.toggle('collapsed'); toggleHistoryBtn.innerHTML = isCollapsed ? '+' : '&#x2212;'; });
     
-    // Initial calls
+    function getProgressColor(p) { return {'Not Started': '#dc3545', 'In Progress': '#ffc107', 'On Hold': '#6c757d', 'Completed': '#28a745'}[p] || '#333'; }
+    
+    function getProgressTranslation(p) { const map = {'Not Started': 'לא התחיל', 'In Progress': 'בטיפול', 'On Hold': 'בהמתנה', 'Completed': 'הושלם'}; return map[p] || p; }
+    
+    function toggleContainer(event) { const btn = event.target; const container = document.getElementById(btn.dataset.target); if (container) { container.classList.toggle('minimized'); btn.innerHTML = container.classList.contains('minimized') ? '+' : '&#x2212;'; } }
+    
+    // --- 5. EVENT LISTENERS & INITIAL CALLS ---
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            console.log("✔️ Auth state changed: User is LOGGED IN", user.displayName);
+            currentUser = user;
+            isAuthenticated = true;
+            loginModal.classList.remove('visible');
+        } else {
+            console.log("Auth state changed: User is LOGGED OUT");
+            currentUser = null;
+            isAuthenticated = false;
+            loginModal.classList.add('visible');
+        }
+        updateUIForAuthState();
+    });
+
+    onValue(dbRefProjects, (snapshot) => { projects = snapshot.val() || {}; renderProjects(); });
+    onValue(dbRefDeletedProjects, s => { deletedProjects = s.val() || {}; renderDeletedProjects(); });
+    onValue(dbRefTodoItems, s => { todoItems = s.val() || []; renderTodoItems(); });
+
+    googleSignInBtn.addEventListener('click', handleGoogleSignIn);
+    document.getElementById('prevMonthBtn').addEventListener('click', () => { displayedDate.setMonth(displayedDate.getMonth() - 1); generateCalendar(); });
+    document.getElementById('nextMonthBtn').addEventListener('click', () => { displayedDate.setMonth(displayedDate.getMonth() + 1); generateCalendar(); });
+    allElements.addTodoBtn.addEventListener('click', addTodo);
+    allElements.todoInput.addEventListener('keypress', e => e.key === 'Enter' && addTodo());
+    allElements.addProjectBtn.addEventListener('click', saveProject);
+    allElements.deleteProjectBtn.addEventListener('click', deleteProject);
+    allElements.clearHistoryBtn.addEventListener('click', clearHistory);
+    allElements.projectList.addEventListener('click', (event) => { const listItem = event.target.closest('li'); if (!listItem) return; const projectId = listItem.dataset.projectId; if (projects[projectId]) showProjectModal(projectId, projects[projectId]); });
+    document.querySelectorAll('.toggle-btn').forEach(btn => btn.id !== 'toggleHistoryBtn' && btn.addEventListener('click', toggleContainer));
+    const toggleHistoryBtn = document.getElementById('toggleHistoryBtn');
+    toggleHistoryBtn.addEventListener('click', () => { const projectHistoryList = document.getElementById('projectHistoryList'); const clearHistoryBtnWrapper = document.querySelector('.clear-history-btn-wrapper'); const isCollapsed = projectHistoryList.classList.toggle('collapsed'); clearHistoryBtnWrapper.classList.toggle('collapsed'); toggleHistoryBtn.innerHTML = isCollapsed ? '+' : '&#x2212;'; });
+
     updateTime();
     setInterval(updateTime, 1000); 
     generateCalendar();
