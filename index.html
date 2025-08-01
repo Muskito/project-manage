@@ -108,15 +108,16 @@
             width: 100%; box-sizing: border-box; background-color: #fcfcfc; font-family: 'Heebo', sans-serif; text-align: right;
         }
         .project-form input[type="text"], .project-form select, .tasks-dropdown-button {
-            height: 44px; /* Uniform height */
+            height: 44px; /* Uniform height for single-line fields */
         }
+
         .project-form input.date-input { cursor: pointer; background-image: url('data:image/svg+xml;utf8,<svg fill="%23666" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); background-repeat: no-repeat; background-position: left 10px center; background-size: 20px; padding-left: 35px; }
         .tasks-dropdown-button::after { content: ''; position: absolute; left: 15px; top: 50%; transform: translateY(-50%); border: 6px solid transparent; border-top-color: #666; }
         .project-form textarea { resize: vertical; min-height: 80px; }
         .project-form select { appearance: none; background-image: url('data:image/svg+xml;utf8,<svg fill="%23666" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); background-repeat: no-repeat; background-position: left 10px center; background-size: 20px; padding-left: 30px; padding-right: 12px; }
-        .tasks-dropdown-container { position: relative; }
+        .form-group.tasks-dropdown-group { position: relative; } /* MODIFIED: Positioning context for checklist */
         .tasks-checklist-container { display: none; position: absolute; top: 100%; right: 0; min-width: 350px; z-index: 100; background: #fff; border: 1px solid #ccc; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); padding: 15px; margin-top: 4px; max-height: 250px; overflow-y: auto; grid-template-columns: 1fr; gap: 12px; }
-        .tasks-dropdown-container.open .tasks-checklist-container { display: grid; }
+        .tasks-dropdown-group.open .tasks-checklist-container { display: grid; }
         .task-item { display: flex; align-items: center; justify-content: space-between; background-color: #f7f9fc; padding: 8px 12px; border-radius: 4px; border: 1px solid #eef2f5; }
         .task-item label { font-size: 0.95em; color: #333; margin-right: 10px; -webkit-user-select: none; user-select: none; }
         .task-item input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; order: 2; }
@@ -294,12 +295,10 @@
                     <label for="finishDate">תאריך סיום:</label>
                     <input type="text" id="finishDate" class="date-input" placeholder="dd/mm/yyyy" readonly>
                 </div>
-                <div class="form-group">
+                <div class="form-group tasks-dropdown-group">
                     <label>מטלות לביצוע:</label>
-                    <div class="tasks-dropdown-container">
-                        <button type="button" id="tasksDropdownButton" class="tasks-dropdown-button">בחר מטלות...</button>
-                        <div id="tasksChecklistContainer" class="tasks-checklist-container"></div>
-                    </div>
+                    <button type="button" id="tasksDropdownButton" class="tasks-dropdown-button">בחר מטלות...</button>
+                    <div id="tasksChecklistContainer" class="tasks-checklist-container"></div>
                 </div>
                 <div class="form-group"><label for="taskProgress">התקדמות מטלה:</label><select id="taskProgress"><option value="Not Started">לא התחיל</option><option value="In Progress">בטיפול</option><option value="On Hold">בהמתנה</option><option value="Completed">הושלם</option></select></div>
                 <div class="form-group full-width"><label for="furtherNotes">הערות נוספות:</label><textarea id="furtherNotes" placeholder="כל הערה נוספת..."></textarea></div>
@@ -360,7 +359,7 @@
         todoList: document.getElementById('todoList'), projectNameInput: document.getElementById('projectName'),
         projectAddressInput: document.getElementById('projectAddress'), contactInfoInput: document.getElementById('contactInfo'),
         startDateInput: document.getElementById('startDate'), finishDateInput: document.getElementById('finishDate'),
-        tasksDropdown: document.querySelector('.tasks-dropdown-container'), tasksDropdownButton: document.getElementById('tasksDropdownButton'),
+        tasksDropdownGroup: document.querySelector('.tasks-dropdown-group'), tasksDropdownButton: document.getElementById('tasksDropdownButton'),
         tasksChecklistContainer: document.getElementById('tasksChecklistContainer'), 
         taskProgressSelect: document.getElementById('taskProgress'), furtherNotesInput: document.getElementById('furtherNotes'),
         addProjectBtn: document.getElementById('addProjectBtn'), deleteProjectBtn: document.getElementById('deleteProjectBtn'),
@@ -383,7 +382,6 @@
 
     // --- 4. FUNCTION DEFINITIONS ---
     function updateUIForAuthState() {
-        console.log("⚙️ updateUIForAuthState running. User is authenticated:", isAuthenticated);
         document.querySelectorAll('.auth-controlled').forEach(el => {
             if (isAuthenticated) { el.classList.remove('hidden-for-guest'); } 
             else { el.classList.add('hidden-for-guest'); }
@@ -414,9 +412,9 @@
             titleEl.textContent = title;
             textEl.textContent = text;
             okBtn.textContent = confirmText;
-            okBtn.className = ""; okBtn.classList.add('modal-action-btn', confirmClass);
+            okBtn.className = ""; okBtn.classList.add(confirmClass);
             cancelBtn.textContent = "ביטול";
-            cancelBtn.className = "modal-action-btn btn-secondary";
+            cancelBtn.className = "btn-secondary";
             confirmModal.classList.add('visible');
             const onOk = () => { cleanup(); resolve(true); };
             const onCancel = () => { cleanup(); resolve(false); };
@@ -649,7 +647,7 @@
         allElements.projectNameInput.value = ''; allElements.projectAddressInput.value = ''; allElements.contactInfoInput.value = ''; allElements.startDateInput.value = ''; allElements.finishDateInput.value = '';
         renderChecklist(); allElements.taskProgressSelect.value = 'Not Started'; allElements.furtherNotesInput.value = ''; selectedProjectKey = null;
         allElements.deleteProjectBtn.disabled = true; allElements.deleteProjectBtn.style.display = 'none'; allElements.addProjectBtn.textContent = 'הוסף פרויקט';
-        allElements.tasksDropdown.classList.remove('open');
+        allElements.tasksDropdownGroup.classList.remove('open');
     }
     
     function getProgressColor(p) { return {'Not Started': '#dc3545', 'In Progress': '#ffc107', 'On Hold': '#6c757d', 'Completed': '#28a745'}[p] || '#333'; }
@@ -659,66 +657,59 @@
     function exportProjectsToCsv() {
         const headers = ["name", "address", "contactInfo", "startDate", "finishDate", "tasks", "progress", "furtherNotes", "addedDateTime", "whoCreated", "lastEditedAt", "lastEditedBy", "deletedAt", "deletedBy"];
         const allProjects = [...Object.values(projects), ...Object.values(deletedProjects)];
-        
         let csvContent = "\uFEFF" + headers.join(",") + "\n"; 
-        
         allProjects.forEach(p => {
             const row = headers.map(header => {
-                let value = p[header];
-                if (header === 'tasks' && typeof value === 'object' && value !== null) {
+                let value = p[header] || "";
+                if (header === 'tasks' && typeof value === 'object') {
                     value = JSON.stringify(value).replace(/"/g, '""');
                 }
-                if (typeof value === 'string' && value.includes(',')) {
-                    value = `"${value}"`;
+                let stringValue = String(value);
+                if (stringValue.includes(',')) {
+                    stringValue = `"${stringValue}"`;
                 }
-                return value;
+                return stringValue;
             });
             csvContent += row.join(",") + "\n";
         });
 
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
-        if (link.download !== undefined) {
-            const url = URL.createObjectURL(blob);
-            link.setAttribute("href", url);
-            link.setAttribute("download", "projects_export.csv");
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", "projects_export.csv");
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 
     async function importProjectsFromCsv(file) {
         const reader = new FileReader();
         reader.onload = async (event) => {
             const csv = event.target.result;
-            const lines = csv.split("\n").filter(line => line);
-            const headers = lines.shift().split(",").map(h => h.trim());
+            const lines = csv.split("\n").filter(line => line.trim());
+            if(lines.length < 2) return alert("CSV file must contain a header row and at least one data row.");
             
-            const updates = {};
+            const headers = lines.shift().split(",").map(h => h.trim());
+            const newProjects = {};
             lines.forEach(line => {
                 const values = line.split(",");
                 const projectData = {};
                 headers.forEach((header, index) => {
                     let value = values[index];
                     if (header === 'tasks' && value) {
-                        try {
-                            value = JSON.parse(value.replace(/""/g, '"'));
-                        } catch (e) {
-                            console.error("Could not parse tasks JSON:", value, e);
-                            value = {};
-                        }
+                        try { value = JSON.parse(value.replace(/""/g, '"')); } 
+                        catch (e) { value = {}; }
                     }
                     projectData[header] = value;
                 });
-                
-                const newRef = push(dbRefProjects);
-                updates[newRef.key] = projectData;
+                const newKey = push(dbRefProjects).key;
+                newProjects[newKey] = projectData;
             });
             
             try {
-                await update(dbRefProjects, updates);
+                await set(dbRefProjects, newProjects); // Replaces all existing projects
                 alert("Projects imported successfully!");
             } catch (error) {
                 console.error("Error importing projects:", error);
@@ -757,7 +748,7 @@
     allElements.startDateInput.addEventListener('click', openDatePicker);
     allElements.finishDateInput.addEventListener('click', openDatePicker);
     allElements.projectHistoryList.addEventListener('click', restoreProject);
-    allElements.tasksDropdownButton.addEventListener('click', (e) => { e.stopPropagation(); allElements.tasksDropdown.classList.toggle('open'); });
+    allElements.tasksDropdownButton.addEventListener('click', (e) => { e.stopPropagation(); allElements.tasksDropdownGroup.classList.toggle('open'); });
     allElements.tasksChecklistContainer.addEventListener('change', e => { 
         if (e.target.type === 'checkbox') { 
             const tsSpan = e.target.closest('.task-item').querySelector('.task-timestamp'); 
@@ -779,7 +770,7 @@
     datePickerModal.querySelector('.date-picker-grid-days').addEventListener('click', (event) => { const dayEl = event.target.closest('.date-picker-day:not(.empty)'); if (dayEl && activeDateInput) { const day = dayEl.dataset.day; const selectedDate = new Date(pickerDate.getFullYear(), pickerDate.getMonth(), day); activeDateInput.value = formatDate(selectedDate); hideDatePicker(); } });
     document.addEventListener('click', (event) => {
         if (datePickerModal.style.display === 'block' && !datePickerModal.contains(event.target) && !event.target.classList.contains('date-input')) { hideDatePicker(); }
-        if (allElements.tasksDropdown.classList.contains('open') && !allElements.tasksDropdown.contains(event.target)) { allElements.tasksDropdown.classList.remove('open'); }
+        if (allElements.tasksDropdownGroup.classList.contains('open') && !allElements.tasksDropdownGroup.contains(event.target)) { allElements.tasksDropdownGroup.classList.remove('open'); }
     });
     document.querySelectorAll('.toggle-btn').forEach(btn => btn.id !== 'toggleHistoryBtn' && btn.addEventListener('click', toggleContainer));
     const toggleHistoryBtn = document.getElementById('toggleHistoryBtn');
@@ -797,9 +788,7 @@
     });
     allElements.csvFileInput.addEventListener('change', (event) => {
         const file = event.target.files[0];
-        if (file) {
-            importProjectsFromCsv(file);
-        }
+        if (file) { importProjectsFromCsv(file); }
     });
 
     updateTime();
