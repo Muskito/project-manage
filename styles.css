@@ -207,7 +207,7 @@ body {
     gap: 15px;
 }
 .dev-credit a { 
-    font-size: 0.75em; 
+    font-size: 0.65em; 
     color: var(--text-primary); 
     text-decoration: none; 
 }
@@ -261,3 +261,4 @@ body {
     .project-form { grid-template-columns: 1fr; } 
     .project-list { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); } 
 }
+
