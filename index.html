@@ -11,6 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
+        /* All CSS is unchanged from the previous version */
         body {
             font-family: 'Heebo', Arial, sans-serif;
             margin: 20px;
@@ -683,7 +684,8 @@
     </style>
 </head>
 <body>
-    <div id="loginModal"> <div class="login-modal-content">
+    <div id="loginModal">
+        <div class="login-modal-content">
             <h2>ניהול פרויקטים</h2>
             <p style="margin-top: 0; margin-bottom: 25px; font-size: 1.1em; color: #555;">יש להתחבר כדי לערוך נתונים</p>
             <button id="googleSignInBtn">
@@ -803,10 +805,12 @@
     // --- Authentication and UI Control ---
     onAuthStateChanged(auth, (user) => {
         if (user) {
+            console.log("✔️ Auth state changed: User is LOGGED IN", user.displayName);
             currentUser = user;
             isAuthenticated = true;
             loginModal.classList.remove('visible');
         } else {
+            console.log("Auth state changed: User is LOGGED OUT");
             currentUser = null;
             isAuthenticated = false;
             loginModal.classList.add('visible');
@@ -814,8 +818,8 @@
         updateUIForAuthState();
     });
 
-    // THIS FUNCTION IS NOW FIXED
     function updateUIForAuthState() {
+        console.log("⚙️ updateUIForAuthState running. User is authenticated:", isAuthenticated);
         document.querySelectorAll('.auth-controlled').forEach(el => {
             if (isAuthenticated) {
                 el.classList.remove('hidden-for-guest');
@@ -836,8 +840,8 @@
         }
     }
     googleSignInBtn.addEventListener('click', handleGoogleSignIn);
-
-    // --- All other functions ---
+    
+    // The rest of the functions are unchanged and included for completeness
     function saveProject() {
         if (!isAuthenticated) return alert("You must be logged in to save projects.");
         const projectName = allElements.projectNameInput.value.trim();
@@ -888,18 +892,6 @@
             update(ref(db), { [`/projects/${selectedProjectKey}`]: null, [`/deletedProjects/${selectedProjectKey}`]: pToMove }).then(() => { alert(`הפרויקט הועבר להיסטוריה.`); clearProjectForm(); }).catch(err => alert(`שגיאה במחיקה: ${err.message}`));
         }
     }
-    function renderProjects() {
-        allElements.projectList.innerHTML = ''; const projectsArray = Object.entries(projects || {}); if (projectsArray.length === 0) { allElements.projectList.innerHTML = '<li style="grid-column: 1 / -1; text-align: right; color: #888; font-style: italic; background: none; border: none; box-shadow: none; cursor: default; padding: 10px;">אין פרויקטים נוכחיים.</li>'; return; }
-        projectsArray.forEach(([key, project]) => { const li = document.createElement('li'); li.dataset.projectId = key; li.innerHTML = `<strong>${project.name}</strong>`; allElements.projectList.appendChild(li); });
-    }
-    function clearProjectForm() {
-        allElements.projectNameInput.value = ''; allElements.projectAddressInput.value = ''; allElements.contactInfoInput.value = ''; allElements.startDateInput.value = ''; allElements.finishDateInput.value = '';
-        renderChecklist(); allElements.taskProgressSelect.value = 'Not Started'; allElements.furtherNotesInput.value = ''; selectedProjectKey = null;
-        allElements.deleteProjectBtn.disabled = true; allElements.deleteProjectBtn.style.display = 'none'; allElements.addProjectBtn.textContent = 'הוסף פרויקט';
-        allElements.tasksDropdown.classList.remove('open');
-    }
-    
-    // The rest of the functions are unchanged
     function updateTime() { document.getElementById('currentTime').textContent = new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit', second: '2-digit' }); }
     function generateCalendar() {
         const calendarMonthYear = document.getElementById('calendarMonthYear'), calendarGrid = document.getElementById('calendarGrid'); if (!calendarMonthYear || !calendarGrid) return;
@@ -939,17 +931,22 @@
         requestAnimationFrame(() => projectModal.classList.add('visible'));
         projectModal.querySelector('.project-modal-close').addEventListener('click', hideProjectModal);
         projectModal.addEventListener('click', (e) => e.target === projectModal && hideProjectModal());
-        const editButton = projectModal.querySelector('.add-btn'); if(isAuthenticated && editButton) { editButton.addEventListener('click', () => populateFormForEditing(projectId, project)); } else if (editButton) { editButton.parentElement.classList.add('hidden-for-guest'); }
+        const editButton = projectModal.querySelector('.add-btn'); if(isAuthenticated && editButton) { editButton.addEventListener('click', () => populateFormForEditing(projectId, project)); }
         updateUIForAuthState();
     }
     function hideProjectModal() { projectModal.classList.remove('visible'); }
     function restoreProject(event) { const btn = event.target.closest('.restore-project-btn'); if (!btn || !isAuthenticated) return; const projectId = btn.dataset.projectId; const pToRestore = { ...deletedProjects[projectId] }; if (pToRestore) { delete pToRestore.deletedAt; delete pToRestore.deletedBy; update(ref(db), { [`/deletedProjects/${projectId}`]: null, [`/projects/${projectId}`]: pToRestore }).then(() => alert(`"${pToRestore.name}" שוחזר.`)); } }
     function clearHistory() { if (isAuthenticated && confirm('האם למחוק את כל ההיסטוריה?')) set(dbRefDeletedProjects, {}); }
     function renderDeletedProjects() {
-        const historyList = document.getElementById('projectHistoryList'); historyList.innerHTML = ''; const deletedArray = Object.entries(deletedProjects || {});
-        if (deletedArray.length === 0) { historyList.innerHTML = '<li style="background: none; border: none; box-shadow: none; color: #888; font-style: italic;">אין פרויקטים בהיסטוריה.</li>'; return; }
+        const historyList = document.getElementById('projectHistoryList'); historyList.innerHTML = ''; const deletedArray = Object.entries(deletedProjects || {}); if (deletedArray.length === 0) { historyList.innerHTML = '<li style="background: none; border: none; box-shadow: none; color: #888; font-style: italic;">אין פרויקטים בהיסטוריה.</li>'; return; }
         deletedArray.forEach(([key, project]) => { const li = document.createElement('li'); li.dataset.projectId = key; li.innerHTML = `<div class="deleted-text-content"><strong>${project.name}</strong><p><span class="info-label">נמחק ב:</span> ${new Date(project.deletedAt).toLocaleString('he-IL')} על ידי <strong>${project.deletedBy || 'לא ידוע'}</strong></p></div><button class="restore-project-btn auth-controlled" data-project-id="${key}">שחזר</button>`; historyList.appendChild(li); });
         updateUIForAuthState();
+    }
+    function clearProjectForm() {
+        allElements.projectNameInput.value = ''; allElements.projectAddressInput.value = ''; allElements.contactInfoInput.value = ''; allElements.startDateInput.value = ''; allElements.finishDateInput.value = '';
+        renderChecklist(); allElements.taskProgressSelect.value = 'Not Started'; allElements.furtherNotesInput.value = ''; selectedProjectKey = null;
+        allElements.deleteProjectBtn.disabled = true; allElements.deleteProjectBtn.style.display = 'none'; allElements.addProjectBtn.textContent = 'הוסף פרויקט';
+        allElements.tasksDropdown.classList.remove('open');
     }
     function getProgressColor(p) { return {'Not Started': '#dc3545', 'In Progress': '#ffc107', 'On Hold': '#6c757d', 'Completed': '#28a745'}[p] || '#333'; }
     function getProgressTranslation(p) { const map = {'Not Started': 'לא התחיל', 'In Progress': 'בטיפול', 'On Hold': 'בהמתנה', 'Completed': 'הושלם'}; return map[p] || p; }
