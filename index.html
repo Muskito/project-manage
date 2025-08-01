@@ -106,9 +106,8 @@
                     </div>
                     <div class="form-group tasks-dropdown-group">
                         <label>מטלות לביצוע:</label>
-                        <div class="combo-input-container">
-                            <input type="text" id="tasksDropdownText" class="form-input" readonly placeholder="בחר מטלות...">
-                            <button type="button" id="tasksDropdownButton" class="combo-input-button" aria-label="Open task list">▼</button>
+                        <div id="tasksDropdownButton" class="form-input tasks-dropdown-button" role="button" tabindex="0">
+                            <span class="tasks-dropdown-button__text">בחר מטלות...</span>
                         </div>
                         <div id="tasksChecklistContainer" class="tasks-checklist-container"></div>
                     </div>
@@ -173,6 +172,7 @@
 </html>
 
 <!-- End of app -->
+
 
 
 
