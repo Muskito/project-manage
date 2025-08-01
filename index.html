@@ -196,18 +196,18 @@
         .project-list-container h3 { margin-top: 25px; margin-bottom: 15px; color: #444; font-size: 1.3em; border-bottom: 1px solid #eee; padding-bottom: 8px; text-align: right; }
         .history-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
         .history-list { display: flex; flex-direction: column; gap: 10px; }
-        .history-list li { background-color: #FFF3F3; border-color: #FED7D7; }
+        .history-list li { background-color: #FFF3F3; border-color: #FED7D7; align-items: center; }
         .history-list li .deleted-text-content { flex-grow: 1; text-align: right; }
         .history-list li strong { color: var(--accent-danger); }
         .history-list.collapsed, .clear-history-btn-wrapper.collapsed { display: none; }
         .restore-project-btn { background-color: var(--accent-primary); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8em; font-family: var(--font-family); white-space: nowrap; transition: background-color 0.2s ease; pointer-events: auto; }
         .restore-project-btn:hover { background-color: var(--accent-primary-hover); }
-        .clear-history-btn-wrapper { width: 100%; text-align: left; margin-top: 15px; margin-right: auto; }
+        .clear-history-btn-wrapper { width: 100%; margin-top: 15px; display: flex; justify-content: flex-end; }
         
         .footer-actions {
             width: 100%;
             max-width: 1400px;
-            margin-top: 25px;
+            margin: 25px auto 0;
             text-align: center;
         }
 
@@ -340,6 +340,7 @@
                 <div class="form-group"><label for="projectName">שם היזם:</label><input type="text" id="projectName" class="form-input" placeholder="לדוגמה: אפריקה ישראל"></div>
                 <div class="form-group"><label for="projectAddress">כתובת:</label><input type="text" id="projectAddress" class="form-input" placeholder="לדוגמה: שלום עליכם 23 ת'א"></div>
                 <div class="form-group"><label for="contactInfo">פרטי יצירת קשר:</label><input type="text" id="contactInfo" class="form-input" placeholder="לדוגמה: יוסי כהן - 555-1234"></div>
+                <div class="form-group"><label for="taskProgress">התקדמות מטלה:</label><select id="taskProgress"><option value="Not Started">לא התחיל</option><option value="In Progress">בטיפול</option><option value="On Hold">בהמתנה</option><option value="Completed">הושלם</option></select></div>
                 <div class="form-group">
                     <label for="startDate">תאריך התחלה:</label>
                     <input type="text" id="startDate" class="form-input date-input" placeholder="dd/mm/yyyy" readonly>
@@ -355,7 +356,6 @@
                     </button>
                     <div id="tasksChecklistContainer" class="tasks-checklist-container"></div>
                 </div>
-                <div class="form-group"><label for="taskProgress">התקדמות מטלה:</label><select id="taskProgress"><option value="Not Started">לא התחיל</option><option value="In Progress">בטיפול</option><option value="On Hold">בהמתנה</option><option value="Completed">הושלם</option></select></div>
                 <div class="form-group full-width"><label for="furtherNotes">הערות נוספות:</label><textarea id="furtherNotes" class="form-input" placeholder="כל הערה נוספת..."></textarea></div>
             </div>
             <menu class="project-buttons auth-controlled">
@@ -459,7 +459,8 @@
         clearHistoryBtn: document.getElementById('clearHistoryBtn'),
         projectModal: document.getElementById('projectModal'),
         dataMgmtBtn: document.getElementById('dataMgmtBtn'), 
-        csvFileInput: document.getElementById('csvFileInput')
+        csvFileInput: document.getElementById('csvFileInput'),
+        projectManagementContainer: document.getElementById('projectManagementContainer')
     };
     
     // --- 3. STATE MANAGEMENT ---
@@ -509,7 +510,7 @@
             const okBtn = document.getElementById('confirmOkBtn');
             const cancelBtn = document.getElementById('confirmCancelBtn');
             titleEl.textContent = title;
-            textEl.innerHTML = text;
+            textEl.innerHTML = text; // Use innerHTML to support <br> tags
             okBtn.textContent = confirmText;
             okBtn.className = ""; okBtn.classList.add('btn', confirmClass);
             cancelBtn.style.display = showCancel ? 'inline-block' : 'none';
@@ -764,7 +765,12 @@
         const confirmed = await showConfirmation("אישור שחזור", `האם לשחזר את הפרויקט "${AppState.deletedProjects[projectId].name}"?`, 'שחזר', 'btn-success');
         if (confirmed) {
             const pToRestore = { ...AppState.deletedProjects[projectId] };
-            if (pToRestore) { delete pToRestore.deletedAt; delete pToRestore.deletedBy; update(ref(db), { [`/deletedProjects/${projectId}`]: null, [`/projects/${projectId}`]: pToRestore }).then(() => alert(`"${pToRestore.name}" שוחזר.`)); }
+            if (pToRestore) { 
+                delete pToRestore.deletedAt; 
+                delete pToRestore.deletedBy; 
+                await update(ref(db), { [`/deletedProjects/${projectId}`]: null, [`/projects/${projectId}`]: pToRestore });
+                await showConfirmation("הצלחה", `הפרויקט "${pToRestore.name}" שוחזר.`, "אישור", "btn-success", false);
+            }
         }
     }
     
@@ -831,6 +837,7 @@
             if(lines.length < 1) return await showConfirmation("שגיאת קובץ", "קובץ ה-CSV ריק.", "הבנתי", "btn-danger", false);
             const headers = lines.shift().split(",").map(h => h.trim());
             const newDbState = { projects: {}, deletedProjects: {}, todoItems: AppState.todoItems };
+
             lines.forEach(line => {
                 const values = line.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g).map(v => v.replace(/^"|"$/g, '').replace(/""/g, '"'));
                 if(values[0] === '__TODOLIST__') {
@@ -849,6 +856,7 @@
                     newDbState.projects[newKey] = projectData;
                 }
             });
+            
             try {
                 await set(ref(db, '/'), newDbState);
                 await showConfirmation("הצלחה", "הנתונים יובאו בהצלחה!", "אישור", "btn-success", false);
