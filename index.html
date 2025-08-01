@@ -43,19 +43,34 @@
             direction: rtl; 
         }
         
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            margin: -1px;
+            padding: 0;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
+        }
+        
         .app-header {
             width: 100%;
             max-width: 1400px;
             margin-bottom: 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
         
         .app-header h1 {
             margin: 0;
             font-size: 1.8em;
             color: var(--text-primary);
+            text-align: center;
+        }
+        
+        @media(min-width: 992px) {
+            .app-header h1 {
+                text-align: right;
+            }
         }
 
         .app-container {
@@ -124,6 +139,7 @@
         .calendar-day-name, .calendar-day { padding: 5px 0; border-radius: 4px; font-size: 0.8em; display: flex; justify-content: center; align-items: center; height: 30px; }
         .calendar-day-name { background-color: #e0e7ee; color: #556270; font-weight: bold; }
         .calendar-day { background-color: var(--bg-input); color: #4d565e; border: 1px solid var(--border-color); cursor: pointer; transition: background-color 0.1s ease; }
+        .calendar-day.other-month { color: #ccc; background-color: var(--bg-card); }
         .calendar-day:not(.empty):hover { background-color: #e6f0fa; }
         .calendar-day.current-day { background-color: var(--accent-primary); color: white; font-weight: bold; border-color: var(--accent-primary); }
         .calendar-footer { margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--border-color); text-align: center; }
@@ -182,6 +198,13 @@
         .restore-project-btn:hover { background-color: var(--accent-primary-hover); }
         .clear-history-btn-wrapper { width: 100%; text-align: left; margin-top: 15px; }
         
+        .footer-actions {
+            width: 100%;
+            max-width: 1400px;
+            margin-top: 25px;
+            text-align: center;
+        }
+
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(30, 41, 59, 0.7); display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0s 0.3s; z-index: 1000; }
         .modal-overlay.visible { opacity: 1; visibility: visible; transition: opacity 0.3s ease; }
         #loginModal { z-index: 2000; }
@@ -218,7 +241,11 @@
         .date-picker-day.empty { cursor: default; }
         @media (max-width: 1200px) { .project-list { grid-template-columns: repeat(4, 1fr); } }
         @media (max-width: 992px) { .app-container { grid-template-columns: 1fr; } }
-        @media (max-width: 768px) { .project-form { grid-template-columns: 1fr; } .project-list { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 768px) {
+            #datetimeContainer { display: none; }
+            .project-form { grid-template-columns: 1fr; } 
+            .project-list { grid-template-columns: repeat(2, 1fr); } 
+        }
         @media (max-width: 480px) { .project-list { grid-template-columns: 1fr; } }
     </style>
 </head>
@@ -290,10 +317,6 @@
 
     <header class="app-header">
         <h1>לוח ניהול פרויקטים</h1>
-        <div class="header-actions auth-controlled">
-            <button id="dataMgmtBtn" class="btn btn-secondary">ניהול נתונים</button>
-            <input type="file" id="csvFileInput" class="visually-hidden" accept=".csv">
-        </div>
     </header>
 
     <div class="app-container">
@@ -365,6 +388,11 @@
                 </div>
             </section>
         </aside>
+    </div>
+    
+    <div class="footer-actions auth-controlled">
+        <button id="dataMgmtBtn" class="btn btn-secondary">ניהול נתונים</button>
+        <input type="file" id="csvFileInput" class="visually-hidden" accept=".csv">
     </div>
 
     <script type="module">
@@ -578,11 +606,13 @@
 
     async function saveProject() {
         if (!AppState.isAuthenticated) return;
+        
         const projectName = dom.projectNameInput.value.trim();
         if (!projectName) {
             await showConfirmation("שדה חובה", "שם היזם הוא שדה חובה.", "הבנתי", "btn-secondary", false);
             return;
         }
+        
         const projectData = {
             name: projectName, address: dom.projectAddressInput.value.trim(), contactInfo: dom.contactInfoInput.value.trim(),
             startDate: dom.startDateInput.value ? parseAndValidateDate(dom.startDateInput.value).toISOString().split('T')[0] : '',
@@ -590,6 +620,7 @@
             tasks: getTasksDataFromDOM(),
             progress: dom.taskProgressSelect.value, furtherNotes: dom.furtherNotesInput.value.trim()
         };
+
         if (AppState.selectedProjectKey) {
             projectData.addedDateTime = AppState.projects[AppState.selectedProjectKey].addedDateTime; 
             projectData.whoCreated = AppState.projects[AppState.selectedProjectKey].whoCreated;
