@@ -89,9 +89,8 @@ body {
     background-color: var(--bg-card);
     border-radius: var(--border-radius);
     box-shadow: var(--shadow);
-    display: grid;
-    grid-template-rows: auto 1fr;
-    transition: grid-template-rows 0.3s ease-out;
+    display: flex;
+    flex-direction: column;
 }
 .card__header {
     padding: 15px 25px;
@@ -104,16 +103,6 @@ body {
     padding: 25px;
     overflow: hidden;
     min-height: 0;
-}
-.app-card.minimized {
-    grid-template-rows: auto 0fr;
-}
-.minimized .card__header {
-    border-bottom: none;
-}
-.minimized .card__content {
-    padding-top: 0;
-    padding-bottom: 0;
 }
 .card__title {
     margin: 0;
@@ -147,6 +136,10 @@ body {
 .calendar-day.current-day { background-color: var(--accent-primary); color: white; font-weight: bold; border-color: var(--accent-primary); }
 .calendar-footer { margin-top: 15px; padding-top: 10px; border-top: 1px solid var(--border-color); text-align: center; }
 #currentTime { font-size: 1.5em; font-weight: 500; color: var(--accent-primary); }
+
+.dev-credit { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-color); text-align: center; }
+.dev-credit a { font-size: 0.8em; color: var(--text-secondary); text-decoration: none; transition: color 0.2s; }
+.dev-credit a:hover { color: var(--accent-primary); text-decoration: underline; }
 
 .project-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color); }
 .form-group { display: flex; flex-direction: column; }
