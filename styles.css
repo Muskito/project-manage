@@ -89,33 +89,40 @@ body {
     background-color: var(--bg-card);
     border-radius: var(--border-radius);
     box-shadow: var(--shadow);
-    padding: 25px;
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    transition: grid-template-rows 0.3s ease-out;
 }
-
 .card__header {
-    margin: -25px -25px 20px -25px;
     padding: 15px 25px;
     border-bottom: 1px solid var(--border-color);
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
-
+.card__content {
+    padding: 25px;
+    overflow: hidden;
+    min-height: 0;
+}
+.app-card.minimized {
+    grid-template-rows: auto 0fr;
+}
+.minimized .card__header {
+    border-bottom: none;
+}
+.minimized .card__content {
+    padding-top: 0;
+    padding-bottom: 0;
+}
 .card__title {
     margin: 0;
     font-size: 1.25em;
     color: var(--text-primary);
 }
-
 .card__toggle-btn {
     background: none; border: none; font-size: 1.5em; cursor: pointer; color: var(--text-secondary); padding: 0 5px; line-height: 1;
 }
-
-.minimized > *:not(.card__header) { visibility: hidden; opacity: 0; transition: opacity 0.1s; }
-.minimized { padding-top: 0; padding-bottom: 0; max-height: 58px; overflow: hidden; transition: max-height 0.35s ease-in-out, padding 0.35s ease-in-out; }
-.minimized .card__header { border-bottom: none; }
 
 .todo-input-group { display: flex; margin-bottom: 15px; gap: 10px; flex-direction: row-reverse; }
 .todo-input-group input[type="text"] { flex-grow: 1; padding: 10px 15px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 1em; background-color: var(--bg-input); font-family: var(--font-family); text-align: right; }
@@ -127,7 +134,6 @@ body {
 .todo-text { font-size: 1.05em; color: var(--text-primary); width: 100%; margin-bottom: 5px; }
 .todo-meta { width: 100%; text-align: left; font-size: 0.75em; color: var(--text-secondary); }
 
-.datetime-container h2 { font-size: 1.4em; padding-bottom: 10px; margin-bottom: 10px; }
 .calendar-nav { display: flex; justify-content: space-between; align-items: center; padding: 0 5px; margin-bottom: 10px; }
 #calendarMonthYear { font-size: 1.2em; font-weight: bold; color: #333; }
 .calendar-nav button { background: none; border: 1px solid transparent; font-size: 1.5em; font-weight: bold; color: #555; cursor: pointer; padding: 0 10px; line-height: 1; border-radius: 4px; transition: background-color 0.2s; }
@@ -141,10 +147,6 @@ body {
 .calendar-day.current-day { background-color: var(--accent-primary); color: white; font-weight: bold; border-color: var(--accent-primary); }
 .calendar-footer { margin-top: 15px; padding-top: 10px; border-top: 1px solid var(--border-color); text-align: center; }
 #currentTime { font-size: 1.5em; font-weight: 500; color: var(--accent-primary); }
-
-.dev-credit { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-color); text-align: center; }
-.dev-credit a { font-size: 0.8em; color: var(--text-secondary); text-decoration: none; transition: color 0.2s; }
-.dev-credit a:hover { color: var(--accent-primary); text-decoration: underline; }
 
 .project-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color); }
 .form-group { display: flex; flex-direction: column; }
