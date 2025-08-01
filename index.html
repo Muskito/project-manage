@@ -216,7 +216,7 @@
         .modal-actions, .project-modal-actions { margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end; }
         .modal-actions button { padding: 10px 20px; border-radius: 6px; font-size: 1em; font-weight: bold; cursor: pointer; border: none; }
         #googleSignInBtn { background-color: #4285F4; }
-        #googleSignInBtn:hover { background-color: #357ae8; }
+        #googleSignInBtn:hover { filter: brightness(95%); }
         .admin-override-container { margin-top: 20px; text-align: center; }
         .admin-override-container svg { width: 24px; height: 24px; opacity: 0.5; cursor: pointer; transition: opacity 0.2s; }
         .admin-override-container svg:hover { opacity: 1; }
@@ -244,7 +244,7 @@
             <h2>ניהול פרויקטים</h2>
             <p>יש להתחבר כדי לערוך נתונים</p>
             <button id="googleSignInBtn" class="btn">
-                <svg viewBox="0 0 24 24"><path fill="white" d="M22.56,12.25C22.56,11.47 22.5,10.72 22.38,10H12V14.5H18.04C17.72,16.53 16.37,18.13 14.25,18.13C11.88,18.13 10,16.25 10,13.88C10,11.5 11.88,9.63 14.25,9.63C15.28,9.63 16.2,10 16.89,10.61L19.78,7.72C18.13,6.13 16.37,5.25 14.25,5.25C10.08,5.25 6.63,8.38 6.63,12.5C6.63,16.62 10.08,19.75 14.25,19.75C18.42,19.75 22.68,16.56 22.68,12.63C22.68,12.44 22.56,12.25 22.56,12.25Z"></path></svg>
+                <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; margin-left: 10px;"><path fill="white" d="M22.56,12.25C22.56,11.47 22.5,10.72 22.38,10H12V14.5H18.04C17.72,16.53 16.37,18.13 14.25,18.13C11.88,18.13 10,16.25 10,13.88C10,11.5 11.88,9.63 14.25,9.63C15.28,9.63 16.2,10 16.89,10.61L19.78,7.72C18.13,6.13 16.37,5.25 14.25,5.25C10.08,5.25 6.63,8.38 6.63,12.5C6.63,16.62 10.08,19.75 14.25,19.75C18.42,19.75 22.68,16.56 22.68,12.63C22.68,12.44 22.56,12.25 22.56,12.25Z"></path></svg>
                 <span>התחברות עם גוגל</span>
             </button>
             <button id="guestLoginBtn" type="button" class="btn btn-secondary" style="margin-top: 10px; width: 100%;">המשך כאורח (צפייה בלבד)</button>
@@ -253,6 +253,7 @@
             </div>
         </div>
     </div>
+    
     <div id="datePickerModal" class="date-picker">
         <div class="date-picker-header">
             <button type="button" class="prev-month">&lt;</button>
@@ -264,29 +265,18 @@
         </div>
         <div class="date-picker-grid-days"></div>
     </div>
+
     <div id="confirmModal" class="modal-overlay">
         <div class="modal-content">
             <h3 id="confirmModalTitle"></h3>
             <p id="confirmModalText"></p>
             <div class="modal-actions">
-                <button id="confirmCancelBtn" class="btn-secondary"></button>
+                <button id="confirmCancelBtn"></button>
                 <button id="confirmOkBtn"></button>
             </div>
         </div>
     </div>
-    <div id="dataActionModal" class="modal-overlay">
-        <div class="modal-content">
-            <h3>ניהול נתונים</h3>
-            <p>בחר את הפעולה הרצויה. שים לב, ייבוא נתונים יחליף את כל המידע הקיים במערכת.</p>
-            <div class="modal-actions">
-                <button id="dataActionCancelBtn" class="btn btn-secondary">ביטול</button>
-                <button id="dataActionExportBtn" class="btn btn-primary">ייצוא לקובץ CSV</button>
-                <button id="dataActionImportBtn" class="btn btn-success">ייבוא מקובץ CSV</button>
-            </div>
-        </div>
-    </div>
-    <div id="projectModal" class="modal-overlay">
-        </div>
+    
     <div id="promptModal" class="modal-overlay">
         <div class="modal-content">
             <h3 id="promptModalTitle"></h3>
@@ -298,6 +288,21 @@
             </div>
         </div>
     </div>
+
+    <div id="dataActionModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>ניהול נתונים</h3>
+            <p>בחר את הפעולה הרצויה. שים לב, ייבוא נתונים יחליף את כל המידע הקיים במערכת.</p>
+            <div class="modal-actions">
+                <button id="dataActionCancelBtn" class="btn btn-secondary">ביטול</button>
+                <button id="dataActionExportBtn" class="btn btn-primary">ייצוא לקובץ CSV</button>
+                <button id="dataActionImportBtn" class="btn btn-success">ייבוא מקובץ CSV</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="projectModal" class="modal-overlay">
+        </div>
 
     <header class="app-header">
         <h1>לוח ניהול פרויקטים</h1>
@@ -345,7 +350,7 @@
                     <ul id="projectList" class="project-list"></ul>
                     <h3 class="history-header">היסטוריה<button id="toggleHistoryBtn" class="card__toggle-btn" data-state="collapsed">+</button></h3>
                     <ul id="projectHistoryList" class="project-list history-list collapsed"></ul>
-                    <div class="clear-history-btn-wrapper collapsed auth-controlled"><button id="clearHistoryBtn">נקה היסטוריה</button></div>
+                    <div class="clear-history-btn-wrapper collapsed auth-controlled"><button id="clearHistoryBtn" class="btn btn-secondary">נקה היסטוריה</button></div>
                 </section>
             </section>
         </main>
@@ -356,7 +361,7 @@
                     <button class="card__toggle-btn" data-target="urgentTodoContainer">&#x2212;</button>
                 </div>
                 <div class="todo-input-group auth-controlled">
-                    <input type="text" id="todoInput" placeholder="הוסף מטלה דחופה חדשה..."><button id="addTodoBtn">+</button>
+                    <input type="text" id="todoInput" placeholder="הוסף מטלה..."><button id="addTodoBtn" class="btn btn-success">+</button>
                 </div>
                 <ul id="todoList" class="todo-list"></ul>
             </section>
@@ -454,7 +459,7 @@
     const hebrewMonths = ["ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"];
     const dateOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
 
-    // --- 4. CORE FUNCTIONS ---
+    // --- 4. FUNCTION DEFINITIONS ---
     function updateUIForAuthState() {
         document.querySelectorAll('.auth-controlled').forEach(el => {
             if (AppState.isAuthenticated) { el.classList.remove('hidden-for-guest'); } 
@@ -502,7 +507,7 @@
             cancelBtn.addEventListener('click', onCancel, { once: true });
         });
     }
-    
+
     function showPrompt(title, text, inputType = 'text') {
         return new Promise((resolve) => {
             const titleEl = document.getElementById('promptModalTitle');
@@ -533,7 +538,7 @@
             inputEl.addEventListener('keypress', onKeypress);
         });
     }
-
+    
     function renderDatePicker() {
         const month = AppState.pickerDate.getMonth();
         const year = AppState.pickerDate.getFullYear();
@@ -601,7 +606,7 @@
             await showConfirmation("שדה חובה", "שם היזם הוא שדה חובה.", "הבנתי", "btn-secondary", false);
             return;
         }
-
+        
         const projectData = {
             name: projectName, address: dom.projectAddressInput.value.trim(), contactInfo: dom.contactInfoInput.value.trim(),
             startDate: dom.startDateInput.value ? parseAndValidateDate(dom.startDateInput.value).toISOString().split('T')[0] : '',
@@ -636,8 +641,7 @@
         hideProjectModal();
     }
 
-    async function deleteProject(event) {
-        event.stopPropagation();
+    async function deleteProject() {
         if (!AppState.selectedProjectKey || !AppState.isAuthenticated) return;
         const projectToDelete = AppState.projects[AppState.selectedProjectKey];
         const confirmed = await showConfirmation("אישור מחיקה", `האם אתה בטוח שברצונך למחוק את "${projectToDelete.name}"?`);
@@ -727,7 +731,7 @@
         const finishDateFormatted = project.finishDate ? formatDate(project.finishDate) : 'N/A';
         const createdDateFormatted = project.addedDateTime ? new Date(project.addedDateTime).toLocaleString('he-IL', dateOptions) : '';
         const editedDateFormatted = project.lastEditedAt ? new Date(project.lastEditedAt).toLocaleString('he-IL', dateOptions) : '';
-        dom.projectModal.innerHTML = `<div class="project-modal-content"><span class="project-modal-close">&times;</span><h3>${project.name}</h3><p><span class="info-label">כתובת:</span> ${project.address || 'לא צויין'}</p><p><span class="info-label">תאריכים:</span> ${startDateFormatted} - ${finishDateFormatted}</p><p><span class="info-label">מטלות:</span> ${tasksSummary}</p><p><span class="info-label">נוצר ב:</span> ${createdDateFormatted} על ידי <strong>${project.whoCreated || 'לא ידוע'}</strong></p>${project.lastEditedAt ? `<p><span class="info-label">עודכן לאחרונה:</span> ${editedDateFormatted} על ידי <strong>${project.lastEditedBy || 'לא ידוע'}</strong></p>` : ''}<p><span class="info-label">התקדמות כללית:</span> <span style="font-weight: bold; color: ${getProgressColor(project.progress)};">${getProgressTranslation(project.progress)}</span></p><p><span class="info-label">הערות:</span> ${project.furtherNotes || 'אין'}</p><div class="project-modal-actions"><button class="add-btn auth-controlled">ערוך פרויקט</button></div></div>`;
+        dom.projectModal.innerHTML = `<div class="project-modal-content"><span class="project-modal-close">&times;</span><h3>${project.name}</h3><p><span class="info-label">כתובת:</span> ${project.address || 'לא צויין'}</p><p><span class="info-label">תאריכים:</span> ${startDateFormatted} - ${finishDateFormatted}</p><p><span class="info-label">מטלות:</span> ${tasksSummary}</p><p><span class="info-label">נוצר ב:</span> ${createdDateFormatted} על ידי <strong>${project.whoCreated || 'לא ידוע'}</strong></p>${project.lastEditedAt ? `<p><span class="info-label">עודכן לאחרונה:</span> ${editedDateFormatted} על ידי <strong>${project.lastEditedBy || 'לא ידוע'}</strong></p>` : ''}<p><span class="info-label">התקדמות כללית:</span> <span style="font-weight: bold; color: ${getProgressColor(project.progress)};">${getProgressTranslation(project.progress)}</span></p><p><span class="info-label">הערות:</span> ${project.furtherNotes || 'אין'}</p><div class="project-modal-actions"><button class="add-btn auth-controlled btn btn-primary">ערוך פרויקט</button></div></div>`;
         requestAnimationFrame(() => dom.projectModal.classList.add('visible'));
         dom.projectModal.querySelector('.project-modal-close').addEventListener('click', hideProjectModal);
         const editButton = dom.projectModal.querySelector('.add-btn'); if(AppState.isAuthenticated && editButton) { editButton.addEventListener('click', () => populateFormForEditing(projectId, project)); }
@@ -758,7 +762,7 @@
     }
     
     function renderDeletedProjects() {
-        const historyList = document.getElementById('projectHistoryList'); historyList.innerHTML = ''; const deletedArray = Object.entries(AppState.deletedProjects || {});
+        const historyList = dom.projectHistoryList; historyList.innerHTML = ''; const deletedArray = Object.entries(AppState.deletedProjects || {});
         if (deletedArray.length === 0) { historyList.innerHTML = '<li style="background: none; border: none; box-shadow: none; color: #888; font-style: italic;">אין פרויקטים בהיסטוריה.</li>'; return; }
         deletedArray.forEach(([key, project]) => { const li = document.createElement('li'); li.dataset.projectId = key; const deletedDateFormatted = new Date(project.deletedAt).toLocaleString('he-IL', dateOptions); li.innerHTML = `<div class="deleted-text-content"><strong>${project.name}</strong><p><span class="info-label">נמחק ב:</span> ${deletedDateFormatted} על ידי <strong>${project.deletedBy || 'לא ידוע'}</strong></p></div><button class="restore-project-btn auth-controlled" data-project-id="${key}">שחזר</button>`; historyList.appendChild(li); });
         updateUIForAuthState();
@@ -807,7 +811,7 @@
         reader.onload = async (event) => {
             const csv = event.target.result;
             const lines = csv.split("\n").filter(line => line.trim());
-            if(lines.length < 2) return alert("CSV file must contain a header row and at least one data row.");
+            if(lines.length < 2) return await showConfirmation("שגיאת קובץ", "קובץ ה-CSV חייב להכיל שורת כותרת ולפחות שורת נתונים אחת.", "הבנתי", "btn-danger", false);
             
             const headers = lines.shift().split(",").map(h => h.trim());
             const newProjects = {};
