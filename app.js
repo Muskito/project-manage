@@ -40,7 +40,6 @@ const dom = {
     finishDateInput: document.getElementById('finishDate'),
     tasksDropdownGroup: document.querySelector('.tasks-dropdown-group'), 
     tasksDropdownButton: document.getElementById('tasksDropdownButton'),
-    tasksDropdownText: document.querySelector('.tasks-dropdown-button__text'),
     tasksChecklistContainer: document.getElementById('tasksChecklistContainer'), 
     taskProgressSelect: document.getElementById('taskProgress'), 
     furtherNotesInput: document.getElementById('furtherNotes'),
@@ -51,8 +50,7 @@ const dom = {
     clearHistoryBtn: document.getElementById('clearHistoryBtn'),
     projectModal: document.getElementById('projectModal'),
     dataMgmtBtn: document.getElementById('dataMgmtBtn'), 
-    csvFileInput: document.getElementById('csvFileInput'),
-    projectManagementContainer: document.getElementById('projectManagementContainer')
+    csvFileInput: document.getElementById('csvFileInput')
 };
 
 // --- 3. STATE MANAGEMENT ---
@@ -381,7 +379,8 @@ async function restoreProject(event) {
         if (pToRestore) { 
             delete pToRestore.deletedAt; 
             delete pToRestore.deletedBy; 
-            update(ref(db), { [`/deletedProjects/${projectId}`]: null, [`/projects/${projectId}`]: pToRestore });
+            await update(ref(db), { [`/deletedProjects/${projectId}`]: null, [`/projects/${projectId}`]: pToRestore });
+            await showConfirmation("הצלחה", `הפרויקט "${pToRestore.name}" שוחזר.`, "אישור", "btn-success", false);
         }
     }
 }
