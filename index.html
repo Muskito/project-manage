@@ -105,6 +105,7 @@
             padding: 25px;
             display: flex;
             flex-direction: column;
+            transition: max-height 0.35s ease-in-out;
         }
         
         .card__header {
@@ -126,6 +127,10 @@
             background: none; border: none; font-size: 1.5em; cursor: pointer; color: var(--text-secondary); padding: 0 5px; line-height: 1;
         }
         
+        .minimized { overflow: hidden; padding-top: 25px; padding-bottom: 0; max-height: 58px; }
+        .minimized > *:not(.card__header) { visibility: hidden; opacity: 0; }
+        .minimized .card__header { border-bottom: none; }
+
         .todo-input-group { display: flex; margin-bottom: 15px; gap: 10px; flex-direction: row-reverse; }
         .todo-input-group input[type="text"] { flex-grow: 1; padding: 10px 15px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 1em; background-color: var(--bg-input); font-family: var(--font-family); text-align: right; }
         .todo-input-group button { background-color: var(--accent-success); padding: 0 20px; }
@@ -136,6 +141,8 @@
         .todo-text { font-size: 1.05em; color: var(--text-primary); width: 100%; margin-bottom: 5px; }
         .todo-meta { width: 100%; text-align: left; font-size: 0.75em; color: var(--text-secondary); }
         
+        .datetime-container { /* REMOVED justify-content to fix spacing */ }
+        .datetime-container h2 { font-size: 1.4em; padding-bottom: 10px; margin-bottom: 10px; }
         .calendar-nav { display: flex; justify-content: space-between; align-items: center; padding: 0 5px; margin-bottom: 10px; }
         #calendarMonthYear { font-size: 1.2em; font-weight: bold; color: #333; }
         .calendar-nav button { background: none; border: 1px solid transparent; font-size: 1.5em; font-weight: bold; color: #555; cursor: pointer; padding: 0 10px; line-height: 1; border-radius: 4px; transition: background-color 0.2s; }
@@ -147,7 +154,7 @@
         .calendar-day.other-month { color: #ccc; background-color: var(--bg-card); }
         .calendar-day:not(.empty):hover { background-color: #e6f0fa; }
         .calendar-day.current-day { background-color: var(--accent-primary); color: white; font-weight: bold; border-color: var(--accent-primary); }
-        .calendar-footer { margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--border-color); text-align: center; }
+        .calendar-footer { margin-top: 15px; padding-top: 10px; border-top: 1px solid var(--border-color); text-align: center; }
         #currentTime { font-size: 1.5em; font-weight: 500; color: var(--accent-primary); }
         
         .project-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color); }
@@ -185,7 +192,7 @@
         .btn-danger { background-color: var(--accent-danger); color: var(--text-on-accent); }
         .btn-success { background-color: var(--accent-success); color: var(--text-on-accent); }
         .btn-secondary { background-color: var(--accent-secondary); color: var(--text-on-accent); }
-        .project-buttons { display: flex; gap: 15px; justify-content: flex-start; margin-top: 20px; }
+        .project-buttons { display: flex; gap: 15px; justify-content: flex-end; margin-top: 20px; }
         #deleteProjectBtn { display: none; }
 
         .project-list-container { margin-top: 25px; }
@@ -275,7 +282,6 @@
             </div>
         </div>
     </div>
-    
     <div id="datePickerModal" class="date-picker">
         <div class="date-picker-header">
             <button type="button" class="prev-month">&lt;</button>
@@ -287,7 +293,6 @@
         </div>
         <div class="date-picker-grid-days"></div>
     </div>
-
     <div id="confirmModal" class="modal-overlay">
         <div class="modal-content">
             <h3 id="confirmModalTitle"></h3>
@@ -298,7 +303,6 @@
             </div>
         </div>
     </div>
-    
     <div id="promptModal" class="modal-overlay">
         <div class="modal-content">
             <h3 id="promptModalTitle"></h3>
@@ -310,7 +314,6 @@
             </div>
         </div>
     </div>
-
     <div id="dataActionModal" class="modal-overlay">
         <div class="modal-content">
             <h3>ניהול נתונים</h3>
@@ -322,14 +325,12 @@
             </div>
         </div>
     </div>
-
     <div id="projectModal" class="modal-overlay">
         </div>
 
     <header class="app-header">
         <h1>לוח ניהול פרויקטים</h1>
     </header>
-
     <div class="app-container">
         <main id="projectManagementContainer" class="app-card">
             <div class="card__header">
@@ -340,7 +341,10 @@
                 <div class="form-group"><label for="projectName">שם היזם:</label><input type="text" id="projectName" class="form-input" placeholder="לדוגמה: אפריקה ישראל"></div>
                 <div class="form-group"><label for="projectAddress">כתובת:</label><input type="text" id="projectAddress" class="form-input" placeholder="לדוגמה: שלום עליכם 23 ת'א"></div>
                 <div class="form-group"><label for="contactInfo">פרטי יצירת קשר:</label><input type="text" id="contactInfo" class="form-input" placeholder="לדוגמה: יוסי כהן - 555-1234"></div>
-                <div class="form-group"><label for="taskProgress">התקדמות מטלה:</label><select id="taskProgress"><option value="Not Started">לא התחיל</option><option value="In Progress">בטיפול</option><option value="On Hold">בהמתנה</option><option value="Completed">הושלם</option></select></div>
+                <div class="form-group">
+                    <label for="taskProgress">התקדמות מטלה:</label>
+                    <select id="taskProgress"><option value="Not Started">לא התחיל</option><option value="In Progress">בטיפול</option><option value="On Hold">בהמתנה</option><option value="Completed">הושלם</option></select>
+                </div>
                 <div class="form-group">
                     <label for="startDate">תאריך התחלה:</label>
                     <input type="text" id="startDate" class="form-input date-input" placeholder="dd/mm/yyyy" readonly>
@@ -407,11 +411,11 @@
     </div>
 
     <script type="module">
+    // All JavaScript is below and is complete
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
     import { getDatabase, ref, set, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
     import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
-    // --- 1. INITIALIZATION ---
     const firebaseConfig = {
         apiKey: "AIzaSyB90h6Yllco6LZfdyrSyBl0hc4bt6fbUDg",
         authDomain: "projmanage.firebaseapp.com",
@@ -429,62 +433,38 @@
     const dbRefDeletedProjects = ref(db, 'deletedProjects');
     const dbRefTodoItems = ref(db, 'todoItems');
 
-    // --- 2. DOM ELEMENT REFERENCES ---
     const dom = {
-        loginModal: document.getElementById('loginModal'),
-        googleSignInBtn: document.getElementById('googleSignInBtn'),
-        guestLoginBtn: document.getElementById('guestLoginBtn'),
-        adminOverrideBtn: document.getElementById('adminOverride'),
-        datePickerModal: document.getElementById('datePickerModal'),
-        confirmModal: document.getElementById('confirmModal'),
-        promptModal: document.getElementById('promptModal'),
-        dataActionModal: document.getElementById('dataActionModal'),
-        todoInput: document.getElementById('todoInput'), 
-        addTodoBtn: document.getElementById('addTodoBtn'),
-        todoList: document.getElementById('todoList'), 
-        projectNameInput: document.getElementById('projectName'),
-        projectAddressInput: document.getElementById('projectAddress'), 
-        contactInfoInput: document.getElementById('contactInfo'),
-        startDateInput: document.getElementById('startDate'), 
-        finishDateInput: document.getElementById('finishDate'),
-        tasksDropdownGroup: document.querySelector('.tasks-dropdown-group'), 
-        tasksDropdownButton: document.getElementById('tasksDropdownButton'),
-        tasksChecklistContainer: document.getElementById('tasksChecklistContainer'), 
-        taskProgressSelect: document.getElementById('taskProgress'), 
-        furtherNotesInput: document.getElementById('furtherNotes'),
-        addProjectBtn: document.getElementById('addProjectBtn'), 
-        deleteProjectBtn: document.getElementById('deleteProjectBtn'),
-        projectList: document.getElementById('projectList'), 
-        projectHistoryList: document.getElementById('projectHistoryList'),
-        clearHistoryBtn: document.getElementById('clearHistoryBtn'),
-        projectModal: document.getElementById('projectModal'),
-        dataMgmtBtn: document.getElementById('dataMgmtBtn'), 
-        csvFileInput: document.getElementById('csvFileInput'),
-        projectManagementContainer: document.getElementById('projectManagementContainer')
+        loginModal: document.getElementById('loginModal'), googleSignInBtn: document.getElementById('googleSignInBtn'),
+        guestLoginBtn: document.getElementById('guestLoginBtn'), adminOverrideBtn: document.getElementById('adminOverride'),
+        datePickerModal: document.getElementById('datePickerModal'), confirmModal: document.getElementById('confirmModal'),
+        promptModal: document.getElementById('promptModal'), dataActionModal: document.getElementById('dataActionModal'),
+        todoInput: document.getElementById('todoInput'), addTodoBtn: document.getElementById('addTodoBtn'),
+        todoList: document.getElementById('todoList'), projectNameInput: document.getElementById('projectName'),
+        projectAddressInput: document.getElementById('projectAddress'), contactInfoInput: document.getElementById('contactInfo'),
+        startDateInput: document.getElementById('startDate'), finishDateInput: document.getElementById('finishDate'),
+        tasksDropdownGroup: document.querySelector('.tasks-dropdown-group'), tasksDropdownButton: document.getElementById('tasksDropdownButton'),
+        tasksChecklistContainer: document.getElementById('tasksChecklistContainer'), taskProgressSelect: document.getElementById('taskProgress'),
+        furtherNotesInput: document.getElementById('furtherNotes'), addProjectBtn: document.getElementById('addProjectBtn'),
+        deleteProjectBtn: document.getElementById('deleteProjectBtn'), projectList: document.getElementById('projectList'),
+        projectHistoryList: document.getElementById('projectHistoryList'), clearHistoryBtn: document.getElementById('clearHistoryBtn'),
+        projectModal: document.getElementById('projectModal'), dataMgmtBtn: document.getElementById('dataMgmtBtn'),
+        csvFileInput: document.getElementById('csvFileInput'), projectManagementContainer: document.getElementById('projectManagementContainer')
     };
     
-    // --- 3. STATE MANAGEMENT ---
     const AppState = {
-        isAuthenticated: false,
-        currentUser: null,
-        projects: {},
-        deletedProjects: {},
-        todoItems: [],
-        displayedDate: new Date(),
-        selectedProjectKey: null,
-        activeDateInput: null,
-        pickerDate: new Date()
+        isAuthenticated: false, currentUser: null, projects: {}, deletedProjects: {},
+        todoItems: [], displayedDate: new Date(), selectedProjectKey: null,
+        activeDateInput: null, pickerDate: new Date()
     };
 
     const masterTaskList = ["מפוחי גג", "מפוחי חניון", "מפוח חדר משאבות", "משתיקים", "דאמפרים", "תעלות", "ברכי לובי", "ברך אשפה", "מהלכי ונטות", "ונטות", "מפוח in-line", "גרילים", "גרילים נגד יתושים", "ארון פיקוד", "ביקורת 1", "ביקורת 2", "ביקורת 3", "ביקורת 4"];
     const hebrewMonths = ["ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"];
     const dateOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
 
-    // --- 4. FUNCTION DEFINITIONS ---
     function updateUIForAuthState() {
         document.querySelectorAll('.auth-controlled').forEach(el => {
-            if (AppState.isAuthenticated) { el.classList.remove('hidden-for-guest'); } 
-            else { el.classList.add('hidden-for-guest'); }
+            if (AppState.isAuthenticated) el.classList.remove('hidden-for-guest');
+            else el.classList.add('hidden-for-guest');
         });
         dom.todoList.style.pointerEvents = AppState.isAuthenticated ? 'auto' : 'none';
     }
@@ -496,8 +476,7 @@
     }
     
     function getColorForName(name) {
-        if (!name) return '#e0e0e0';
-        let hash = 0;
+        if (!name) return '#e0e0e0'; let hash = 0;
         for (let i = 0; i < name.length; i++) { hash = name.charCodeAt(i) + ((hash << 5) - hash); }
         const colors = ['#ffadad', '#ffd6a5', '#fdffb6', '#caffbf', '#9bf6ff', '#a0c4ff', '#bdb2ff', '#ffc6ff'];
         return colors[Math.abs(hash % colors.length)];
@@ -505,12 +484,10 @@
 
     function showConfirmation(title, text, confirmText = 'אישור', confirmClass = 'btn-danger', showCancel = true) {
         return new Promise((resolve) => {
-            const titleEl = document.getElementById('confirmModalTitle');
-            const textEl = document.getElementById('confirmModalText');
             const okBtn = document.getElementById('confirmOkBtn');
             const cancelBtn = document.getElementById('confirmCancelBtn');
-            titleEl.textContent = title;
-            textEl.innerHTML = text; // Use innerHTML to support <br> tags
+            document.getElementById('confirmModalTitle').textContent = title;
+            document.getElementById('confirmModalText').innerHTML = text;
             okBtn.textContent = confirmText;
             okBtn.className = ""; okBtn.classList.add('btn', confirmClass);
             cancelBtn.style.display = showCancel ? 'inline-block' : 'none';
@@ -531,15 +508,12 @@
     
     function showPrompt(title, text, inputType = 'text') {
         return new Promise((resolve) => {
-            const titleEl = document.getElementById('promptModalTitle');
-            const textEl = document.getElementById('promptModalText');
             const inputEl = document.getElementById('promptModalInput');
             const okBtn = document.getElementById('promptOkBtn');
             const cancelBtn = document.getElementById('promptCancelBtn');
-            titleEl.textContent = title;
-            textEl.textContent = text;
-            inputEl.value = '';
-            inputEl.type = inputType;
+            document.getElementById('promptModalTitle').textContent = title;
+            document.getElementById('promptModalText').textContent = text;
+            inputEl.value = ''; inputEl.type = inputType;
             dom.promptModal.classList.add('visible');
             inputEl.focus();
             const onOk = () => { cleanup(); resolve(inputEl.value); };
@@ -558,8 +532,7 @@
     }
 
     function renderDatePicker() {
-        const month = AppState.pickerDate.getMonth();
-        const year = AppState.pickerDate.getFullYear();
+        const month = AppState.pickerDate.getMonth(), year = AppState.pickerDate.getFullYear();
         datePickerModal.querySelector('.month-year').textContent = `${hebrewMonths[month]} ${year}`;
         const daysGrid = datePickerModal.querySelector('.date-picker-grid-days');
         daysGrid.innerHTML = '';
@@ -568,13 +541,9 @@
         for (let i = 0; i < firstDayOfMonth; i++) { daysGrid.insertAdjacentHTML('beforeend', '<div class="date-picker-day empty"></div>'); }
         for (let day = 1; day <= daysInMonth; day++) {
             const dayEl = document.createElement('div');
-            dayEl.className = 'date-picker-day';
-            dayEl.textContent = day;
-            dayEl.dataset.day = day;
+            dayEl.className = 'date-picker-day'; dayEl.textContent = day; dayEl.dataset.day = day;
             const today = new Date();
-            if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
-                dayEl.classList.add('today');
-            }
+            if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) dayEl.classList.add('today');
             daysGrid.appendChild(dayEl);
         }
     }
@@ -594,13 +563,11 @@
         AppState.activeDateInput = null;
     }
 
-    function formatDate(date) {
-        if (!date) return '';
-        const d = new Date(date);
-        const day = String(d.getDate()).padStart(2, '0');
-        const month = String(d.getMonth() + 1).padStart(2, '0');
-        const year = d.getFullYear();
-        return `${day}/${month}/${year}`;
+    function formatDate(dateStr) {
+        if (!dateStr) return '';
+        const d = new Date(dateStr);
+        if(isNaN(d.getTime())) return '';
+        return new Intl.DateTimeFormat('he-IL', dateOptions).format(d);
     }
 
     function parseAndValidateDate(dateStr_DDMMYYYY) {
@@ -618,15 +585,19 @@
 
     async function saveProject() {
         if (!AppState.isAuthenticated) return;
-        
-        const projectName = dom.projectNameInput.value.trim();
-        if (!projectName) {
-            await showConfirmation("שדה חובה", "שם היזם הוא שדה חובה.", "הבנתי", "btn-secondary", false);
+        const requiredFields = {
+            'שם היזם': dom.projectNameInput.value.trim(),
+            'כתובת': dom.projectAddressInput.value.trim(),
+            'פרטי יצירת קשר': dom.contactInfoInput.value.trim()
+        };
+        const emptyFields = Object.entries(requiredFields).filter(([_, value]) => !value).map(([key]) => key);
+        if (emptyFields.length > 0) {
+            await showConfirmation("שדות חובה", `נא למלא את השדות הבאים:<br>- ${emptyFields.join('<br>- ')}`, "הבנתי", "btn-secondary", false);
             return;
         }
         
         const projectData = {
-            name: projectName, address: dom.projectAddressInput.value.trim(), contactInfo: dom.contactInfoInput.value.trim(),
+            name: requiredFields['שם היזם'], address: requiredFields['כתובת'], contactInfo: requiredFields['פרטי יצירת קשר'],
             startDate: dom.startDateInput.value ? parseAndValidateDate(dom.startDateInput.value).toISOString().split('T')[0] : '',
             finishDate: dom.finishDateInput.value ? parseAndValidateDate(dom.finishDateInput.value).toISOString().split('T')[0] : '',
             tasks: getTasksDataFromDOM(),
@@ -766,8 +737,7 @@
         if (confirmed) {
             const pToRestore = { ...AppState.deletedProjects[projectId] };
             if (pToRestore) { 
-                delete pToRestore.deletedAt; 
-                delete pToRestore.deletedBy; 
+                delete pToRestore.deletedAt; delete pToRestore.deletedBy; 
                 await update(ref(db), { [`/deletedProjects/${projectId}`]: null, [`/projects/${projectId}`]: pToRestore });
                 await showConfirmation("הצלחה", `הפרויקט "${pToRestore.name}" שוחזר.`, "אישור", "btn-success", false);
             }
@@ -856,7 +826,6 @@
                     newDbState.projects[newKey] = projectData;
                 }
             });
-            
             try {
                 await set(ref(db, '/'), newDbState);
                 await showConfirmation("הצלחה", "הנתונים יובאו בהצלחה!", "אישור", "btn-success", false);
@@ -922,6 +891,7 @@
     });
     document.querySelectorAll('.card__toggle-btn').forEach(btn => btn.addEventListener('click', (e) => {
         const targetId = e.target.dataset.target;
+        if (!targetId) return; // Guard against buttons without data-target
         const targetCard = document.getElementById(targetId);
         if (targetCard) {
             targetCard.classList.toggle('minimized');
