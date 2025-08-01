@@ -633,7 +633,7 @@
             border-radius: 10px;
             width: 90%;
             max-width: 400px;
-            text-align: center; /* Center content */
+            text-align: center;
         }
         .login-modal-content h2 {
             border-bottom: none;
@@ -683,8 +683,7 @@
     </style>
 </head>
 <body>
-    <div id="loginModal" class="visible">
-        <div class="login-modal-content">
+    <div id="loginModal"> <div class="login-modal-content">
             <h2>ניהול פרויקטים</h2>
             <p style="margin-top: 0; margin-bottom: 25px; font-size: 1.1em; color: #555;">יש להתחבר כדי לערוך נתונים</p>
             <button id="googleSignInBtn">
@@ -751,7 +750,6 @@
     </div>
 
     <script type="module">
-    // --- UPDATED IMPORTS ---
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
     import { getDatabase, ref, set, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
     import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
@@ -769,29 +767,31 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const auth = getAuth(app); // Initialize Auth service
+    const auth = getAuth(app);
     const dbRefProjects = ref(db, 'projects');
     const dbRefDeletedProjects = ref(db, 'deletedProjects');
     const dbRefTodoItems = ref(db, 'todoItems');
 
     let isAuthenticated = false;
-    let currentUser = null; // Store user object
+    let currentUser = null;
     const loginModal = document.getElementById('loginModal');
     const googleSignInBtn = document.getElementById('googleSignInBtn');
     
     let projects = {}, deletedProjects = {}, todoItems = [], displayedDate = new Date();
     
-    const todoInput = document.getElementById('todoInput'), addTodoBtn = document.getElementById('addTodoBtn'),
-          todoList = document.getElementById('todoList'), projectNameInput = document.getElementById('projectName'),
-          projectAddressInput = document.getElementById('projectAddress'), contactInfoInput = document.getElementById('contactInfo'),
-          startDateInput = document.getElementById('startDate'), finishDateInput = document.getElementById('finishDate'),
-          tasksDropdown = document.getElementById('tasksDropdown'), tasksDropdownButton = document.getElementById('tasksDropdownButton'),
-          tasksChecklistContainer = document.getElementById('tasksChecklistContainer'), 
-          taskProgressSelect = document.getElementById('taskProgress'), furtherNotesInput = document.getElementById('furtherNotes'),
-          addProjectBtn = document.getElementById('addProjectBtn'), deleteProjectBtn = document.getElementById('deleteProjectBtn'),
-          projectList = document.getElementById('projectList'), clearHistoryBtn = document.getElementById('clearHistoryBtn'),
-          projectManagementContainer = document.getElementById('projectManagementContainer'), projectModal = document.getElementById('projectModal'),
-          dataMgmtBtn = document.getElementById('dataMgmtBtn'), csvFileInput = document.getElementById('csvFileInput');
+    const allElements = {
+        todoInput: document.getElementById('todoInput'), addTodoBtn: document.getElementById('addTodoBtn'),
+        todoList: document.getElementById('todoList'), projectNameInput: document.getElementById('projectName'),
+        projectAddressInput: document.getElementById('projectAddress'), contactInfoInput: document.getElementById('contactInfo'),
+        startDateInput: document.getElementById('startDate'), finishDateInput: document.getElementById('finishDate'),
+        tasksDropdown: document.getElementById('tasksDropdown'), tasksDropdownButton: document.getElementById('tasksDropdownButton'),
+        tasksChecklistContainer: document.getElementById('tasksChecklistContainer'), 
+        taskProgressSelect: document.getElementById('taskProgress'), furtherNotesInput: document.getElementById('furtherNotes'),
+        addProjectBtn: document.getElementById('addProjectBtn'), deleteProjectBtn: document.getElementById('deleteProjectBtn'),
+        projectList: document.getElementById('projectList'), clearHistoryBtn: document.getElementById('clearHistoryBtn'),
+        projectManagementContainer: document.getElementById('projectManagementContainer'), projectModal: document.getElementById('projectModal'),
+        dataMgmtBtn: document.getElementById('dataMgmtBtn'), csvFileInput: document.getElementById('csvFileInput')
+    };
     
     let selectedProjectKey = null;
     const masterTaskList = ["מפוחי גג", "מפוחי חניון", "מפוח חדר משאבות", "משתיקים", "דאמפרים", "תעלות", "ברכי לובי", "ברך אשפה", "מהלכי ונטות", "ונטות", "מפוח in-line", "גרילים", "גרילים נגד יתושים", "ארון פיקוד", "ביקורת 1", "ביקורת 2", "ביקורת 3", "ביקורת 4"];
@@ -800,7 +800,7 @@
     onValue(dbRefDeletedProjects, s => { deletedProjects = s.val() || {}; renderDeletedProjects(); });
     onValue(dbRefTodoItems, s => { todoItems = s.val() || []; renderTodoItems(); });
 
-    // --- NEW: Authentication and UI Control ---
+    // --- Authentication and UI Control ---
     onAuthStateChanged(auth, (user) => {
         if (user) {
             currentUser = user;
@@ -814,19 +814,22 @@
         updateUIForAuthState();
     });
 
+    // THIS FUNCTION IS NOW FIXED
     function updateUIForAuthState() {
         document.querySelectorAll('.auth-controlled').forEach(el => {
-            el.style.display = isAuthenticated ? '' : 'flex'; // Use flex for project-buttons
-             if(el.classList.contains('project-form')) el.style.display = isAuthenticated ? 'grid' : 'none';
+            if (isAuthenticated) {
+                el.classList.remove('hidden-for-guest');
+            } else {
+                el.classList.add('hidden-for-guest');
+            }
         });
-        todoList.style.pointerEvents = isAuthenticated ? 'auto' : 'none';
+        allElements.todoList.style.pointerEvents = isAuthenticated ? 'auto' : 'none';
     }
 
     async function handleGoogleSignIn() {
         const provider = new GoogleAuthProvider();
         try {
             await signInWithPopup(auth, provider);
-            // onAuthStateChanged will handle the rest
         } catch (error) {
             console.error("Google Sign-In failed:", error);
             alert("ההתחברות עם גוגל נכשלה. נסה שוב.");
@@ -834,174 +837,119 @@
     }
     googleSignInBtn.addEventListener('click', handleGoogleSignIn);
 
-    // ... All other functions are below ...
-    
-    // UPDATED: `saveProject` now uses the logged-in user's name automatically
+    // --- All other functions ---
     function saveProject() {
         if (!isAuthenticated) return alert("You must be logged in to save projects.");
-
-        const projectName = projectNameInput.value.trim();
+        const projectName = allElements.projectNameInput.value.trim();
         if (!projectName) return alert('שם היזם הוא שדה חובה!');
-        
         const projectData = {
             name: projectName,
-            address: projectAddressInput.value.trim(),
-            contactInfo: contactInfoInput.value.trim(),
-            startDate: startDateInput.value,
-            finishDate: finishDateInput.value,
+            address: allElements.projectAddressInput.value.trim(),
+            contactInfo: allElements.contactInfoInput.value.trim(),
+            startDate: allElements.startDateInput.value,
+            finishDate: allElements.finishDateInput.value,
             tasks: getTasksDataFromDOM(),
-            progress: taskProgressSelect.value,
-            furtherNotes: furtherNotesInput.value.trim()
+            progress: allElements.taskProgressSelect.value,
+            furtherNotes: allElements.furtherNotesInput.value.trim()
         };
-
-        if (selectedProjectKey) { // This is an update
-            projectData.addedDateTime = projects[selectedProjectKey].addedDateTime; // Keep original creation date
-            projectData.whoCreated = projects[selectedProjectKey].whoCreated; // Keep original creator
+        if (selectedProjectKey) {
+            projectData.addedDateTime = projects[selectedProjectKey].addedDateTime;
+            projectData.whoCreated = projects[selectedProjectKey].whoCreated;
             projectData.lastEditedAt = formatDateTime(new Date());
-            projectData.lastEditedBy = currentUser.displayName; // AUTOMATIC
-            
-            update(ref(db, `projects/${selectedProjectKey}`), projectData)
-                .then(() => { alert(`הפרויקט "${projectData.name}" עודכן בהצלחה!`); clearProjectForm(); })
-                .catch(err => alert(`שגיאה בעדכון: ${err.message}`));
-        } else { // This is a new project
+            projectData.lastEditedBy = currentUser.displayName;
+            update(ref(db, `projects/${selectedProjectKey}`), projectData).then(() => { alert(`הפרויקט "${projectData.name}" עודכן בהצלחה!`); clearProjectForm(); }).catch(err => alert(`שגיאה בעדכון: ${err.message}`));
+        } else {
             projectData.addedDateTime = formatDateTime(new Date());
-            projectData.whoCreated = currentUser.displayName; // AUTOMATIC
-            
-            set(push(dbRefProjects), projectData)
-                .then(() => { alert(`הפרויקט "${projectData.name}" נוסף בהצלחה!`); clearProjectForm(); })
-                .catch(err => alert(`שגיאה בהוספה: ${err.message}`));
+            projectData.whoCreated = currentUser.displayName;
+            set(push(dbRefProjects), projectData).then(() => { alert(`הפרויקט "${projectData.name}" נוסף בהצלחה!`); clearProjectForm(); }).catch(err => alert(`שגיאה בהוספה: ${err.message}`));
         }
     }
-
-    // UPDATED: `populateFormForEditing` no longer needs a prompt
     function populateFormForEditing(projectId, projectData) {
         selectedProjectKey = projectId;
-        projectNameInput.value = projectData.name;
-        projectAddressInput.value = projectData.address || '';
-        contactInfoInput.value = projectData.contactInfo || '';
-        startDateInput.value = projectData.startDate || '';
-        finishDateInput.value = projectData.finishDate || '';
+        allElements.projectNameInput.value = projectData.name;
+        allElements.projectAddressInput.value = projectData.address || '';
+        allElements.contactInfoInput.value = projectData.contactInfo || '';
+        allElements.startDateInput.value = projectData.startDate || '';
+        allElements.finishDateInput.value = projectData.finishDate || '';
         renderChecklist(projectData.tasks);
-        taskProgressSelect.value = projectData.progress;
-        furtherNotesInput.value = projectData.furtherNotes || '';
-        deleteProjectBtn.disabled = false;
-        deleteProjectBtn.style.display = 'inline-block';
-        addProjectBtn.textContent = 'שמור שינויים';
-        projectManagementContainer.scrollIntoView({ behavior: 'smooth' });
+        allElements.taskProgressSelect.value = projectData.progress;
+        allElements.furtherNotesInput.value = projectData.furtherNotes || '';
+        allElements.deleteProjectBtn.disabled = false;
+        allElements.deleteProjectBtn.style.display = 'inline-block';
+        allElements.addProjectBtn.textContent = 'שמור שינויים';
+        allElements.projectManagementContainer.scrollIntoView({ behavior: 'smooth' });
         hideProjectModal();
     }
-    
-    // UPDATED: `deleteProject` uses the logged-in user's name automatically
     function deleteProject(event) {
         event.stopPropagation();
         if (!selectedProjectKey || !isAuthenticated) return;
-        
         if (confirm(`האם למחוק את "${projects[selectedProjectKey].name}"?`)) {
-            const pToMove = { 
-                ...projects[selectedProjectKey], 
-                deletedAt: formatDateTime(new Date()),
-                deletedBy: currentUser.displayName // AUTOMATIC
-            };
-            const updates = { [`/projects/${selectedProjectKey}`]: null, [`/deletedProjects/${selectedProjectKey}`]: pToMove };
-            update(ref(db), updates)
-                .then(() => { alert(`הפרויקט הועבר להיסטוריה.`); clearProjectForm(); })
-                .catch(err => alert(`שגיאה במחיקה: ${err.message}`));
+            const pToMove = { ...projects[selectedProjectKey], deletedAt: formatDateTime(new Date()), deletedBy: currentUser.displayName };
+            update(ref(db), { [`/projects/${selectedProjectKey}`]: null, [`/deletedProjects/${selectedProjectKey}`]: pToMove }).then(() => { alert(`הפרויקט הועבר להיסטוריה.`); clearProjectForm(); }).catch(err => alert(`שגיאה במחיקה: ${err.message}`));
         }
     }
-
-    // All other functions from here are unchanged and included for completeness
+    function renderProjects() {
+        allElements.projectList.innerHTML = ''; const projectsArray = Object.entries(projects || {}); if (projectsArray.length === 0) { allElements.projectList.innerHTML = '<li style="grid-column: 1 / -1; text-align: right; color: #888; font-style: italic; background: none; border: none; box-shadow: none; cursor: default; padding: 10px;">אין פרויקטים נוכחיים.</li>'; return; }
+        projectsArray.forEach(([key, project]) => { const li = document.createElement('li'); li.dataset.projectId = key; li.innerHTML = `<strong>${project.name}</strong>`; allElements.projectList.appendChild(li); });
+    }
+    function clearProjectForm() {
+        allElements.projectNameInput.value = ''; allElements.projectAddressInput.value = ''; allElements.contactInfoInput.value = ''; allElements.startDateInput.value = ''; allElements.finishDateInput.value = '';
+        renderChecklist(); allElements.taskProgressSelect.value = 'Not Started'; allElements.furtherNotesInput.value = ''; selectedProjectKey = null;
+        allElements.deleteProjectBtn.disabled = true; allElements.deleteProjectBtn.style.display = 'none'; allElements.addProjectBtn.textContent = 'הוסף פרויקט';
+        allElements.tasksDropdown.classList.remove('open');
+    }
+    
+    // The rest of the functions are unchanged
     function updateTime() { document.getElementById('currentTime').textContent = new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit', second: '2-digit' }); }
     function generateCalendar() {
-        const calendarMonthYear = document.getElementById('calendarMonthYear'), calendarGrid = document.getElementById('calendarGrid');
-        if (!calendarMonthYear || !calendarGrid) return;
-        const today = new Date(), year = displayedDate.getFullYear(), month = displayedDate.getMonth();
-        const monthNames = ["ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"];
+        const calendarMonthYear = document.getElementById('calendarMonthYear'), calendarGrid = document.getElementById('calendarGrid'); if (!calendarMonthYear || !calendarGrid) return;
+        const today = new Date(), year = displayedDate.getFullYear(), month = displayedDate.getMonth(); const monthNames = ["ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"];
         calendarMonthYear.textContent = `${monthNames[month]} ${year}`;
         while (calendarGrid.children.length > 7) { calendarGrid.removeChild(calendarGrid.lastChild); }
         const firstDayOfMonth = new Date(year, month, 1).getDay(), daysInMonth = new Date(year, month + 1, 0).getDate();
         for (let i = 0; i < firstDayOfMonth; i++) { calendarGrid.insertAdjacentHTML('beforeend', '<div class="calendar-day other-month"></div>'); }
-        for (let day = 1; day <= daysInMonth; day++) {
-            const dayEl = document.createElement('div');
-            dayEl.className = 'calendar-day';
-            dayEl.textContent = day;
-            if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) { dayEl.classList.add('current-day'); }
-            calendarGrid.appendChild(dayEl);
-        }
+        for (let day = 1; day <= daysInMonth; day++) { const dayEl = document.createElement('div'); dayEl.className = 'calendar-day'; dayEl.textContent = day; if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) { dayEl.classList.add('current-day'); } calendarGrid.appendChild(dayEl); }
     }
     document.getElementById('prevMonthBtn').addEventListener('click', () => { displayedDate.setMonth(displayedDate.getMonth() - 1); generateCalendar(); });
     document.getElementById('nextMonthBtn').addEventListener('click', () => { displayedDate.setMonth(displayedDate.getMonth() + 1); generateCalendar(); });
     function saveTodoItemsToFirebase() { set(dbRefTodoItems, todoItems).catch(console.error); }
-    function addTodo() { const taskText = todoInput.value.trim(); if (!taskText) return alert('אנא הזן מטלה!'); todoItems.push(taskText); saveTodoItemsToFirebase(); todoInput.value = ''; todoInput.focus(); }
+    function addTodo() { const taskText = allElements.todoInput.value.trim(); if (!taskText) return alert('אנא הזן מטלה!'); todoItems.push(taskText); saveTodoItemsToFirebase(); allElements.todoInput.value = ''; allElements.todoInput.focus(); }
     function renderTodoItems() {
-        todoList.innerHTML = '';
-        if (todoItems.length === 0) { todoList.innerHTML = '<li style="text-align: right; color: #888; font-style: italic; background: none; border: none; box-shadow: none; cursor: default; padding: 10px;">אין מטלות.</li>'; return; }
-        todoItems.forEach((taskText, index) => {
-            const li = document.createElement('li');
-            li.textContent = taskText;
-            li.dataset.index = index; 
-            li.addEventListener('click', function() { if(!isAuthenticated) return; todoItems.splice(parseInt(this.dataset.index), 1); saveTodoItemsToFirebase(); });
-            todoList.appendChild(li);
-        });
+        allElements.todoList.innerHTML = ''; if (todoItems.length === 0) { allElements.todoList.innerHTML = '<li style="text-align: right; color: #888; font-style: italic; background: none; border: none; box-shadow: none; cursor: default; padding: 10px;">אין מטלות.</li>'; return; }
+        todoItems.forEach((taskText, index) => { const li = document.createElement('li'); li.textContent = taskText; li.dataset.index = index; li.addEventListener('click', function() { if(!isAuthenticated) return; todoItems.splice(parseInt(this.dataset.index), 1); saveTodoItemsToFirebase(); }); allElements.todoList.appendChild(li); });
     }
-    function updateTasksButtonText() { tasksDropdownButton.textContent = `בחר מטלות (${tasksChecklistContainer.querySelectorAll('input:checked').length} / ${masterTaskList.length})`; }
+    function updateTasksButtonText() { allElements.tasksDropdownButton.textContent = `בחר מטלות (${allElements.tasksChecklistContainer.querySelectorAll('input:checked').length} / ${masterTaskList.length})`; }
     function renderChecklist(projectTasks = {}) {
-        tasksChecklistContainer.innerHTML = '';
-        masterTaskList.forEach(taskName => {
-            const { checked = false, timestamp = '' } = projectTasks[taskName] || {};
-            tasksChecklistContainer.insertAdjacentHTML('beforeend', `<div class="task-item"><input type="checkbox" id="task-${taskName.replace(/\s/g, '')}" data-task-name="${taskName}" ${checked ? 'checked' : ''} data-timestamp="${timestamp}"><label for="task-${taskName.replace(/\s/g, '')}">${taskName}</label><span class="task-timestamp">${checked && timestamp ? new Date(timestamp).toLocaleString('he-IL', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : ''}</span></div>`);
-        });
+        allElements.tasksChecklistContainer.innerHTML = '';
+        masterTaskList.forEach(taskName => { const { checked = false, timestamp = '' } = projectTasks[taskName] || {}; allElements.tasksChecklistContainer.insertAdjacentHTML('beforeend', `<div class="task-item"><input type="checkbox" id="task-${taskName.replace(/\s/g, '')}" data-task-name="${taskName}" ${checked ? 'checked' : ''} data-timestamp="${timestamp}"><label for="task-${taskName.replace(/\s/g, '')}">${taskName}</label><span class="task-timestamp">${checked && timestamp ? new Date(timestamp).toLocaleString('he-IL', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : ''}</span></div>`); });
         updateTasksButtonText();
     }
-    tasksDropdownButton.addEventListener('click', e => { e.stopPropagation(); tasksDropdown.classList.toggle('open'); });
-    document.addEventListener('click', e => { if (!tasksDropdown.contains(e.target)) tasksDropdown.classList.remove('open'); });
-    tasksChecklistContainer.addEventListener('change', e => { if (e.target.type === 'checkbox') { const tsSpan = e.target.closest('.task-item').querySelector('.task-timestamp'); if (e.target.checked) { const now = new Date(); e.target.dataset.timestamp = now.toISOString(); tsSpan.textContent = now.toLocaleString('he-IL', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }); } else { e.target.dataset.timestamp = ''; tsSpan.textContent = ''; } updateTasksButtonText(); } });
-    function getTasksDataFromDOM() { const data = {}; tasksChecklistContainer.querySelectorAll('.task-item input[type="checkbox"]').forEach(cb => { const taskName = cb.dataset.taskName; if (taskName) { data[taskName] = { checked: cb.checked, timestamp: cb.checked ? (cb.dataset.timestamp || new Date().toISOString()) : '' }; } }); return data; }
+    allElements.tasksDropdownButton.addEventListener('click', e => { e.stopPropagation(); allElements.tasksDropdown.classList.toggle('open'); });
+    document.addEventListener('click', e => { if (!allElements.tasksDropdown.contains(e.target)) allElements.tasksDropdown.classList.remove('open'); });
+    allElements.tasksChecklistContainer.addEventListener('change', e => { if (e.target.type === 'checkbox') { const tsSpan = e.target.closest('.task-item').querySelector('.task-timestamp'); if (e.target.checked) { const now = new Date(); e.target.dataset.timestamp = now.toISOString(); tsSpan.textContent = now.toLocaleString('he-IL', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }); } else { e.target.dataset.timestamp = ''; tsSpan.textContent = ''; } updateTasksButtonText(); } });
+    function getTasksDataFromDOM() { const data = {}; allElements.tasksChecklistContainer.querySelectorAll('.task-item input[type="checkbox"]').forEach(cb => { const taskName = cb.dataset.taskName; if (taskName) { data[taskName] = { checked: cb.checked, timestamp: cb.checked ? (cb.dataset.timestamp || new Date().toISOString()) : '' }; } }); return data; }
     function formatDateTime(d) { return d ? new Date(d).toISOString() : ''; }
+    allElements.addProjectBtn.addEventListener('click', saveProject);
+    allElements.deleteProjectBtn.addEventListener('click', deleteProject);
+    allElements.clearHistoryBtn.addEventListener('click', clearHistory);
+    allElements.projectList.addEventListener('click', (event) => { const listItem = event.target.closest('li'); if (!listItem) return; const projectId = listItem.dataset.projectId; if (projects[projectId]) showProjectModal(projectId, projects[projectId]); });
     function showProjectModal(projectId, project) {
-        const completedTasks = project.tasks ? Object.values(project.tasks).filter(t => t.checked).length : 0;
-        const tasksSummary = `${completedTasks} / ${masterTaskList.length} הושלמו`;
-        projectModal.className = 'project-modal-container';
-        projectModal.innerHTML = `<div class="project-modal-content"><span class="project-modal-close">&times;</span><h3>${project.name}</h3><p><span class="info-label">כתובת:</span> ${project.address || 'לא צויין'}</p><p><span class="info-label">תאריכים:</span> ${project.startDate ? new Date(project.startDate).toLocaleDateString('he-IL') : 'N/A'} - ${project.finishDate ? new Date(project.finishDate).toLocaleDateString('he-IL') : 'N/A'}</p><p><span class="info-label">מטלות:</span> ${tasksSummary}</p><p><span class="info-label">נוצר ב:</span> ${project.addedDateTime ? new Date(project.addedDateTime).toLocaleString('he-IL') : ''} על ידי <strong>${project.whoCreated || 'לא ידוע'}</strong></p>${project.lastEditedAt ? `<p><span class="info-label">עודכן לאחרונה:</span> ${new Date(project.lastEditedAt).toLocaleString('he-IL')} על ידי <strong>${project.lastEditedBy || 'לא ידוע'}</strong></p>` : ''}<p><span class="info-label">התקדמות כללית:</span> <span style="font-weight: bold; color: ${getProgressColor(project.progress)};">${getProgressTranslation(project.progress)}</span></p><p><span class="info-label">הערות:</span> ${project.furtherNotes || 'אין'}</p><div class="project-modal-actions"><button class="add-btn auth-controlled">ערוך פרויקט</button></div></div>`;
+        const completedTasks = project.tasks ? Object.values(project.tasks).filter(t => t.checked).length : 0; const tasksSummary = `${completedTasks} / ${masterTaskList.length} הושלמו`;
+        projectModal.className = 'project-modal-container'; projectModal.innerHTML = `<div class="project-modal-content"><span class="project-modal-close">&times;</span><h3>${project.name}</h3><p><span class="info-label">כתובת:</span> ${project.address || 'לא צויין'}</p><p><span class="info-label">תאריכים:</span> ${project.startDate ? new Date(project.startDate).toLocaleDateString('he-IL') : 'N/A'} - ${project.finishDate ? new Date(project.finishDate).toLocaleDateString('he-IL') : 'N/A'}</p><p><span class="info-label">מטלות:</span> ${tasksSummary}</p><p><span class="info-label">נוצר ב:</span> ${project.addedDateTime ? new Date(project.addedDateTime).toLocaleString('he-IL') : ''} על ידי <strong>${project.whoCreated || 'לא ידוע'}</strong></p>${project.lastEditedAt ? `<p><span class="info-label">עודכן לאחרונה:</span> ${new Date(project.lastEditedAt).toLocaleString('he-IL')} על ידי <strong>${project.lastEditedBy || 'לא ידוע'}</strong></p>` : ''}<p><span class="info-label">התקדמות כללית:</span> <span style="font-weight: bold; color: ${getProgressColor(project.progress)};">${getProgressTranslation(project.progress)}</span></p><p><span class="info-label">הערות:</span> ${project.furtherNotes || 'אין'}</p><div class="project-modal-actions"><button class="add-btn auth-controlled">ערוך פרויקט</button></div></div>`;
         requestAnimationFrame(() => projectModal.classList.add('visible'));
         projectModal.querySelector('.project-modal-close').addEventListener('click', hideProjectModal);
         projectModal.addEventListener('click', (e) => e.target === projectModal && hideProjectModal());
-        const editButton = projectModal.querySelector('.add-btn');
-        if(isAuthenticated && editButton) { editButton.addEventListener('click', () => populateFormForEditing(projectId, project)); } else if (editButton) { editButton.parentElement.style.display = 'none'; }
-    }
-    function hideProjectModal() { projectModal.classList.remove('visible'); }
-    function restoreProject(event) {
-        const btn = event.target.closest('.restore-project-btn');
-        if (!btn || !isAuthenticated) return;
-        const projectId = btn.dataset.projectId;
-        const pToRestore = { ...deletedProjects[projectId] };
-        if (pToRestore) {
-            delete pToRestore.deletedAt; delete pToRestore.deletedBy;
-            update(ref(db), { [`/deletedProjects/${projectId}`]: null, [`/projects/${projectId}`]: pToRestore }).then(() => alert(`"${pToRestore.name}" שוחזר.`));
-        }
-    }
-    function clearHistory() { if (isAuthenticated && confirm('האם למחוק את כל ההיסטוריה?')) set(dbRefDeletedProjects, {}); }
-    function renderProjects() {
-        projectList.innerHTML = ''; const projectsArray = Object.entries(projects || {}); if (projectsArray.length === 0) { projectList.innerHTML = '<li style="grid-column: 1 / -1; text-align: right; color: #888; font-style: italic; background: none; border: none; box-shadow: none; cursor: default; padding: 10px;">אין פרויקטים נוכחיים.</li>'; return; }
-        projectsArray.forEach(([key, project]) => { const li = document.createElement('li'); li.dataset.projectId = key; li.innerHTML = `<strong>${project.name}</strong>`; projectList.appendChild(li); });
-    }
-    function renderDeletedProjects() {
-        const historyList = document.getElementById('projectHistoryList');
-        historyList.innerHTML = '';
-        const deletedArray = Object.entries(deletedProjects || {});
-        if (deletedArray.length === 0) { historyList.innerHTML = '<li style="background: none; border: none; box-shadow: none; color: #888; font-style: italic;">אין פרויקטים בהיסטוריה.</li>'; return; }
-        deletedArray.forEach(([key, project]) => {
-            const li = document.createElement('li');
-            li.dataset.projectId = key;
-            li.innerHTML = `<div class="deleted-text-content"><strong>${project.name}</strong><p><span class="info-label">נמחק ב:</span> ${new Date(project.deletedAt).toLocaleString('he-IL')} על ידי <strong>${project.deletedBy || 'לא ידוע'}</strong></p></div><button class="restore-project-btn auth-controlled" data-project-id="${key}">שחזר</button>`;
-            historyList.appendChild(li);
-        });
+        const editButton = projectModal.querySelector('.add-btn'); if(isAuthenticated && editButton) { editButton.addEventListener('click', () => populateFormForEditing(projectId, project)); } else if (editButton) { editButton.parentElement.classList.add('hidden-for-guest'); }
         updateUIForAuthState();
     }
-    function clearProjectForm() {
-        projectNameInput.value = ''; projectAddressInput.value = ''; contactInfoInput.value = ''; startDateInput.value = ''; finishDateInput.value = '';
-        renderChecklist(); taskProgressSelect.value = 'Not Started'; furtherNotesInput.value = ''; selectedProjectKey = null;
-        deleteProjectBtn.disabled = true; deleteProjectBtn.style.display = 'none'; addProjectBtn.textContent = 'הוסף פרויקט';
-        tasksDropdown.classList.remove('open');
+    function hideProjectModal() { projectModal.classList.remove('visible'); }
+    function restoreProject(event) { const btn = event.target.closest('.restore-project-btn'); if (!btn || !isAuthenticated) return; const projectId = btn.dataset.projectId; const pToRestore = { ...deletedProjects[projectId] }; if (pToRestore) { delete pToRestore.deletedAt; delete pToRestore.deletedBy; update(ref(db), { [`/deletedProjects/${projectId}`]: null, [`/projects/${projectId}`]: pToRestore }).then(() => alert(`"${pToRestore.name}" שוחזר.`)); } }
+    function clearHistory() { if (isAuthenticated && confirm('האם למחוק את כל ההיסטוריה?')) set(dbRefDeletedProjects, {}); }
+    function renderDeletedProjects() {
+        const historyList = document.getElementById('projectHistoryList'); historyList.innerHTML = ''; const deletedArray = Object.entries(deletedProjects || {});
+        if (deletedArray.length === 0) { historyList.innerHTML = '<li style="background: none; border: none; box-shadow: none; color: #888; font-style: italic;">אין פרויקטים בהיסטוריה.</li>'; return; }
+        deletedArray.forEach(([key, project]) => { const li = document.createElement('li'); li.dataset.projectId = key; li.innerHTML = `<div class="deleted-text-content"><strong>${project.name}</strong><p><span class="info-label">נמחק ב:</span> ${new Date(project.deletedAt).toLocaleString('he-IL')} על ידי <strong>${project.deletedBy || 'לא ידוע'}</strong></p></div><button class="restore-project-btn auth-controlled" data-project-id="${key}">שחזר</button>`; historyList.appendChild(li); });
+        updateUIForAuthState();
     }
     function getProgressColor(p) { return {'Not Started': '#dc3545', 'In Progress': '#ffc107', 'On Hold': '#6c757d', 'Completed': '#28a745'}[p] || '#333'; }
     function getProgressTranslation(p) { const map = {'Not Started': 'לא התחיל', 'In Progress': 'בטיפול', 'On Hold': 'בהמתנה', 'Completed': 'הושלם'}; return map[p] || p; }
@@ -1016,7 +964,6 @@
     generateCalendar();
     clearProjectForm();
     
-    // Initial UI state is set by onAuthStateChanged
     </script>
 </body>
 </html>
