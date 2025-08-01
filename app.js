@@ -50,7 +50,8 @@ const dom = {
     clearHistoryBtn: document.getElementById('clearHistoryBtn'),
     projectModal: document.getElementById('projectModal'),
     dataMgmtBtn: document.getElementById('dataMgmtBtn'), 
-    csvFileInput: document.getElementById('csvFileInput')
+    csvFileInput: document.getElementById('csvFileInput'),
+    projectManagementContainer: document.getElementById('projectManagementContainer')
 };
 
 // --- 3. STATE MANAGEMENT ---
@@ -215,7 +216,7 @@ async function saveProject() {
         'פרטי יצירת קשר': dom.contactInfoInput.value.trim()
     };
     
-    if (!AppState.selectedProjectKey) { 
+    if (!AppState.selectedProjectKey) {
         const emptyFields = Object.entries(requiredFields).filter(([_, value]) => !value).map(([key]) => key);
         if (emptyFields.length > 0) {
             await showConfirmation("שדות חובה", `נא למלא את השדות הבאים:<br>- ${emptyFields.join('<br>- ')}`, "הבנתי", "btn-secondary", false);
