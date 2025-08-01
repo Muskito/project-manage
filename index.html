@@ -162,6 +162,11 @@
         #googleSignInBtn { display: inline-flex; align-items: center; justify-content: center; gap: 15px; background-color: #4285F4; color: white; border-radius: 8px; border: none; padding: 12px 24px; font-size: 1.1em; font-weight: bold; font-family: 'Heebo', sans-serif; cursor: pointer; transition: background-color 0.2s ease; width: 100%; }
         #googleSignInBtn:hover { background-color: #357ae8; }
         #googleSignInBtn svg { width: 24px; height: 24px; }
+        #guestLoginBtn { background-color: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-size: 1em; cursor: pointer; transition: background-color 0.2s; margin-top: 10px; width: 100%; }
+        #guestLoginBtn:hover { background-color: #5a6268; }
+        .admin-override-container { margin-top: 20px; text-align: center; }
+        .admin-override-container svg { width: 24px; height: 24px; opacity: 0.5; cursor: pointer; transition: opacity 0.2s; }
+        .admin-override-container svg:hover { opacity: 1; }
         .hidden-for-guest { display: none !important; }
         .date-picker { display: none; position: absolute; z-index: 1001; width: 300px; background: #fff; border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.15); padding: 10px; }
         .date-picker-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
@@ -189,6 +194,10 @@
                 <svg viewBox="0 0 24 24"><path fill="white" d="M22.56,12.25C22.56,11.47 22.5,10.72 22.38,10H12V14.5H18.04C17.72,16.53 16.37,18.13 14.25,18.13C11.88,18.13 10,16.25 10,13.88C10,11.5 11.88,9.63 14.25,9.63C15.28,9.63 16.2,10 16.89,10.61L19.78,7.72C18.13,6.13 16.37,5.25 14.25,5.25C10.08,5.25 6.63,8.38 6.63,12.5C6.63,16.62 10.08,19.75 14.25,19.75C18.42,19.75 22.68,16.56 22.68,12.63C22.68,12.44 22.56,12.25 22.56,12.25Z"></path></svg>
                 <span>התחברות עם גוגל</span>
             </button>
+            <button id="guestLoginBtn" type="button">המשך כאורח (צפייה בלבד)</button>
+            <div id="adminOverride" class="admin-override-container">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 17c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6-9h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM8.9 6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1v2H8.9V6z"/></svg>
+            </div>
         </div>
     </div>
     
@@ -232,9 +241,8 @@
             <h2 class="container-header">ניהול פרויקטים<button class="toggle-btn" data-target="projectManagementContainer" data-state="maximized">&#x2212;</button></h2>
             <div class="project-form auth-controlled">
                 <div class="form-group"><label for="projectName">שם היזם:</label><input type="text" id="projectName" placeholder="לדוגמה: אפריקה ישראל"></div>
-                <div class="form-group"><label for="projectAddress">כתובת:</label><input type="text" id="projectAddress" placeholder="לדוגמה: שלום עליכם 23 ת\'א"></div>
+                <div class="form-group"><label for="projectAddress">כתובת:</label><input type="text" id="projectAddress" placeholder="לדוגמה: שלום עליכם 23 ת'א"></div>
                 <div class="form-group"><label for="contactInfo">פרטי יצירת קשר:</label><input type="text" id="contactInfo" placeholder="לדוגמה: יוסי כהן - 555-1234"></div>
-                
                 <div class="form-group">
                     <label for="startDate">תאריך התחלה:</label>
                     <input type="text" id="startDate" class="date-input" placeholder="dd/mm/yyyy" readonly>
@@ -243,7 +251,6 @@
                     <label for="finishDate">תאריך סיום:</label>
                     <input type="text" id="finishDate" class="date-input" placeholder="dd/mm/yyyy" readonly>
                 </div>
-                
                 <div id="tasksDropdown" class="tasks-dropdown-container form-group full-width">
                     <label>מטלות לביצוע:</label>
                     <button type="button" id="tasksDropdownButton" class="tasks-dropdown-button">בחר מטלות...</button>
@@ -298,6 +305,8 @@
     // --- 2. DOM ELEMENT REFERENCES ---
     const loginModal = document.getElementById('loginModal');
     const googleSignInBtn = document.getElementById('googleSignInBtn');
+    const guestLoginBtn = document.getElementById('guestLoginBtn');
+    const adminOverrideBtn = document.getElementById('adminOverride');
     const datePickerModal = document.getElementById('datePickerModal');
     const allElements = {
         todoInput: document.getElementById('todoInput'), addTodoBtn: document.getElementById('addTodoBtn'),
@@ -399,12 +408,12 @@
         const parts = dateStr_DDMMYYYY.split('/');
         if (parts.length === 3) {
             const [day, month, year] = parts.map(p => parseInt(p, 10));
-            const date = new Date(year, month - 1, day);
-            if (!isNaN(date.getTime())) {
-                return date;
+            if (day > 0 && day <= 31 && month > 0 && month <= 12 && year > 1900) {
+                const date = new Date(year, month - 1, day);
+                if (!isNaN(date.getTime())) { return date; }
             }
         }
-        return new Date(); // Fallback
+        return new Date();
     }
 
     function saveProject() {
@@ -476,7 +485,7 @@
         allElements.todoList.innerHTML = '';
         if (!todoItems || todoItems.length === 0) { allElements.todoList.innerHTML = '<li style="text-align: right; color: #888; font-style: italic; background: none; border: none; box-shadow: none; cursor: default; padding: 10px;">אין מטלות.</li>'; return; }
         todoItems.forEach((task) => {
-            if(typeof task === 'string') return;
+            if(typeof task === 'string' || !task) return;
             const li = document.createElement('li'); li.style.backgroundColor = task.color;
             li.innerHTML = `<span class="todo-text">${task.text}</span><span class="todo-meta">נוצר על ידי ${task.createdBy} ב-${new Date(task.createdAt).toLocaleString('he-IL', dateOptions)}</span>`;
             li.addEventListener('click', function() { if(!isAuthenticated) return; todoItems = todoItems.filter(item => item.id !== task.id); saveTodoItemsToFirebase(); });
@@ -523,7 +532,8 @@
     }
     
     function renderDeletedProjects() {
-        const historyList = document.getElementById('projectHistoryList'); historyList.innerHTML = ''; const deletedArray = Object.entries(deletedProjects || {}); if (deletedArray.length === 0) { historyList.innerHTML = '<li style="background: none; border: none; box-shadow: none; color: #888; font-style: italic;">אין פרויקטים בהיסטוריה.</li>'; return; }
+        const historyList = document.getElementById('projectHistoryList'); historyList.innerHTML = ''; const deletedArray = Object.entries(deletedProjects || {});
+        if (deletedArray.length === 0) { historyList.innerHTML = '<li style="background: none; border: none; box-shadow: none; color: #888; font-style: italic;">אין פרויקטים בהיסטוריה.</li>'; return; }
         deletedArray.forEach(([key, project]) => { const li = document.createElement('li'); li.dataset.projectId = key; const deletedDateFormatted = new Date(project.deletedAt).toLocaleString('he-IL', dateOptions); li.innerHTML = `<div class="deleted-text-content"><strong>${project.name}</strong><p><span class="info-label">נמחק ב:</span> ${deletedDateFormatted} על ידי <strong>${project.deletedBy || 'לא ידוע'}</strong></p></div><button class="restore-project-btn auth-controlled" data-project-id="${key}">שחזר</button>`; historyList.appendChild(li); });
         updateUIForAuthState();
     }
@@ -545,10 +555,14 @@
         } else { console.log("Auth state changed: User is LOGGED OUT"); currentUser = null; isAuthenticated = false; loginModal.classList.add('visible'); }
         updateUIForAuthState();
     });
+
     onValue(dbRefProjects, (snapshot) => { projects = snapshot.val() || {}; renderProjects(); });
     onValue(dbRefDeletedProjects, s => { deletedProjects = s.val() || {}; renderDeletedProjects(); });
     onValue(dbRefTodoItems, s => { todoItems = Array.isArray(s.val()) ? s.val() : []; renderTodoItems(); });
+
     googleSignInBtn.addEventListener('click', handleGoogleSignIn);
+    guestLoginBtn.addEventListener('click', () => { isAuthenticated = false; currentUser = null; updateUIForAuthState(); loginModal.classList.remove('visible'); });
+    adminOverrideBtn.addEventListener('click', () => { const pin = prompt("הזן קוד גישה למנהל:"); if (pin === "1598") { isAuthenticated = true; currentUser = { displayName: 'Admin' }; updateUIForAuthState(); loginModal.classList.remove('visible'); } else if (pin !== null) { alert("קוד גישה שגוי."); } });
     document.getElementById('prevMonthBtn').addEventListener('click', () => { displayedDate.setMonth(displayedDate.getMonth() - 1); generateCalendar(); });
     document.getElementById('nextMonthBtn').addEventListener('click', () => { displayedDate.setMonth(displayedDate.getMonth() + 1); generateCalendar(); });
     allElements.addTodoBtn.addEventListener('click', addTodo);
@@ -562,7 +576,7 @@
     datePickerModal.querySelector('.prev-month').addEventListener('click', () => { pickerDate.setMonth(pickerDate.getMonth() - 1); renderDatePicker(); });
     datePickerModal.querySelector('.next-month').addEventListener('click', () => { pickerDate.setMonth(pickerDate.getMonth() + 1); renderDatePicker(); });
     datePickerModal.querySelector('.date-picker-grid-days').addEventListener('click', (event) => { const dayEl = event.target.closest('.date-picker-day:not(.empty)'); if (dayEl && activeDateInput) { const day = dayEl.dataset.day; const selectedDate = new Date(pickerDate.getFullYear(), pickerDate.getMonth(), day); activeDateInput.value = formatDate(selectedDate); hideDatePicker(); } });
-    document.addEventListener('click', (event) => { if (datePickerModal.style.display === 'block' && !datePickerModal.contains(event.target) && event.target !== activeDateInput) { hideDatePicker(); } });
+    document.addEventListener('click', (event) => { if (datePickerModal.style.display === 'block' && !datePickerModal.contains(event.target) && !event.target.classList.contains('date-input')) { hideDatePicker(); } });
     document.querySelectorAll('.toggle-btn').forEach(btn => btn.id !== 'toggleHistoryBtn' && btn.addEventListener('click', toggleContainer));
     const toggleHistoryBtn = document.getElementById('toggleHistoryBtn');
     toggleHistoryBtn.addEventListener('click', () => { const projectHistoryList = document.getElementById('projectHistoryList'); const clearHistoryBtnWrapper = document.querySelector('.clear-history-btn-wrapper'); const isCollapsed = projectHistoryList.classList.toggle('collapsed'); clearHistoryBtnWrapper.classList.toggle('collapsed'); toggleHistoryBtn.innerHTML = isCollapsed ? '+' : '&#x2212;'; });
