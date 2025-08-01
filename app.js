@@ -253,16 +253,13 @@ async function saveProject() {
 
 function populateFormForEditing(projectId, projectData) {
     AppState.selectedProjectKey = projectId;
-    dom.projectNameInput.value = projectData.name; 
-    dom.projectAddressInput.value = projectData.address || '';
+    dom.projectNameInput.value = projectData.name; dom.projectAddressInput.value = projectData.address || '';
     dom.contactInfoInput.value = projectData.contactInfo || '';
     dom.startDateInput.value = formatDate(projectData.startDate);
     dom.finishDateInput.value = formatDate(projectData.finishDate);
     renderChecklist(projectData.tasks);
-    dom.taskProgressSelect.value = projectData.progress; 
-    dom.furtherNotesInput.value = projectData.furtherNotes || '';
-    dom.deleteProjectBtn.disabled = false; 
-    dom.deleteProjectBtn.style.display = 'inline-block';
+    dom.taskProgressSelect.value = projectData.progress; dom.furtherNotesInput.value = projectData.furtherNotes || '';
+    dom.deleteProjectBtn.disabled = false; dom.deleteProjectBtn.style.display = 'inline-block';
     dom.addProjectBtn.textContent = 'שמור שינויים';
     dom.projectManagementContainer.scrollIntoView({ behavior: 'smooth' });
     hideProjectModal();
@@ -278,64 +275,36 @@ async function deleteProject() {
     }
 }
 
-function updateTime() { 
-    document.getElementById('currentTime').textContent = new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit', second: '2-digit' }); 
-}
-    
+function updateTime() { document.getElementById('currentTime').textContent = new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit', second: '2-digit' }); }
+
 function generateCalendar() {
-    const calendarMonthYear = document.getElementById('calendarMonthYear'), calendarGrid = document.getElementById('calendarGrid'); 
-    if (!calendarMonthYear || !calendarGrid) return;
+    const calendarMonthYear = document.getElementById('calendarMonthYear'), calendarGrid = document.getElementById('calendarGrid'); if (!calendarMonthYear || !calendarGrid) return;
     const today = new Date(), year = AppState.displayedDate.getFullYear(), month = AppState.displayedDate.getMonth();
     calendarMonthYear.textContent = `${hebrewMonths[month]} ${year}`;
     while (calendarGrid.children.length > 7) { calendarGrid.removeChild(calendarGrid.lastChild); }
     const firstDayOfMonth = new Date(year, month, 1).getDay(), daysInMonth = new Date(year, month + 1, 0).getDate();
     for (let i = 0; i < firstDayOfMonth; i++) { calendarGrid.insertAdjacentHTML('beforeend', '<div class="calendar-day other-month"></div>'); }
-    for (let day = 1; day <= daysInMonth; day++) { 
-        const dayEl = document.createElement('div'); 
-        dayEl.className = 'calendar-day'; 
-        dayEl.textContent = day; 
-        if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) { 
-            dayEl.classList.add('current-day'); 
-        } 
-        calendarGrid.appendChild(dayEl); 
-    }
+    for (let day = 1; day <= daysInMonth; day++) { const dayEl = document.createElement('div'); dayEl.className = 'calendar-day'; dayEl.textContent = day; if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) { dayEl.classList.add('current-day'); } calendarGrid.appendChild(dayEl); }
 }
-    
+
 function saveTodoItemsToFirebase() { set(dbRefTodoItems, AppState.todoItems); }
 
 function addTodo() {
-    const taskText = dom.todoInput.value.trim(); 
-    if (!taskText) return;
-    const newTodo = { 
-        id: push(dbRefTodoItems).key, 
-        text: taskText, 
-        createdBy: AppState.currentUser.displayName, 
-        createdAt: new Date().toISOString(), 
-        color: getColorForName(AppState.currentUser.displayName) 
-    };
+    const taskText = dom.todoInput.value.trim(); if (!taskText) return;
+    const newTodo = { id: push(dbRefTodoItems).key, text: taskText, createdBy: AppState.currentUser.displayName, createdAt: new Date().toISOString(), color: getColorForName(AppState.currentUser.displayName) };
     if(!AppState.todoItems) AppState.todoItems = [];
     AppState.todoItems.push(newTodo);
-    saveTodoItemsToFirebase(); 
-    dom.todoInput.value = ''; 
-    dom.todoInput.focus();
+    saveTodoItemsToFirebase(); dom.todoInput.value = ''; dom.todoInput.focus();
 }
 
 function renderTodoItems() {
     dom.todoList.innerHTML = '';
-    if (!AppState.todoItems || AppState.todoItems.length === 0) { 
-        dom.todoList.innerHTML = '<li style="text-align: right; color: #888; font-style: italic; background: none; border: none; box-shadow: none; cursor: default; padding: 10px;">אין מטלות.</li>'; 
-        return; 
-    }
+    if (!AppState.todoItems || AppState.todoItems.length === 0) { dom.todoList.innerHTML = '<li style="text-align: right; color: #888; font-style: italic; background: none; border: none; box-shadow: none; cursor: default; padding: 10px;">אין מטלות.</li>'; return; }
     AppState.todoItems.forEach((task) => {
         if(typeof task === 'string' || !task) return;
-        const li = document.createElement('li'); 
-        li.style.backgroundColor = task.color;
+        const li = document.createElement('li'); li.style.backgroundColor = task.color;
         li.innerHTML = `<span class="todo-text">${task.text}</span><span class="todo-meta">נוצר על ידי ${task.createdBy} ב-${new Date(task.createdAt).toLocaleString('he-IL', dateOptions)}</span>`;
-        li.addEventListener('click', function() { 
-            if(!AppState.isAuthenticated) return; 
-            AppState.todoItems = AppState.todoItems.filter(item => item.id !== task.id); 
-            saveTodoItemsToFirebase(); 
-        });
+        li.addEventListener('click', function() { if(!AppState.isAuthenticated) return; AppState.todoItems = AppState.todoItems.filter(item => item.id !== task.id); saveTodoItemsToFirebase(); });
         dom.todoList.appendChild(li);
     });
 }
@@ -383,29 +352,22 @@ function getTasksDataFromDOM() {
 function formatDateTime(d) { return d ? new Date(d).toISOString() : ''; }
 
 function showProjectModal(projectId, project) {
-    const completedTasks = project.tasks ? Object.values(project.tasks).filter(t => t.checked).length : 0; 
-    const tasksSummary = `${completedTasks} / ${masterTaskList.length} הושלמו`;
+    const completedTasks = project.tasks ? Object.values(project.tasks).filter(t => t.checked).length : 0; const tasksSummary = `${completedTasks} / ${masterTaskList.length} הושלמו`;
     const startDateFormatted = project.startDate ? formatDate(project.startDate) : 'N/A';
     const finishDateFormatted = project.finishDate ? formatDate(project.finishDate) : 'N/A';
     const createdDateFormatted = project.addedDateTime ? new Date(project.addedDateTime).toLocaleString('he-IL', dateOptions) : '';
     const editedDateFormatted = project.lastEditedAt ? new Date(project.lastEditedAt).toLocaleString('he-IL', dateOptions) : '';
-    
     dom.projectModal.innerHTML = `<div class="project-modal-content"><span class="project-modal-close">&times;</span><h3>${project.name}</h3><p><span class="info-label">כתובת:</span> ${project.address || 'לא צויין'}</p><p><span class="info-label">תאריכים:</span> ${startDateFormatted} - ${finishDateFormatted}</p><p><span class="info-label">מטלות:</span> ${tasksSummary}</p><p><span class="info-label">נוצר ב:</span> ${createdDateFormatted} על ידי <strong>${project.whoCreated || 'לא ידוע'}</strong></p>${project.lastEditedAt ? `<p><span class="info-label">עודכן לאחרונה:</span> ${editedDateFormatted} על ידי <strong>${project.lastEditedBy || 'לא ידוע'}</strong></p>` : ''}<p><span class="info-label">התקדמות כללית:</span> <span style="font-weight: bold; color: ${getProgressColor(project.progress)};">${getProgressTranslation(project.progress)}</span></p><p><span class="info-label">הערות:</span> ${project.furtherNotes || 'אין'}</p><div class="project-modal-actions"><button class="add-btn auth-controlled btn btn-primary">ערוך פרויקט</button></div></div>`;
-    
     requestAnimationFrame(() => dom.projectModal.classList.add('visible'));
     dom.projectModal.querySelector('.project-modal-close').addEventListener('click', hideProjectModal);
-    const editButton = dom.projectModal.querySelector('.add-btn'); 
-    if(AppState.isAuthenticated && editButton) { 
-        editButton.addEventListener('click', () => populateFormForEditing(projectId, project)); 
-    }
+    const editButton = dom.projectModal.querySelector('.add-btn'); if(AppState.isAuthenticated && editButton) { editButton.addEventListener('click', () => populateFormForEditing(projectId, project)); }
     updateUIForAuthState();
 }
 
 function hideProjectModal() { dom.projectModal.classList.remove('visible'); }
 
 async function restoreProject(event) {
-    const btn = event.target.closest('.restore-project-btn'); 
-    if (!btn || !AppState.isAuthenticated) return;
+    const btn = event.target.closest('.restore-project-btn'); if (!btn || !AppState.isAuthenticated) return;
     const projectId = btn.dataset.projectId;
     const confirmed = await showConfirmation("אישור שחזור", `האם לשחזר את הפרויקט "${AppState.deletedProjects[projectId].name}"?`, 'שחזר', 'btn-success');
     if (confirmed) {
@@ -425,51 +387,21 @@ async function clearHistory() {
 }
 
 function renderProjects() {
-    dom.projectList.innerHTML = ''; 
-    const projectsArray = Object.entries(AppState.projects || {}); 
-    if (projectsArray.length === 0) { 
-        dom.projectList.innerHTML = '<li style="grid-column: 1 / -1; text-align: right; color: #888; font-style: italic; background: none; border: none; box-shadow: none; cursor: default; padding: 10px;">אין פרויקטים נוכחיים.</li>'; 
-        return; 
-    }
-    projectsArray.forEach(([key, project]) => { 
-        const li = document.createElement('li'); 
-        li.dataset.projectId = key; 
-        li.innerHTML = `<strong>${project.name}</strong>`; 
-        dom.projectList.appendChild(li); 
-    });
+    dom.projectList.innerHTML = ''; const projectsArray = Object.entries(AppState.projects || {}); if (projectsArray.length === 0) { dom.projectList.innerHTML = '<li style="grid-column: 1 / -1; text-align: right; color: #888; font-style: italic; background: none; border: none; box-shadow: none; cursor: default; padding: 10px;">אין פרויקטים נוכחיים.</li>'; return; }
+    projectsArray.forEach(([key, project]) => { const li = document.createElement('li'); li.dataset.projectId = key; li.innerHTML = `<strong>${project.name}</strong>`; dom.projectList.appendChild(li); });
 }
 
 function renderDeletedProjects() {
-    const historyList = dom.projectHistoryList; 
-    historyList.innerHTML = ''; 
-    const deletedArray = Object.entries(AppState.deletedProjects || {});
-    if (deletedArray.length === 0) { 
-        historyList.innerHTML = '<li style="background: none; border: none; box-shadow: none; color: #888; font-style: italic;">אין פרויקטים בהיסטוריה.</li>'; 
-        return; 
-    }
-    deletedArray.forEach(([key, project]) => { 
-        const li = document.createElement('li'); 
-        li.dataset.projectId = key; 
-        const deletedDateFormatted = new Date(project.deletedAt).toLocaleString('he-IL', dateOptions); 
-        li.innerHTML = `<div class="deleted-text-content"><strong>${project.name}</strong><p><span class="info-label">נמחק ב:</span> ${deletedDateFormatted} על ידי <strong>${project.deletedBy || 'לא ידוע'}</strong></p></div><button class="restore-project-btn auth-controlled" data-project-id="${key}">שחזר</button>`; 
-        historyList.appendChild(li); 
-    });
+    const historyList = dom.projectHistoryList; historyList.innerHTML = ''; const deletedArray = Object.entries(AppState.deletedProjects || {});
+    if (deletedArray.length === 0) { historyList.innerHTML = '<li style="background: none; border: none; box-shadow: none; color: #888; font-style: italic;">אין פרויקטים בהיסטוריה.</li>'; return; }
+    deletedArray.forEach(([key, project]) => { const li = document.createElement('li'); li.dataset.projectId = key; const deletedDateFormatted = new Date(project.deletedAt).toLocaleString('he-IL', dateOptions); li.innerHTML = `<div class="deleted-text-content"><strong>${project.name}</strong><p><span class="info-label">נמחק ב:</span> ${deletedDateFormatted} על ידי <strong>${project.deletedBy || 'לא ידוע'}</strong></p></div><button class="restore-project-btn auth-controlled" data-project-id="${key}">שחזר</button>`; historyList.appendChild(li); });
     updateUIForAuthState();
 }
 
 function clearProjectForm() {
-    dom.projectNameInput.value = ''; 
-    dom.projectAddressInput.value = ''; 
-    dom.contactInfoInput.value = ''; 
-    dom.startDateInput.value = ''; 
-    dom.finishDateInput.value = '';
-    renderChecklist(); 
-    dom.taskProgressSelect.value = 'Not Started'; 
-    dom.furtherNotesInput.value = ''; 
-    AppState.selectedProjectKey = null;
-    dom.deleteProjectBtn.disabled = true; 
-    dom.deleteProjectBtn.style.display = 'none'; 
-    dom.addProjectBtn.textContent = 'הוסף פרויקט';
+    dom.projectNameInput.value = ''; dom.projectAddressInput.value = ''; dom.contactInfoInput.value = ''; dom.startDateInput.value = ''; dom.finishDateInput.value = '';
+    renderChecklist(); dom.taskProgressSelect.value = 'Not Started'; dom.furtherNotesInput.value = ''; AppState.selectedProjectKey = null;
+    dom.deleteProjectBtn.disabled = true; dom.deleteProjectBtn.style.display = 'none'; dom.addProjectBtn.textContent = 'הוסף פרויקט';
     dom.tasksDropdownGroup.classList.remove('open');
 }
 
@@ -604,10 +536,8 @@ document.querySelectorAll('.card__toggle-btn').forEach(btn => {
     });
 });
 document.getElementById('toggleHistoryBtn').addEventListener('click', (e) => { 
-    const projectHistoryList = dom.projectHistoryList;
-    const clearHistoryBtnWrapper = document.querySelector('.clear-history-btn-wrapper');
-    const isCollapsed = projectHistoryList.classList.toggle('collapsed');
-    clearHistoryBtnWrapper.classList.toggle('collapsed');
+    const isCollapsed = dom.projectHistoryList.classList.toggle('collapsed');
+    document.querySelector('.clear-history-btn-wrapper').classList.toggle('collapsed');
     e.currentTarget.innerHTML = isCollapsed ? '+' : '&#x2212;'; 
 });
 dom.dataMgmtBtn.addEventListener('click', () => dataActionModal.classList.add('visible'));
