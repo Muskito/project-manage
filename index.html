@@ -13,74 +13,44 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <script type="module" src="app.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 <body>
     <div id="loginModal" class="modal-overlay">
-        <div class="login-modal-content">
-            <h2>ניהול פרויקטים</h2>
-            <p>יש להתחבר כדי לערוך נתונים</p>
-            <div class="login-modal-actions">
-                <button id="googleSignInBtn" class="btn btn-google">
-                    <svg viewBox="0 0 24 24"><path fill="currentColor" d="M22.56,12.25C22.56,11.47 22.5,10.72 22.38,10H12V14.5H18.04C17.72,16.53 16.37,18.13 14.25,18.13C11.88,18.13 10,16.25 10,13.88C10,11.5 11.88,9.63 14.25,9.63C15.28,9.63 16.2,10 16.89,10.61L19.78,7.72C18.13,6.13 16.37,5.25 14.25,5.25C10.08,5.25 6.63,8.38 6.63,12.5C6.63,16.62 10.08,19.75 14.25,19.75C18.42,19.75 22.68,16.56 22.68,12.63C22.68,12.44 22.56,12.25 22.56,12.25Z"></path></svg>
-                    <span>התחברות עם גוגל</span>
-                </button>
-                <button id="guestLoginBtn" type="button" class="btn btn-secondary">המשך כאורח (צפייה בלבד)</button>
-            </div>
-            <div id="adminOverride" class="admin-override-container">
-                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 17c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6-9h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM8.9 6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1v2H8.9V6z"/></svg>
-            </div>
         </div>
-    </div>
-    
     <div id="datePickerModal" class="date-picker">
-        <div class="date-picker-header">
-            <button type="button" class="prev-month">&lt;</button>
-            <span class="month-year"></span>
-            <button type="button" class="next-month">&gt;</button>
         </div>
-        <div class="date-picker-grid-header">
-            <div>א</div><div>ב</div><div>ג</div><div>ד</div><div>ה</div><div>ו</div><div>ש</div>
-        </div>
-        <div class="date-picker-grid-days"></div>
-    </div>
-
     <div id="confirmModal" class="modal-overlay">
-        <div class="modal-content">
-            <h3 id="confirmModalTitle"></h3>
-            <p id="confirmModalText"></p>
-            <div class="modal-actions">
-                <button id="confirmCancelBtn"></button>
-                <button id="confirmOkBtn"></button>
-            </div>
         </div>
-    </div>
-    
     <div id="promptModal" class="modal-overlay">
-        <div class="modal-content">
-            <h3 id="promptModalTitle"></h3>
-            <p id="promptModalText"></p>
-            <input type="password" id="promptModalInput" class="form-input">
-            <div class="modal-actions">
-                <button id="promptCancelBtn" class="btn btn-secondary">ביטול</button>
-                <button id="promptOkBtn" class="btn btn-primary">אישור</button>
-            </div>
         </div>
-    </div>
-
     <div id="dataActionModal" class="modal-overlay">
-        <div class="modal-content">
-            <h3>ניהול נתונים</h3>
-            <p>בחר את הפעולה הרצויה. שים לב, ייבוא נתונים יחליף את כל המידע הקיים במערכת.</p>
-            <div class="modal-actions">
-                <button id="dataActionCancelBtn" class="btn btn-secondary">ביטול</button>
-                <button id="dataActionExportBtn" class="btn btn-primary">ייצוא לקובץ CSV</button>
-                <button id="dataActionImportBtn" class="btn btn-success">ייבוא מקובץ CSV</button>
-            </div>
         </div>
-    </div>
-
     <div id="projectModal" class="modal-overlay">
         </div>
+
+    <div id="contactModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>יצירת קשר</h3>
+            <div class="form-group">
+                <label for="contactName">שם:</label>
+                <input type="text" id="contactName" class="form-input">
+            </div>
+            <div class="form-group">
+                <label for="contactEmail">אימייל:</label>
+                <input type="email" id="contactEmail" class="form-input">
+            </div>
+            <div class="form-group">
+                <label for="contactMessage">הודעה (עד 200 תווים):</label>
+                <textarea id="contactMessage" class="form-input" maxlength="200" rows="4"></textarea>
+            </div>
+            <div class="modal-actions">
+                <button id="contactCancelBtn" class="btn btn-secondary">ביטול</button>
+                <button id="contactSendBtn" class="btn btn-success">שליחה</button>
+            </div>
+        </div>
+    </div>
 
     <header class="app-header">
         <h1>לוח ניהול פרויקטים</h1>
@@ -88,75 +58,12 @@
 
     <div class="app-container">
         <main id="projectManagementContainer" class="app-card">
-            <div class="card__header">
-                <h2 class="card__title">ניהול פרויקטים</h2>
-            </div>
-            <div class="card__content">
-                <div class="project-form auth-controlled">
-                    <div class="form-group"><label for="projectName">שם היזם:</label><input type="text" id="projectName" class="form-input" placeholder="לדוגמה: אפריקה ישראל"></div>
-                    <div class="form-group"><label for="projectAddress">כתובת:</label><input type="text" id="projectAddress" class="form-input" placeholder="לדוגמה: שלום עליכם 23 ת'א"></div>
-                    <div class="form-group"><label for="contactInfo">פרטי יצירת קשר:</label><input type="text" id="contactInfo" class="form-input" placeholder="לדוגמה: יוסי כהן - 555-1234"></div>
-                    <div class="form-group"><label for="taskProgress">התקדמות מטלה:</label><select id="taskProgress"><option value="Not Started">לא התחיל</option><option value="In Progress">בטיפול</option><option value="On Hold">בהמתנה</option><option value="Completed">הושלם</option></select></div>
-                    <div class="form-group">
-                        <label for="startDate">תאריך התחלה:</label>
-                        <input type="text" id="startDate" class="form-input date-input" placeholder="dd/mm/yyyy" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label for="finishDate">תאריך סיום:</label>
-                        <input type="text" id="finishDate" class="form-input date-input" placeholder="dd/mm/yyyy" readonly>
-                    </div>
-                    <div class="form-group tasks-dropdown-group">
-                        <label>מטלות לביצוע:</label>
-                        <button type="button" id="tasksDropdownButton" class="tasks-dropdown-button">
-                            <span>בחר מטלות...</span>
-                        </button>
-                        <div id="tasksChecklistContainer" class="tasks-checklist-container"></div>
-                    </div>
-                    <div class="form-group full-width"><label for="furtherNotes">הערות נוספות:</label><textarea id="furtherNotes" class="form-input" placeholder="כל הערה נוספת..."></textarea></div>
-                </div>
-                <menu class="project-buttons auth-controlled">
-                    <button id="addProjectBtn" class="btn btn-primary">הוסף פרויקט</button>
-                    <button id="deleteProjectBtn" class="btn btn-danger">מחק פרויקט</button>
-                </menu>
-                <section class="project-list-container">
-                    <h3>פרויקטים נוכחיים</h3>
-                    <ul id="projectList" class="project-list"></ul>
-                    <h3 class="history-header">היסטוריה<button id="toggleHistoryBtn" class="card__toggle-btn" data-state="collapsed">+</button></h3>
-                    <ul id="projectHistoryList" class="project-list history-list collapsed"></ul>
-                    <div class="clear-history-btn-wrapper collapsed auth-controlled"><button id="clearHistoryBtn" class="btn btn-secondary">נקה היסטוריה</button></div>
-                </section>
-            </div>
-        </main>
+            </main>
         <aside class="sidebar">
             <section id="urgentTodoContainer" class="app-card">
-                <div class="card__header">
-                    <h2 class="card__title">מטלות דחופות</h2>
-                </div>
-                <div class="card__content">
-                    <div class="todo-input-group auth-controlled">
-                        <input type="text" id="todoInput" placeholder="הוסף מטלה..."><button id="addTodoBtn" class="btn btn-success">+</button>
-                    </div>
-                    <ul id="todoList" class="todo-list"></ul>
-                </div>
-            </section>
+                </section>
             <section id="datetimeContainer" class="app-card">
-                 <div class="card__header">
-                    <h2 class="card__title">לוח שנה</h2>
-                </div>
-                <div class="card__content">
-                    <div class="calendar-nav">
-                        <button id="prevMonthBtn" aria-label="Previous Month">&lt;</button>
-                        <span id="calendarMonthYear"></span>
-                        <button id="nextMonthBtn" aria-label="Next Month">&gt;</button>
-                    </div>
-                    <div id="calendarGrid" class="calendar-grid">
-                        <div class="calendar-day-name">א</div><div class="calendar-day-name">ב</div><div class="calendar-day-name">ג</div><div class="calendar-day-name">ד</div><div class="calendar-day-name">ה</div><div class="calendar-day-name">ו</div><div class="calendar-day-name">ש</div>
-                    </div>
-                    <div class="calendar-footer">
-                        <div id="currentTime"></div>
-                    </div>
-                </div>
-            </section>
+                 </section>
         </aside>
     </div>
     
@@ -164,11 +71,10 @@
         <button id="dataMgmtBtn" class="btn btn-secondary auth-controlled">ניהול נתונים</button>
         <input type="file" id="csvFileInput" class="visually-hidden" accept=".csv">
         <div class="dev-credit">
-            <a href="mailto:mustakis@gmail.com">Net-Ease app.dev 2024 ©</a>
+            <a id="emailLink" href="#">Net-Ease app.dev 2024 ©</a>
         </div>
     </footer>
-
-    <script type="module" src="app.js"></script>
+    
 </body>
 </html>
 
