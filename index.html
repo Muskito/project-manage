@@ -350,6 +350,7 @@
                 <div class="form-group"><label for="projectName">שם היזם:</label><input type="text" id="projectName" class="form-input" placeholder="לדוגמה: אפריקה ישראל"></div>
                 <div class="form-group"><label for="projectAddress">כתובת:</label><input type="text" id="projectAddress" class="form-input" placeholder="לדוגמה: שלום עליכם 23 ת'א"></div>
                 <div class="form-group"><label for="contactInfo">פרטי יצירת קשר:</label><input type="text" id="contactInfo" class="form-input" placeholder="לדוגמה: יוסי כהן - 555-1234"></div>
+                <div class="form-group"><label for="taskProgress">התקדמות מטלה:</label><select id="taskProgress"><option value="Not Started">לא התחיל</option><option value="In Progress">בטיפול</option><option value="On Hold">בהמתנה</option><option value="Completed">הושלם</option></select></div>
                 <div class="form-group">
                     <label for="startDate">תאריך התחלה:</label>
                     <input type="text" id="startDate" class="form-input date-input" placeholder="dd/mm/yyyy" readonly>
@@ -365,7 +366,6 @@
                     </button>
                     <div id="tasksChecklistContainer" class="tasks-checklist-container"></div>
                 </div>
-                <div class="form-group"><label for="taskProgress">התקדמות מטלה:</label><select id="taskProgress"><option value="Not Started">לא התחיל</option><option value="In Progress">בטיפול</option><option value="On Hold">בהמתנה</option><option value="Completed">הושלם</option></select></div>
                 <div class="form-group full-width"><label for="furtherNotes">הערות נוספות:</label><textarea id="furtherNotes" class="form-input" placeholder="כל הערה נוספת..."></textarea></div>
             </div>
             <menu class="project-buttons auth-controlled">
