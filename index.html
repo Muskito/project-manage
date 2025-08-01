@@ -79,7 +79,8 @@
         </div>
     </div>
 
-    <div id="projectModal" class="modal-overlay"></div>
+    <div id="projectModal" class="modal-overlay">
+        </div>
 
     <header class="app-header">
         <h1>לוח ניהול פרויקטים</h1>
@@ -91,39 +92,41 @@
                 <h2 class="card__title">ניהול פרויקטים</h2>
                 <button class="card__toggle-btn" data-target="projectManagementContainer">&#x2212;</button>
             </div>
-            <div class="project-form auth-controlled">
-                <div class="form-group"><label for="projectName">שם היזם:</label><input type="text" id="projectName" class="form-input" placeholder="לדוגמה: אפריקה ישראל"></div>
-                <div class="form-group"><label for="projectAddress">כתובת:</label><input type="text" id="projectAddress" class="form-input" placeholder="לדוגמה: שלום עליכם 23 ת'א"></div>
-                <div class="form-group"><label for="contactInfo">פרטי יצירת קשר:</label><input type="text" id="contactInfo" class="form-input" placeholder="לדוגמה: יוסי כהן - 555-1234"></div>
-                <div class="form-group"><label for="taskProgress">התקדמות מטלה:</label><select id="taskProgress"><option value="Not Started">לא התחיל</option><option value="In Progress">בטיפול</option><option value="On Hold">בהמתנה</option><option value="Completed">הושלם</option></select></div>
-                <div class="form-group">
-                    <label for="startDate">תאריך התחלה:</label>
-                    <input type="text" id="startDate" class="form-input date-input" placeholder="dd/mm/yyyy" readonly>
+            <div class="card__content">
+                <div class="project-form auth-controlled">
+                    <div class="form-group"><label for="projectName">שם היזם:</label><input type="text" id="projectName" class="form-input" placeholder="לדוגמה: אפריקה ישראל"></div>
+                    <div class="form-group"><label for="projectAddress">כתובת:</label><input type="text" id="projectAddress" class="form-input" placeholder="לדוגמה: שלום עליכם 23 ת'א"></div>
+                    <div class="form-group"><label for="contactInfo">פרטי יצירת קשר:</label><input type="text" id="contactInfo" class="form-input" placeholder="לדוגמה: יוסי כהן - 555-1234"></div>
+                    <div class="form-group"><label for="taskProgress">התקדמות מטלה:</label><select id="taskProgress"><option value="Not Started">לא התחיל</option><option value="In Progress">בטיפול</option><option value="On Hold">בהמתנה</option><option value="Completed">הושלם</option></select></div>
+                    <div class="form-group">
+                        <label for="startDate">תאריך התחלה:</label>
+                        <input type="text" id="startDate" class="form-input date-input" placeholder="dd/mm/yyyy" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="finishDate">תאריך סיום:</label>
+                        <input type="text" id="finishDate" class="form-input date-input" placeholder="dd/mm/yyyy" readonly>
+                    </div>
+                    <div class="form-group tasks-dropdown-group">
+                        <label>מטלות לביצוע:</label>
+                        <button type="button" id="tasksDropdownButton" class="tasks-dropdown-button">
+                            <span>בחר מטלות...</span>
+                        </button>
+                        <div id="tasksChecklistContainer" class="tasks-checklist-container"></div>
+                    </div>
+                    <div class="form-group full-width"><label for="furtherNotes">הערות נוספות:</label><textarea id="furtherNotes" class="form-input" placeholder="כל הערה נוספת..."></textarea></div>
                 </div>
-                <div class="form-group">
-                    <label for="finishDate">תאריך סיום:</label>
-                    <input type="text" id="finishDate" class="form-input date-input" placeholder="dd/mm/yyyy" readonly>
-                </div>
-                <div class="form-group tasks-dropdown-group">
-                    <label>מטלות לביצוע:</label>
-                    <button type="button" id="tasksDropdownButton" class="tasks-dropdown-button">
-                        <span>בחר מטלות...</span>
-                    </button>
-                    <div id="tasksChecklistContainer" class="tasks-checklist-container"></div>
-                </div>
-                <div class="form-group full-width"><label for="furtherNotes">הערות נוספות:</label><textarea id="furtherNotes" class="form-input" placeholder="כל הערה נוספת..."></textarea></div>
+                <menu class="project-buttons auth-controlled">
+                    <button id="addProjectBtn" class="btn btn-primary">הוסף פרויקט</button>
+                    <button id="deleteProjectBtn" class="btn btn-danger">מחק פרויקט</button>
+                </menu>
+                <section class="project-list-container">
+                    <h3>פרויקטים נוכחיים</h3>
+                    <ul id="projectList" class="project-list"></ul>
+                    <h3 class="history-header">היסטוריה<button id="toggleHistoryBtn" class="card__toggle-btn" data-state="collapsed">+</button></h3>
+                    <ul id="projectHistoryList" class="project-list history-list collapsed"></ul>
+                    <div class="clear-history-btn-wrapper collapsed auth-controlled"><button id="clearHistoryBtn" class="btn btn-secondary">נקה היסטוריה</button></div>
+                </section>
             </div>
-            <menu class="project-buttons auth-controlled">
-                <button id="addProjectBtn" class="btn btn-primary">הוסף פרויקט</button>
-                <button id="deleteProjectBtn" class="btn btn-danger">מחק פרויקט</button>
-            </menu>
-            <section class="project-list-container">
-                <h3>פרויקטים נוכחיים</h3>
-                <ul id="projectList" class="project-list"></ul>
-                <h3 class="history-header">היסטוריה<button id="toggleHistoryBtn" class="card__toggle-btn" data-state="collapsed">+</button></h3>
-                <ul id="projectHistoryList" class="project-list history-list collapsed"></ul>
-                <div class="clear-history-btn-wrapper collapsed auth-controlled"><button id="clearHistoryBtn" class="btn btn-secondary">נקה היסטוריה</button></div>
-            </section>
         </main>
         <aside class="sidebar">
             <section id="urgentTodoContainer" class="app-card">
@@ -131,39 +134,42 @@
                     <h2 class="card__title">מטלות דחופות</h2>
                     <button class="card__toggle-btn" data-target="urgentTodoContainer">&#x2212;</button>
                 </div>
-                <div class="todo-input-group auth-controlled">
-                    <input type="text" id="todoInput" placeholder="הוסף מטלה..."><button id="addTodoBtn" class="btn btn-success">+</button>
+                <div class="card__content">
+                    <div class="todo-input-group auth-controlled">
+                        <input type="text" id="todoInput" placeholder="הוסף מטלה..."><button id="addTodoBtn" class="btn btn-success">+</button>
+                    </div>
+                    <ul id="todoList" class="todo-list"></ul>
                 </div>
-                <ul id="todoList" class="todo-list"></ul>
             </section>
             <section id="datetimeContainer" class="app-card">
                  <div class="card__header">
                     <h2 class="card__title">לוח שנה</h2>
                     <button class="card__toggle-btn" data-target="datetimeContainer">&#x2212;</button>
                 </div>
-                <div class="calendar-nav">
-                    <button id="prevMonthBtn" aria-label="Previous Month">&lt;</button>
-                    <span id="calendarMonthYear"></span>
-                    <button id="nextMonthBtn" aria-label="Next Month">&gt;</button>
-                </div>
-                <div id="calendarGrid" class="calendar-grid">
-                    <div class="calendar-day-name">א</div><div class="calendar-day-name">ב</div><div class="calendar-day-name">ג</div><div class="calendar-day-name">ד</div><div class="calendar-day-name">ה</div><div class="calendar-day-name">ו</div><div class="calendar-day-name">ש</div>
-                </div>
-                <div class="calendar-footer">
-                    <div id="currentTime"></div>
+                <div class="card__content">
+                    <div class="calendar-nav">
+                        <button id="prevMonthBtn" aria-label="Previous Month">&lt;</button>
+                        <span id="calendarMonthYear"></span>
+                        <button id="nextMonthBtn" aria-label="Next Month">&gt;</button>
+                    </div>
+                    <div id="calendarGrid" class="calendar-grid">
+                        <div class="calendar-day-name">א</div><div class="calendar-day-name">ב</div><div class="calendar-day-name">ג</div><div class="calendar-day-name">ד</div><div class="calendar-day-name">ה</div><div class="calendar-day-name">ו</div><div class="calendar-day-name">ש</div>
+                    </div>
+                    <div class="calendar-footer">
+                        <div id="currentTime"></div>
+                    </div>
                 </div>
             </section>
         </aside>
     </div>
     
-    <div class="footer-actions auth-controlled">
-        <button id="dataMgmtBtn" class="btn btn-secondary">ניהול נתונים</button>
+    <footer class="footer-actions">
+        <button id="dataMgmtBtn" class="btn btn-secondary auth-controlled">ניהול נתונים</button>
         <input type="file" id="csvFileInput" class="visually-hidden" accept=".csv">
-
         <div class="dev-credit">
             <a href="mailto:mustakis@gmail.com">Net-Ease app.dev.</a>
         </div>
-    </div>
+    </footer>
 
     <script type="module" src="app.js"></script>
 </body>
