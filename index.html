@@ -1,9 +1,6 @@
 <!-- by n3k0 with help from, GitHub, Google Gemini 2.5 Pro for proofing and styling -->
 <!-- Start of app --> 
 
-<!-- by n3k0 with help from, GitHub, Google Gemini 2.5 Pro for proofing and styling -->
-<!-- Start of app --> 
-
 <!DOCTYPE html>
 <html lang="he">
 <head>
@@ -14,17 +11,44 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg-main: #f4f7fa;
+            --bg-container: #1a202c;
+            --bg-card: #ffffff;
+            --bg-input: #f7fafc;
+            --bg-hover: #edf2f7;
+            
+            --text-primary: #2d3748;
+            --text-secondary: #718096;
+            --text-on-dark: #e2e8f0;
+            --text-on-accent: #ffffff;
+
+            --accent-primary: #3182ce;
+            --accent-primary-hover: #2b6cb0;
+            --accent-success: #38a169;
+            --accent-danger: #e53e3e;
+            --accent-secondary: #6c757d;
+
+            --border-color: #e2e8f0;
+            --border-radius: 8px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --font-family: 'Heebo', system-ui, sans-serif;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Heebo', Arial, sans-serif;
-            margin: 20px;
-            background-color: #eef2f5;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 90vh;
+            font-family: var(--font-family);
+            margin: 0;
+            padding: 30px;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.5;
             direction: rtl; 
         }
+        
         .visually-hidden {
             position: absolute;
             width: 1px;
@@ -35,172 +59,164 @@
             clip: rect(0, 0, 0, 0);
             border: 0;
         }
+        
+        .app-header {
+            width: 100%;
+            max-width: 1400px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .app-header h1 {
+            margin: 0;
+            font-size: 1.8em;
+            color: var(--text-primary);
+        }
+
         .app-container {
             display: grid;
-            grid-template-columns: 3fr 1fr; 
-            grid-template-rows: auto auto;
+            grid-template-columns: 1fr;
             gap: 25px;
-            width: 95%;
+            width: 100%;
             max-width: 1400px;
-            background-color: #293a63;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
         }
-        .urgent-todo-container,
-        .datetime-container,
-        .project-management-container {
-            border: 1px solid #dcdcdc;
-            padding: 20px;
-            border-radius: 8px;
-            background-color: #ffffff;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        
+        @media (min-width: 992px) {
+            .app-container {
+                grid-template-columns: 3fr 1fr;
+            }
+        }
+        
+        .main-content {
+            display: grid;
+            gap: 25px;
+            grid-template-columns: 1fr;
+        }
+
+        .sidebar {
+            display: grid;
+            gap: 25px;
+            align-content: start;
+        }
+        
+        .app-card {
+            background-color: var(--bg-card);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 25px;
+            overflow: hidden;
             display: flex;
             flex-direction: column;
-            transition: max-height 0.3s ease-out, padding 0.3s ease-out, background-color 0.3s ease;
-            overflow: hidden;
         }
-        .urgent-todo-container {
-            grid-column: 1 / 2;
-            grid-row: 1 / 2;
-            background-color: #f7fcfa;
-        }
-        .project-management-container {
-            grid-column: 1 / 3;
-            grid-row: 2 / 3;
-            background-color: #f8faff;
-            overflow: visible;
-        }
-        h2 { margin-top: 0; color: #333; font-size: 1.6em; font-weight: 700; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 15px; width: 100%; display: flex; justify-content: space-between; align-items: center; text-align: right; box-sizing: border-box; }
-        h2 .toggle-btn, .history-header .toggle-btn { background: none; border: none; font-size: 1.2em; cursor: pointer; color: #666; padding: 0 5px; line-height: 1; transition: color 0.2s ease; }
-        h2 .toggle-btn:hover, .history-header .toggle-btn:hover { color: #000; }
-        .urgent-todo-container.minimized, .datetime-container.minimized, .project-management-container.minimized { max-height: 55px; padding-bottom: 0px; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; overflow: hidden; }
-        .minimized .todo-input-group, .minimized .todo-list, .minimized .calendar-nav, .minimized .calendar-grid, .minimized .calendar-footer, .minimized .project-form, .minimized .project-buttons, .minimized .project-list-container { display: none; }
-        .minimized h2 { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-        .todo-input-group { display: flex; margin-bottom: 15px; gap: 10px; flex-direction: row-reverse; }
-        .todo-input-group input[type="text"] { flex-grow: 1; padding: 10px 15px; border: 1px solid #ccc; border-radius: 5px; font-size: 1em; font-family: 'Heebo', sans-serif; text-align: right; }
-        .todo-input-group button { padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 1em; font-family: 'Heebo', sans-serif; font-weight: 500; transition: background-color 0.2s ease; }
-        .todo-input-group button:hover { background-color: #218838; }
-        .todo-list { list-style: none; padding: 0; margin: 0; overflow-y: auto; flex-grow: 1; }
-        .todo-list li { border: 1px solid #e0e0e0; padding: 10px 15px; margin-bottom: 8px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: transform 0.1s ease; word-wrap: break-word; text-align: right; flex-wrap: wrap; }
-        .todo-list li:hover { transform: translateY(-2px); box-shadow: 0 2px 5px rgba(0,0,0,0.08); }
-        .todo-text { font-size: 1.05em; color: #333; width: 100%; margin-bottom: 5px; }
-        .todo-meta { width: 100%; text-align: left; font-size: 0.75em; color: #555; }
-        .datetime-container { grid-column: 2 / 3; grid-row: 1 / 2; padding: 15px; justify-content: space-between; }
-        .datetime-container h2 { font-size: 1.4em; padding-bottom: 10px; margin-bottom: 10px; }
-        .calendar-nav { display: flex; justify-content: space-between; align-items: center; padding: 0 5px; margin-bottom: 10px; }
-        #calendarMonthYear { font-size: 1.2em; font-weight: bold; color: #333; }
-        .calendar-nav button { background: none; border: 1px solid transparent; font-size: 1.5em; font-weight: bold; color: #555; cursor: pointer; padding: 0 10px; line-height: 1; border-radius: 4px; transition: background-color 0.2s, color 0.2s; }
-        .calendar-nav button:hover { background-color: #eef2f5; color: #000; }
-        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; width: 100%; text-align: center; flex-grow: 1; }
-        .calendar-day-name, .calendar-day { padding: 5px 0; border-radius: 4px; font-size: 0.8em; display: flex; justify-content: center; align-items: center; height: 30px; }
-        .calendar-day-name { background-color: #e0e7ee; color: #556270; font-weight: bold; }
-        .calendar-day { background-color: #f7f9fc; color: #4d565e; border: 1px solid #eef2f5; cursor: pointer; transition: background-color 0.1s ease; }
-        .calendar-day.other-month { color: #ccc; background-color: #fff; }
-        .calendar-day:not(.empty):hover { background-color: #e6f0f7; }
-        .calendar-day.current-day { background-color: #007bff; color: white; font-weight: bold; box-shadow: 0 0 8px rgba(0, 123, 255, 0.5); border-color: #007bff; }
-        .calendar-footer { margin-top: 10px; padding-top: 8px; border-top: 1px solid #eee; text-align: center; }
-        #currentTime { font-size: 1.5em; font-weight: 500; color: #007bff; }
-        .project-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px 20px; margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px solid #e0e0e0; }
-        .form-group { display: flex; flex-direction: column; align-items: flex-start; }
-        .form-group.full-width { grid-column: 1 / -1; }
-        .form-group label { margin-bottom: 5px; font-weight: bold; color: #555; font-size: 0.95em; text-align: right; }
         
-        .project-form input[type="text"], .project-form textarea, .project-form select, .tasks-dropdown-button {
-            padding: 10px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 1em;
-            width: 100%; box-sizing: border-box; background-color: #fcfcfc; font-family: 'Heebo', sans-serif; text-align: right;
-        }
-        .project-form input[type="text"], .project-form select, .tasks-dropdown-button {
-            height: 44px; /* Uniform height */
-        }
-
-        .project-form input.date-input { cursor: pointer; background-image: url('data:image/svg+xml;utf8,<svg fill="%23666" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); background-repeat: no-repeat; background-position: left 10px center; background-size: 20px; padding-left: 35px; }
-        
-        /* UPDATED: Task Dropdown Button Styles for Centering */
-        .tasks-dropdown-button {
+        .card__header {
+            margin: -25px -25px 20px -25px;
+            padding: 15px 25px;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            position: relative;
-        }
-        .tasks-dropdown-button::after {
-            content: '';
-            border: 6px solid transparent;
-            border-top-color: #666;
-            margin-left: 15px;
+            align-items: center;
         }
 
+        .card__title {
+            margin: 0;
+            font-size: 1.25em;
+            color: var(--text-primary);
+        }
+
+        .card__toggle-btn {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 0 5px;
+            line-height: 1;
+        }
+
+        .minimized > *:not(.card__header) { display: none; }
+        .minimized { padding-bottom: 0; }
+        .minimized .card__header { border-bottom: none; margin-bottom: -25px; padding-bottom: 15px; }
+        
+        .todo-list { list-style: none; padding: 0; margin: 0; overflow-y: auto; flex-grow: 1; }
+        .todo-list li { border: 1px solid var(--border-color); padding: 10px 15px; margin-bottom: 8px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: transform 0.1s ease, box-shadow 0.2s ease; word-wrap: break-word; text-align: right; flex-wrap: wrap; }
+        .todo-list li:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+        .todo-text { font-size: 1.05em; color: var(--text-primary); width: 100%; margin-bottom: 5px; }
+        .todo-meta { width: 100%; text-align: left; font-size: 0.75em; color: var(--text-secondary); }
+        
+        .project-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color); }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group.full-width { grid-column: 1 / -1; }
+        .form-group label { margin-bottom: 5px; font-weight: 500; color: var(--text-primary); font-size: 0.9em; }
+        
+        .form-input, .project-form select, .tasks-dropdown-button {
+            padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 1em;
+            width: 100%; box-sizing: border-box; background-color: var(--bg-input); font-family: var(--font-family); text-align: right;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-input:focus, .project-form select:focus, .tasks-dropdown-button:focus {
+            outline: none; border-color: var(--accent-primary); box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.2);
+        }
+        .form-input, .project-form select, .tasks-dropdown-button { height: 44px; }
         .project-form textarea { resize: vertical; min-height: 80px; }
+        
+        .form-input.date-input { cursor: pointer; background-image: url('data:image/svg+xml;utf8,<svg fill="%23666" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); background-repeat: no-repeat; background-position: left 10px center; background-size: 20px; padding-left: 35px; }
+        .tasks-dropdown-button { display: flex; align-items: center; justify-content: space-between; position: relative; }
+        .tasks-dropdown-button::after { content: ''; border: 6px solid transparent; border-top-color: #666; margin-left: 15px; }
         .project-form select { appearance: none; background-image: url('data:image/svg+xml;utf8,<svg fill="%23666" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); background-repeat: no-repeat; background-position: left 10px center; background-size: 20px; padding-left: 30px; }
         .form-group.tasks-dropdown-group { position: relative; } 
-        .tasks-checklist-container { display: none; position: absolute; top: 100%; right: 0; min-width: 350px; z-index: 100; background: #fff; border: 1px solid #ccc; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); padding: 15px; margin-top: 4px; max-height: 250px; overflow-y: auto; grid-template-columns: 1fr; gap: 12px; }
+        .tasks-checklist-container { display: none; position: absolute; top: 100%; right: 0; min-width: 350px; z-index: 100; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; box-shadow: var(--shadow); padding: 15px; margin-top: 4px; max-height: 250px; overflow-y: auto; grid-template-columns: 1fr; gap: 12px; }
         .tasks-dropdown-group.open .tasks-checklist-container { display: grid; }
-        .task-item { display: flex; align-items: center; justify-content: space-between; background-color: #f7f9fc; padding: 8px 12px; border-radius: 4px; border: 1px solid #eef2f5; }
-        .task-item label { font-size: 0.95em; color: #333; margin-right: 10px; -webkit-user-select: none; user-select: none; }
+        .task-item { display: flex; align-items: center; justify-content: space-between; background-color: var(--bg-input); padding: 8px 12px; border-radius: 4px; border: 1px solid var(--border-color); }
+        .task-item label { font-size: 0.95em; color: var(--text-primary); margin-right: 10px; -webkit-user-select: none; user-select: none; }
         .task-item input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; order: 2; }
         .task-item label { order: 1; }
-        .task-timestamp { font-size: 0.8em; color: #007bff; font-weight: 500; direction: ltr; text-align: left; flex-shrink: 0; margin-left: 10px; order: 3; }
-        .project-buttons { display: flex; gap: 15px; justify-content: flex-start; margin-top: 10px; }
-        .project-buttons button { padding: 12px 25px; border: none; border-radius: 6px; font-size: 1.05em; cursor: pointer; transition: background-color 0.2s ease, transform 0.1s ease; font-weight: bold; font-family: 'Heebo', sans-serif; }
-        .project-buttons button.add-btn { background-color: #007bff; color: white; }
-        .project-buttons button.add-btn:hover { background-color: #0056b3; transform: translateY(-1px); }
-        .project-buttons button.delete-btn { background-color: #dc3545; color: white; }
-        .project-buttons button.delete-btn:hover { background-color: #c82333; transform: translateY(-1px); }
+        .task-timestamp { font-size: 0.8em; color: var(--accent-primary); font-weight: 500; direction: ltr; text-align: left; flex-shrink: 0; margin-left: 10px; order: 3; }
+        .project-buttons { display: flex; gap: 15px; justify-content: flex-start; margin-top: 20px; }
+        .btn { padding: 10px 24px; border: none; border-radius: 6px; font-size: 1em; font-weight: bold; cursor: pointer; transition: transform 0.1s ease, filter 0.2s ease; }
+        .btn:hover { transform: translateY(-1px); filter: brightness(95%); }
+        .btn-primary { background-color: var(--accent-primary); color: var(--text-on-accent); }
+        .btn-danger { background-color: var(--accent-danger); color: var(--text-on-accent); }
+        .btn-success { background-color: var(--accent-success); color: var(--text-on-accent); }
+        .btn-secondary { background-color: var(--accent-secondary); color: var(--text-on-accent); }
         #deleteProjectBtn { display: none; }
         .project-list-container { margin-top: 25px; }
-        .project-list { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; }
-        .project-list li { background-color: #f0faff; border: 1px solid #e0eaf5; border-radius: 8px; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; text-align: center; min-height: 100px; padding: 15px; }
-        .project-list li:hover { background-color: #e6f0fa; box-shadow: 0 4px 8px rgba(0,0,0,0.1); transform: translateY(-3px); border-color: #007bff; }
-        .project-list li strong { color: #0056b3; font-size: 1.1em; word-break: break-word; }
+        .project-list { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
+        .project-list li { background-color: var(--bg-input); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; text-align: center; min-height: 100px; padding: 15px; }
+        .project-list li:hover { transform: translateY(-3px); border-color: var(--accent-primary); box-shadow: var(--shadow); }
+        .project-list li strong { color: var(--text-primary); font-weight: 500; word-break: break-word; }
         .project-list-container h3 { margin-top: 25px; margin-bottom: 15px; color: #444; font-size: 1.3em; border-bottom: 1px solid #eee; padding-bottom: 8px; text-align: right; }
         .history-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
         .history-list { display: flex; flex-direction: column; gap: 10px; }
-        .history-list li { background-color: #fcebeb; border: 1px solid #f9dcdc; opacity: 0.8; font-size: 0.95em; flex-direction: row; justify-content: space-between; align-items: center; padding: 10px 15px; }
-        .history-list li .deleted-text-content { pointer-events: none; }
-        .history-list li strong { color: #cc0000; }
-        .history-list li p { color: #555; margin: 2px 0; }
+        .history-list li { background-color: #FFF3F3; border-color: #FED7D7; }
+        .history-list li strong { color: var(--accent-danger); }
         .history-list.collapsed, .clear-history-btn-wrapper.collapsed { display: none; }
-        .restore-project-btn { background-color: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8em; font-family: 'Heebo', sans-serif; white-space: nowrap; transition: background-color 0.2s ease; pointer-events: auto; }
-        .restore-project-btn:hover { background-color: #0056b3; }
+        .restore-project-btn { background-color: var(--accent-primary); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8em; font-family: var(--font-family); white-space: nowrap; transition: background-color 0.2s ease; pointer-events: auto; }
+        .restore-project-btn:hover { background-color: var(--accent-primary-hover); }
         .clear-history-btn-wrapper { width: 100%; text-align: left; margin-top: 15px; }
-        .clear-history-btn-wrapper button { background-color: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 0.9em; font-family: 'Heebo', sans-serif; transition: background-color 0.2s ease; }
-        .clear-history-btn-wrapper button:hover { background-color: #c82333; }
-        .export-button-wrapper { width: 95%; max-width: 1400px; text-align: center; margin-top: 25px; margin-bottom: 20px; direction: rtl; }
-        .export-button-wrapper button { background-color: #17a2b8; color: white; border: none; padding: 12px 25px; border-radius: 6px; font-size: 1.05em; cursor: pointer; transition: background-color 0.2s ease, transform 0.1s ease; font-weight: bold; font-family: 'Heebo', sans-serif; }
-        .export-button-wrapper button:hover { background-color: #138496; transform: translateY(-1px); }
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.65); display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0s 0.3s; z-index: 1000; }
+        .clear-history-btn-wrapper button { background-color: var(--accent-danger); color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 0.9em; font-family: var(--font-family); transition: background-color 0.2s ease; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(30, 41, 59, 0.7); display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0s 0.3s; z-index: 1000; }
         .modal-overlay.visible { opacity: 1; visibility: visible; transition: opacity 0.3s ease; }
         #loginModal { z-index: 2000; }
-        #confirmModal, #dataActionModal { z-index: 3000; }
-        .modal-content, .project-modal-content, .login-modal-content { background-color: #fff; padding: 25px 30px; border-radius: 10px; width: 90%; transform: scale(0.9); transition: transform 0.3s ease; }
+        #confirmModal, #dataActionModal, #promptModal { z-index: 3000; }
+        .modal-content, .project-modal-content, .login-modal-content { background-color: var(--bg-card); padding: 30px; border-radius: var(--border-radius); width: 90%; transform: scale(0.95); transition: transform 0.3s ease; box-shadow: var(--shadow); }
         .modal-overlay.visible .modal-content, .modal-overlay.visible .project-modal-content, .modal-overlay.visible .login-modal-content { transform: scale(1); }
         .project-modal-content { max-width: 600px; text-align: right; position: relative; }
         .modal-content { max-width: 500px; text-align: right; }
         .login-modal-content { max-width: 400px; text-align: center; }
-        .project-modal-close { position: absolute; top: 10px; left: 15px; font-size: 2em; font-weight: bold; color: #888; cursor: pointer; line-height: 1; }
-        .project-modal-close:hover { color: #000; }
-        .project-modal-content h3 { margin-top: 0; color: #0056b3; }
-        .modal-content h3 { margin-top: 0; text-align: center; }
-        .modal-content p { margin: 10px 0 20px; color: #444; text-align: center; }
-        .project-modal-content p { margin: 10px 0; color: #444; }
-        .project-modal-content .info-label { font-weight: bold; color: #666; margin-left: 5px; }
-        .modal-actions, .project-modal-actions { margin-top: 20px; text-align: left; display: flex; gap: 10px; justify-content: flex-end; }
+        .project-modal-close { position: absolute; top: 10px; left: 15px; font-size: 2em; font-weight: bold; color: var(--text-secondary); cursor: pointer; line-height: 1; }
+        .project-modal-close:hover { color: var(--text-primary); }
+        .project-modal-content h3 { margin-top: 0; color: var(--accent-primary); }
+        .modal-content h3 { margin-top: 0; text-align: center; color: var(--text-primary); }
+        .modal-content p { margin: 10px 0 20px; color: var(--text-secondary); text-align: center; }
+        .project-modal-content p { margin: 10px 0; color: var(--text-primary); }
+        .project-modal-content .info-label { font-weight: bold; color: var(--text-secondary); margin-left: 5px; }
+        .modal-actions, .project-modal-actions { margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end; }
         .modal-actions button { padding: 10px 20px; border-radius: 6px; font-size: 1em; font-weight: bold; cursor: pointer; border: none; }
-        .btn-danger { background-color: #dc3545; color: white; }
-        .btn-danger:hover { background-color: #c82333; }
-        .btn-success { background-color: #28a745; color: white; }
-        .btn-success:hover { background-color: #218838; }
-        .btn-secondary { background-color: #6c757d; color: white; }
-        .btn-secondary:hover { background-color: #5a6268; }
-        .btn-primary { background-color: #007bff; color: white; }
-        .btn-primary:hover { background-color: #0056b3; }
-        #csvFileInput { display: none; }
-        .login-modal-content h2 { border-bottom: none; padding-bottom: 0; margin-bottom: 25px; }
-        #googleSignInBtn { display: inline-flex; align-items: center; justify-content: center; gap: 15px; background-color: #4285F4; color: white; border-radius: 8px; border: none; padding: 12px 24px; font-size: 1.1em; font-weight: bold; font-family: 'Heebo', sans-serif; cursor: pointer; transition: background-color 0.2s ease; width: 100%; }
+        #googleSignInBtn { background-color: #4285F4; }
         #googleSignInBtn:hover { background-color: #357ae8; }
-        #googleSignInBtn svg { width: 24px; height: 24px; }
-        #guestLoginBtn { background-color: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-size: 1em; cursor: pointer; transition: background-color 0.2s; margin-top: 10px; width: 100%; }
-        #guestLoginBtn:hover { background-color: #5a6268; }
         .admin-override-container { margin-top: 20px; text-align: center; }
         .admin-override-container svg { width: 24px; height: 24px; opacity: 0.5; cursor: pointer; transition: opacity 0.2s; }
         .admin-override-container svg:hover { opacity: 1; }
@@ -213,12 +229,12 @@
         .date-picker-grid-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
         .date-picker-day { border-radius: 4px; padding: 8px 0; text-align: center; cursor: pointer; transition: background-color 0.2s; }
         .date-picker-day:not(.empty):hover { background-color: #e6f0fa; }
-        .date-picker-day.selected { background-color: #007bff; color: white; }
-        .date-picker-day.today { border: 1px solid #007bff; }
+        .date-picker-day.selected { background-color: var(--accent-primary); color: white; }
+        .date-picker-day.today { border: 1px solid var(--accent-primary); }
         .date-picker-day.empty { cursor: default; }
         @media (max-width: 1200px) { .project-list { grid-template-columns: repeat(4, 1fr); } }
-        @media (max-width: 992px) { .project-list { grid-template-columns: repeat(3, 1fr); } }
-        @media (max-width: 768px) { .app-container { grid-template-columns: 1fr; } .urgent-todo-container, .project-management-container { grid-column: 1 / -1; } .datetime-container { display: none; } .project-form { grid-template-columns: 1fr; } .project-list { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 992px) { .app-container { grid-template-columns: 1fr; } }
+        @media (max-width: 768px) { .project-form { grid-template-columns: 1fr; } .project-list { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 480px) { .project-list { grid-template-columns: 1fr; } }
     </style>
 </head>
@@ -226,18 +242,17 @@
     <div id="loginModal" class="modal-overlay">
         <div class="login-modal-content">
             <h2>ניהול פרויקטים</h2>
-            <p style="margin-top: 0; margin-bottom: 25px; font-size: 1.1em; color: #555;">יש להתחבר כדי לערוך נתונים</p>
-            <button id="googleSignInBtn">
+            <p>יש להתחבר כדי לערוך נתונים</p>
+            <button id="googleSignInBtn" class="btn">
                 <svg viewBox="0 0 24 24"><path fill="white" d="M22.56,12.25C22.56,11.47 22.5,10.72 22.38,10H12V14.5H18.04C17.72,16.53 16.37,18.13 14.25,18.13C11.88,18.13 10,16.25 10,13.88C10,11.5 11.88,9.63 14.25,9.63C15.28,9.63 16.2,10 16.89,10.61L19.78,7.72C18.13,6.13 16.37,5.25 14.25,5.25C10.08,5.25 6.63,8.38 6.63,12.5C6.63,16.62 10.08,19.75 14.25,19.75C18.42,19.75 22.68,16.56 22.68,12.63C22.68,12.44 22.56,12.25 22.56,12.25Z"></path></svg>
                 <span>התחברות עם גוגל</span>
             </button>
-            <button id="guestLoginBtn" type="button">המשך כאורח (צפייה בלבד)</button>
+            <button id="guestLoginBtn" type="button" class="btn btn-secondary" style="margin-top: 10px; width: 100%;">המשך כאורח (צפייה בלבד)</button>
             <div id="adminOverride" class="admin-override-container">
                 <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 17c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6-9h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM8.9 6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1v2H8.9V6z"/></svg>
             </div>
         </div>
     </div>
-    
     <div id="datePickerModal" class="date-picker">
         <div class="date-picker-header">
             <button type="button" class="prev-month">&lt;</button>
@@ -249,7 +264,6 @@
         </div>
         <div class="date-picker-grid-days"></div>
     </div>
-
     <div id="confirmModal" class="modal-overlay">
         <div class="modal-content">
             <h3 id="confirmModalTitle"></h3>
@@ -260,86 +274,110 @@
             </div>
         </div>
     </div>
-
     <div id="dataActionModal" class="modal-overlay">
         <div class="modal-content">
             <h3>ניהול נתונים</h3>
             <p>בחר את הפעולה הרצויה. שים לב, ייבוא נתונים יחליף את כל המידע הקיים במערכת.</p>
             <div class="modal-actions">
-                <button id="dataActionCancelBtn" class="btn-secondary">ביטול</button>
-                <button id="dataActionExportBtn" class="btn-primary">ייצוא לקובץ CSV</button>
-                <button id="dataActionImportBtn" class="btn-success">ייבוא מקובץ CSV</button>
+                <button id="dataActionCancelBtn" class="btn btn-secondary">ביטול</button>
+                <button id="dataActionExportBtn" class="btn btn-primary">ייצוא לקובץ CSV</button>
+                <button id="dataActionImportBtn" class="btn btn-success">ייבוא מקובץ CSV</button>
             </div>
         </div>
     </div>
-
     <div id="projectModal" class="modal-overlay">
         </div>
-
-    <div class="app-container">
-        <div class="urgent-todo-container" id="urgentTodoContainer">
-            <h2 class="container-header">רשימת מטלות דחופות<button class="toggle-btn" data-target="urgentTodoContainer" data-state="maximized">&#x2212;</button></h2>
-            <div class="todo-input-group auth-controlled">
-                <input type="text" id="todoInput" placeholder="הוסף מטלה דחופה חדשה..."><button id="addTodoBtn">הוסף מטלה</button>
-            </div>
-            <ul id="todoList" class="todo-list"></ul>
-        </div>
-        <div class="datetime-container" id="datetimeContainer">
-            <h2 class="container-header">לוח שנה<button class="toggle-btn" data-target="datetimeContainer" data-state="maximized">&#x2212;</button></h2>
-            <div class="calendar-nav">
-                <button id="prevMonthBtn" aria-label="Previous Month">&lt;</button>
-                <span id="calendarMonthYear"></span>
-                <button id="nextMonthBtn" aria-label="Next Month">&gt;</button>
-            </div>
-            <div id="calendarGrid" class="calendar-grid">
-                <div class="calendar-day-name">א</div><div class="calendar-day-name">ב</div><div class="calendar-day-name">ג</div><div class="calendar-day-name">ד</div><div class="calendar-day-name">ה</div><div class="calendar-day-name">ו</div><div class="calendar-day-name">ש</div>
-            </div>
-            <div class="calendar-footer">
-                <div id="currentTime"></div>
-            </div>
-        </div>
-        <div class="project-management-container" id="projectManagementContainer">
-            <h2 class="container-header">ניהול פרויקטים<button class="toggle-btn" data-target="projectManagementContainer" data-state="maximized">&#x2212;</button></h2>
-            <div class="project-form auth-controlled">
-                <div class="form-group"><label for="projectName">שם היזם:</label><input type="text" id="projectName" placeholder="לדוגמה: אפריקה ישראל"></div>
-                <div class="form-group"><label for="projectAddress">כתובת:</label><input type="text" id="projectAddress" placeholder="לדוגמה: שלום עליכם 23 ת'א"></div>
-                <div class="form-group"><label for="contactInfo">פרטי יצירת קשר:</label><input type="text" id="contactInfo" placeholder="לדוגמה: יוסי כהן - 555-1234"></div>
-                <div class="form-group">
-                    <label for="startDate">תאריך התחלה:</label>
-                    <input type="text" id="startDate" class="date-input" placeholder="dd/mm/yyyy" readonly>
-                </div>
-                <div class="form-group">
-                    <label for="finishDate">תאריך סיום:</label>
-                    <input type="text" id="finishDate" class="date-input" placeholder="dd/mm/yyyy" readonly>
-                </div>
-                <div class="form-group tasks-dropdown-group">
-                    <label>מטלות לביצוע:</label>
-                    <button type="button" id="tasksDropdownButton" class="tasks-dropdown-button">
-                        <span>בחר מטלות...</span>
-                    </button>
-                    <div id="tasksChecklistContainer" class="tasks-checklist-container"></div>
-                </div>
-                <div class="form-group"><label for="taskProgress">התקדמות מטלה:</label><select id="taskProgress"><option value="Not Started">לא התחיל</option><option value="In Progress">בטיפול</option><option value="On Hold">בהמתנה</option><option value="Completed">הושלם</option></select></div>
-                <div class="form-group full-width"><label for="furtherNotes">הערות נוספות:</label><textarea id="furtherNotes" placeholder="כל הערה נוספת..."></textarea></div>
-            </div>
-            <div class="project-buttons auth-controlled">
-                <button id="addProjectBtn" class="add-btn">הוסף פרויקט</button>
-                <button id="deleteProjectBtn" class="delete-btn">מחק פרויקט</button>
-            </div>
-            <div class="project-list-container">
-                <h3>פרויקטים נוכחיים</h3>
-                <ul id="projectList" class="project-list"></ul>
-                <h3 class="history-header">היסטוריה<button id="toggleHistoryBtn" class="toggle-btn" data-state="collapsed">+</button></h3>
-                <ul id="projectHistoryList" class="project-list history-list collapsed"></ul>
-                <div class="clear-history-btn-wrapper collapsed auth-controlled"><button id="clearHistoryBtn">נקה היסטוריה</button></div>
+    <div id="promptModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 id="promptModalTitle"></h3>
+            <p id="promptModalText"></p>
+            <input type="password" id="promptModalInput" class="form-input">
+            <div class="modal-actions">
+                <button id="promptCancelBtn" class="btn btn-secondary">ביטול</button>
+                <button id="promptOkBtn" class="btn btn-primary">אישור</button>
             </div>
         </div>
     </div>
-    
-    <div class="export-button-wrapper auth-controlled">
-        <button id="dataMgmtBtn">ניהול נתונים</button>
-        <label for="csvFileInput" class="visually-hidden">Upload CSV File</label>
-        <input type="file" id="csvFileInput" accept=".csv">
+
+    <header class="app-header">
+        <h1>לוח ניהול פרויקטים</h1>
+        <div class="header-actions auth-controlled">
+            <button id="dataMgmtBtn" class="btn btn-secondary">ניהול נתונים</button>
+            <input type="file" id="csvFileInput" class="visually-hidden" accept=".csv">
+        </div>
+    </header>
+
+    <div class="app-container">
+        <main class="main-content">
+            <section id="projectManagementContainer" class="app-card">
+                <div class="card__header">
+                    <h2 class="card__title">ניהול פרויקטים</h2>
+                    <button class="card__toggle-btn" data-target="projectManagementContainer">&#x2212;</button>
+                </div>
+                <div class="project-form auth-controlled">
+                    <div class="form-group"><label for="projectName">שם היזם:</label><input type="text" id="projectName" class="form-input" placeholder="לדוגמה: אפריקה ישראל"></div>
+                    <div class="form-group"><label for="projectAddress">כתובת:</label><input type="text" id="projectAddress" class="form-input" placeholder="לדוגמה: שלום עליכם 23 ת'א"></div>
+                    <div class="form-group"><label for="contactInfo">פרטי יצירת קשר:</label><input type="text" id="contactInfo" class="form-input" placeholder="לדוגמה: יוסי כהן - 555-1234"></div>
+                    <div class="form-group">
+                        <label for="startDate">תאריך התחלה:</label>
+                        <input type="text" id="startDate" class="form-input date-input" placeholder="dd/mm/yyyy" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="finishDate">תאריך סיום:</label>
+                        <input type="text" id="finishDate" class="form-input date-input" placeholder="dd/mm/yyyy" readonly>
+                    </div>
+                    <div class="form-group tasks-dropdown-group">
+                        <label>מטלות לביצוע:</label>
+                        <button type="button" id="tasksDropdownButton" class="tasks-dropdown-button">
+                            <span>בחר מטלות...</span>
+                        </button>
+                        <div id="tasksChecklistContainer" class="tasks-checklist-container"></div>
+                    </div>
+                    <div class="form-group"><label for="taskProgress">התקדמות מטלה:</label><select id="taskProgress"><option value="Not Started">לא התחיל</option><option value="In Progress">בטיפול</option><option value="On Hold">בהמתנה</option><option value="Completed">הושלם</option></select></div>
+                    <div class="form-group full-width"><label for="furtherNotes">הערות נוספות:</label><textarea id="furtherNotes" class="form-input" placeholder="כל הערה נוספת..."></textarea></div>
+                </div>
+                <menu class="project-buttons auth-controlled">
+                    <button id="addProjectBtn" class="btn btn-primary">הוסף פרויקט</button>
+                    <button id="deleteProjectBtn" class="btn btn-danger">מחק פרויקט</button>
+                </menu>
+                <section class="project-list-container">
+                    <h3>פרויקטים נוכחיים</h3>
+                    <ul id="projectList" class="project-list"></ul>
+                    <h3 class="history-header">היסטוריה<button id="toggleHistoryBtn" class="card__toggle-btn" data-state="collapsed">+</button></h3>
+                    <ul id="projectHistoryList" class="project-list history-list collapsed"></ul>
+                    <div class="clear-history-btn-wrapper collapsed auth-controlled"><button id="clearHistoryBtn">נקה היסטוריה</button></div>
+                </section>
+            </section>
+        </main>
+        <aside class="sidebar">
+            <section id="urgentTodoContainer" class="app-card">
+                <div class="card__header">
+                    <h2 class="card__title">מטלות דחופות</h2>
+                    <button class="card__toggle-btn" data-target="urgentTodoContainer">&#x2212;</button>
+                </div>
+                <div class="todo-input-group auth-controlled">
+                    <input type="text" id="todoInput" placeholder="הוסף מטלה דחופה חדשה..."><button id="addTodoBtn">+</button>
+                </div>
+                <ul id="todoList" class="todo-list"></ul>
+            </section>
+            <section id="datetimeContainer" class="app-card">
+                 <div class="card__header">
+                    <h2 class="card__title">לוח שנה</h2>
+                    <button class="card__toggle-btn" data-target="datetimeContainer">&#x2212;</button>
+                </div>
+                <div class="calendar-nav">
+                    <button id="prevMonthBtn" aria-label="Previous Month">&lt;</button>
+                    <span id="calendarMonthYear"></span>
+                    <button id="nextMonthBtn" aria-label="Next Month">&gt;</button>
+                </div>
+                <div id="calendarGrid" class="calendar-grid">
+                    <div class="calendar-day-name">א</div><div class="calendar-day-name">ב</div><div class="calendar-day-name">ג</div><div class="calendar-day-name">ד</div><div class="calendar-day-name">ה</div><div class="calendar-day-name">ו</div><div class="calendar-day-name">ש</div>
+                </div>
+                <div class="calendar-footer">
+                    <div id="currentTime"></div>
+                </div>
+            </section>
+        </aside>
     </div>
 
     <script type="module">
@@ -366,46 +404,63 @@
     const dbRefTodoItems = ref(db, 'todoItems');
 
     // --- 2. DOM ELEMENT REFERENCES ---
-    const loginModal = document.getElementById('loginModal');
-    const googleSignInBtn = document.getElementById('googleSignInBtn');
-    const guestLoginBtn = document.getElementById('guestLoginBtn');
-    const adminOverrideBtn = document.getElementById('adminOverride');
-    const datePickerModal = document.getElementById('datePickerModal');
-    const confirmModal = document.getElementById('confirmModal');
-    const dataActionModal = document.getElementById('dataActionModal');
-    const allElements = {
-        todoInput: document.getElementById('todoInput'), addTodoBtn: document.getElementById('addTodoBtn'),
-        todoList: document.getElementById('todoList'), projectNameInput: document.getElementById('projectName'),
-        projectAddressInput: document.getElementById('projectAddress'), contactInfoInput: document.getElementById('contactInfo'),
-        startDateInput: document.getElementById('startDate'), finishDateInput: document.getElementById('finishDate'),
-        tasksDropdownGroup: document.querySelector('.tasks-dropdown-group'), tasksDropdownButton: document.getElementById('tasksDropdownButton'),
+    const dom = {
+        loginModal: document.getElementById('loginModal'),
+        googleSignInBtn: document.getElementById('googleSignInBtn'),
+        guestLoginBtn: document.getElementById('guestLoginBtn'),
+        adminOverrideBtn: document.getElementById('adminOverride'),
+        datePickerModal: document.getElementById('datePickerModal'),
+        confirmModal: document.getElementById('confirmModal'),
+        promptModal: document.getElementById('promptModal'),
+        dataActionModal: document.getElementById('dataActionModal'),
+        todoInput: document.getElementById('todoInput'), 
+        addTodoBtn: document.getElementById('addTodoBtn'),
+        todoList: document.getElementById('todoList'), 
+        projectNameInput: document.getElementById('projectName'),
+        projectAddressInput: document.getElementById('projectAddress'), 
+        contactInfoInput: document.getElementById('contactInfo'),
+        startDateInput: document.getElementById('startDate'), 
+        finishDateInput: document.getElementById('finishDate'),
+        tasksDropdownGroup: document.querySelector('.tasks-dropdown-group'), 
+        tasksDropdownButton: document.getElementById('tasksDropdownButton'),
         tasksChecklistContainer: document.getElementById('tasksChecklistContainer'), 
-        taskProgressSelect: document.getElementById('taskProgress'), furtherNotesInput: document.getElementById('furtherNotes'),
-        addProjectBtn: document.getElementById('addProjectBtn'), deleteProjectBtn: document.getElementById('deleteProjectBtn'),
-        projectList: document.getElementById('projectList'), projectHistoryList: document.getElementById('projectHistoryList'),
+        taskProgressSelect: document.getElementById('taskProgress'), 
+        furtherNotesInput: document.getElementById('furtherNotes'),
+        addProjectBtn: document.getElementById('addProjectBtn'), 
+        deleteProjectBtn: document.getElementById('deleteProjectBtn'),
+        projectList: document.getElementById('projectList'), 
+        projectHistoryList: document.getElementById('projectHistoryList'),
         clearHistoryBtn: document.getElementById('clearHistoryBtn'),
-        projectManagementContainer: document.getElementById('projectManagementContainer'), projectModal: document.getElementById('projectModal'),
-        dataMgmtBtn: document.getElementById('dataMgmtBtn'), csvFileInput: document.getElementById('csvFileInput')
+        projectManagementContainer: document.getElementById('projectManagementContainer'), 
+        projectModal: document.getElementById('projectModal'),
+        dataMgmtBtn: document.getElementById('dataMgmtBtn'), 
+        csvFileInput: document.getElementById('csvFileInput')
     };
     
-    // --- 3. GLOBAL STATE VARIABLES ---
-    let isAuthenticated = false;
-    let currentUser = null;
-    let projects = {}, deletedProjects = {}, todoItems = [], displayedDate = new Date();
-    let selectedProjectKey = null;
-    const masterTaskList = ["מפוחי גג", "מפוחי חניון", "מפוח חדר משאבות", "משתיקים", "דאמפרים", "תעלות", "ברכי לובי", "ברך אשפה", "מהלכי ונטות", "ונטות", "מפוח in-line", "גרילים", "גרילים נגד יתושים", "ארון פיקוד", "ביקורת 1", "ביקורת 2", "ביקורת 3", "ביקורת 4"];
-    const dateOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
-    let activeDateInput = null;
-    let pickerDate = new Date();
-    const hebrewMonths = ["ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"];
+    // --- 3. STATE MANAGEMENT ---
+    const AppState = {
+        isAuthenticated: false,
+        currentUser: null,
+        projects: {},
+        deletedProjects: {},
+        todoItems: [],
+        displayedDate: new Date(),
+        selectedProjectKey: null,
+        activeDateInput: null,
+        pickerDate: new Date()
+    };
 
-    // --- 4. FUNCTION DEFINITIONS ---
+    const masterTaskList = ["מפוחי גג", "מפוחי חניון", "מפוח חדר משאבות", "משתיקים", "דאמפרים", "תעלות", "ברכי לובי", "ברך אשפה", "מהלכי ונטות", "ונטות", "מפוח in-line", "גרילים", "גרילים נגד יתושים", "ארון פיקוד", "ביקורת 1", "ביקורת 2", "ביקורת 3", "ביקורת 4"];
+    const hebrewMonths = ["ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"];
+    const dateOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
+
+    // --- 4. CORE FUNCTIONS ---
     function updateUIForAuthState() {
         document.querySelectorAll('.auth-controlled').forEach(el => {
-            if (isAuthenticated) { el.classList.remove('hidden-for-guest'); } 
+            if (AppState.isAuthenticated) { el.classList.remove('hidden-for-guest'); } 
             else { el.classList.add('hidden-for-guest'); }
         });
-        allElements.todoList.style.pointerEvents = isAuthenticated ? 'auto' : 'none';
+        dom.todoList.style.pointerEvents = AppState.isAuthenticated ? 'auto' : 'none';
     }
 
     async function handleGoogleSignIn() {
@@ -422,16 +477,17 @@
         return colors[Math.abs(hash % colors.length)];
     }
 
-    function showConfirmation(title, text, confirmText = 'אישור', confirmClass = 'btn-danger') {
+    function showConfirmation(title, text, confirmText = 'אישור', confirmClass = 'btn-danger', showCancel = true) {
         return new Promise((resolve) => {
             const titleEl = document.getElementById('confirmModalTitle');
             const textEl = document.getElementById('confirmModalText');
             const okBtn = document.getElementById('confirmOkBtn');
             const cancelBtn = document.getElementById('confirmCancelBtn');
             titleEl.textContent = title;
-            textEl.textContent = text;
+            textEl.innerHTML = text; // Use innerHTML to support <br> tags
             okBtn.textContent = confirmText;
             okBtn.className = ""; okBtn.classList.add(confirmClass);
+            cancelBtn.style.display = showCancel ? 'inline-block' : 'none';
             cancelBtn.textContent = "ביטול";
             cancelBtn.className = "btn-secondary";
             confirmModal.classList.add('visible');
@@ -446,10 +502,41 @@
             cancelBtn.addEventListener('click', onCancel, { once: true });
         });
     }
+    
+    function showPrompt(title, text, inputType = 'text') {
+        return new Promise((resolve) => {
+            const titleEl = document.getElementById('promptModalTitle');
+            const textEl = document.getElementById('promptModalText');
+            const inputEl = document.getElementById('promptModalInput');
+            const okBtn = document.getElementById('promptOkBtn');
+            const cancelBtn = document.getElementById('promptCancelBtn');
+            titleEl.textContent = title;
+            textEl.textContent = text;
+            inputEl.value = '';
+            inputEl.type = inputType;
+            dom.promptModal.classList.add('visible');
+            inputEl.focus();
+
+            const onOk = () => { cleanup(); resolve(inputEl.value); };
+            const onCancel = () => { cleanup(); resolve(null); };
+            const onKeypress = (e) => { if (e.key === 'Enter') onOk(); };
+
+            const cleanup = () => {
+                dom.promptModal.classList.remove('visible');
+                okBtn.removeEventListener('click', onOk);
+                cancelBtn.removeEventListener('click', onCancel);
+                inputEl.removeEventListener('keypress', onKeypress);
+            };
+            
+            okBtn.addEventListener('click', onOk);
+            cancelBtn.addEventListener('click', onCancel);
+            inputEl.addEventListener('keypress', onKeypress);
+        });
+    }
 
     function renderDatePicker() {
-        const month = pickerDate.getMonth();
-        const year = pickerDate.getFullYear();
+        const month = AppState.pickerDate.getMonth();
+        const year = AppState.pickerDate.getFullYear();
         datePickerModal.querySelector('.month-year').textContent = `${hebrewMonths[month]} ${year}`;
         const daysGrid = datePickerModal.querySelector('.date-picker-grid-days');
         daysGrid.innerHTML = '';
@@ -470,9 +557,9 @@
     }
 
     function openDatePicker(event) {
-        activeDateInput = event.target;
-        pickerDate = activeDateInput.value ? parseAndValidateDate(activeDateInput.value) : new Date();
-        const inputRect = activeDateInput.getBoundingClientRect();
+        AppState.activeDateInput = event.target;
+        AppState.pickerDate = AppState.activeDateInput.value ? parseAndValidateDate(AppState.activeDateInput.value) : new Date();
+        const inputRect = AppState.activeDateInput.getBoundingClientRect();
         datePickerModal.style.display = 'block';
         datePickerModal.style.top = `${inputRect.bottom + window.scrollY + 5}px`;
         datePickerModal.style.right = `${window.innerWidth - inputRect.right}px`;
@@ -481,7 +568,7 @@
 
     function hideDatePicker() {
         datePickerModal.style.display = 'none';
-        activeDateInput = null;
+        AppState.activeDateInput = null;
     }
 
     function formatDate(date) {
@@ -506,47 +593,57 @@
         return new Date();
     }
 
-    function saveProject() {
-        if (!isAuthenticated) return;
-        const projectName = allElements.projectNameInput.value.trim();
-        if (!projectName) return alert('שם היזם הוא שדה חובה!');
+    async function saveProject() {
+        if (!AppState.isAuthenticated) return;
+        
+        const projectName = dom.projectNameInput.value.trim();
+        if (!projectName) {
+            await showConfirmation("שדה חובה", "שם היזם הוא שדה חובה.", "הבנתי", "btn-secondary", false);
+            return;
+        }
+
         const projectData = {
-            name: projectName, address: allElements.projectAddressInput.value.trim(), contactInfo: allElements.contactInfoInput.value.trim(),
-            startDate: allElements.startDateInput.value ? parseAndValidateDate(allElements.startDateInput.value).toISOString().split('T')[0] : '',
-            finishDate: allElements.finishDateInput.value ? parseAndValidateDate(allElements.finishDateInput.value).toISOString().split('T')[0] : '',
+            name: projectName, address: dom.projectAddressInput.value.trim(), contactInfo: dom.contactInfoInput.value.trim(),
+            startDate: dom.startDateInput.value ? parseAndValidateDate(dom.startDateInput.value).toISOString().split('T')[0] : '',
+            finishDate: dom.finishDateInput.value ? parseAndValidateDate(dom.finishDateInput.value).toISOString().split('T')[0] : '',
             tasks: getTasksDataFromDOM(),
-            progress: allElements.taskProgressSelect.value, furtherNotes: allElements.furtherNotesInput.value.trim()
+            progress: dom.taskProgressSelect.value, furtherNotes: dom.furtherNotesInput.value.trim()
         };
-        if (selectedProjectKey) {
-            projectData.addedDateTime = projects[selectedProjectKey].addedDateTime; projectData.whoCreated = projects[selectedProjectKey].whoCreated;
-            projectData.lastEditedAt = formatDateTime(new Date()); projectData.lastEditedBy = currentUser.displayName;
-            update(ref(db, `projects/${selectedProjectKey}`), projectData).then(() => { clearProjectForm(); }).catch(err => alert(`שגיאה בעדכון: ${err.message}`));
+
+        if (AppState.selectedProjectKey) {
+            projectData.addedDateTime = AppState.projects[AppState.selectedProjectKey].addedDateTime; 
+            projectData.whoCreated = AppState.projects[AppState.selectedProjectKey].whoCreated;
+            projectData.lastEditedAt = formatDateTime(new Date()); 
+            projectData.lastEditedBy = AppState.currentUser.displayName;
+            update(ref(db, `projects/${AppState.selectedProjectKey}`), projectData).then(clearProjectForm).catch(err => alert(`שגיאה בעדכון: ${err.message}`));
         } else {
-            projectData.addedDateTime = formatDateTime(new Date()); projectData.whoCreated = currentUser.displayName;
-            set(push(dbRefProjects), projectData).then(() => { clearProjectForm(); }).catch(err => alert(`שגיאה בהוספה: ${err.message}`));
+            projectData.addedDateTime = formatDateTime(new Date()); 
+            projectData.whoCreated = AppState.currentUser.displayName;
+            set(push(dbRefProjects), projectData).then(clearProjectForm).catch(err => alert(`שגיאה בהוספה: ${err.message}`));
         }
     }
 
     function populateFormForEditing(projectId, projectData) {
-        selectedProjectKey = projectId;
-        allElements.projectNameInput.value = projectData.name; allElements.projectAddressInput.value = projectData.address || '';
-        allElements.contactInfoInput.value = projectData.contactInfo || '';
-        allElements.startDateInput.value = formatDate(projectData.startDate);
-        allElements.finishDateInput.value = formatDate(projectData.finishDate);
+        AppState.selectedProjectKey = projectId;
+        dom.projectNameInput.value = projectData.name; dom.projectAddressInput.value = projectData.address || '';
+        dom.contactInfoInput.value = projectData.contactInfo || '';
+        dom.startDateInput.value = formatDate(projectData.startDate);
+        dom.finishDateInput.value = formatDate(projectData.finishDate);
         renderChecklist(projectData.tasks);
-        allElements.taskProgressSelect.value = projectData.progress; allElements.furtherNotesInput.value = projectData.furtherNotes || '';
-        allElements.deleteProjectBtn.disabled = false; allElements.deleteProjectBtn.style.display = 'inline-block';
-        allElements.addProjectBtn.textContent = 'שמור שינויים'; allElements.projectManagementContainer.scrollIntoView({ behavior: 'smooth' });
+        dom.taskProgressSelect.value = projectData.progress; dom.furtherNotesInput.value = projectData.furtherNotes || '';
+        dom.deleteProjectBtn.disabled = false; dom.deleteProjectBtn.style.display = 'inline-block';
+        dom.addProjectBtn.textContent = 'שמור שינויים'; dom.projectManagementContainer.scrollIntoView({ behavior: 'smooth' });
         hideProjectModal();
     }
 
     async function deleteProject(event) {
         event.stopPropagation();
-        if (!selectedProjectKey || !isAuthenticated) return;
-        const confirmed = await showConfirmation("אישור מחיקה", `האם אתה בטוח שברצונך למחוק את "${projects[selectedProjectKey].name}"?`);
+        if (!AppState.selectedProjectKey || !AppState.isAuthenticated) return;
+        const projectToDelete = AppState.projects[AppState.selectedProjectKey];
+        const confirmed = await showConfirmation("אישור מחיקה", `האם אתה בטוח שברצונך למחוק את "${projectToDelete.name}"?`);
         if (confirmed) {
-            const pToMove = { ...projects[selectedProjectKey], deletedAt: formatDateTime(new Date()), deletedBy: currentUser.displayName };
-            update(ref(db), { [`/projects/${selectedProjectKey}`]: null, [`/deletedProjects/${selectedProjectKey}`]: pToMove }).then(() => { clearProjectForm(); }).catch(err => alert(`שגיאה במחיקה: ${err.message}`));
+            const pToMove = { ...projectToDelete, deletedAt: formatDateTime(new Date()), deletedBy: AppState.currentUser.displayName };
+            update(ref(db), { [`/projects/${AppState.selectedProjectKey}`]: null, [`/deletedProjects/${AppState.selectedProjectKey}`]: pToMove }).then(clearProjectForm).catch(err => alert(`שגיאה במחיקה: ${err.message}`));
         }
     }
 
@@ -554,7 +651,7 @@
     
     function generateCalendar() {
         const calendarMonthYear = document.getElementById('calendarMonthYear'), calendarGrid = document.getElementById('calendarGrid'); if (!calendarMonthYear || !calendarGrid) return;
-        const today = new Date(), year = displayedDate.getFullYear(), month = displayedDate.getMonth();
+        const today = new Date(), year = AppState.displayedDate.getFullYear(), month = AppState.displayedDate.getMonth();
         calendarMonthYear.textContent = `${hebrewMonths[month]} ${year}`;
         while (calendarGrid.children.length > 7) { calendarGrid.removeChild(calendarGrid.lastChild); }
         const firstDayOfMonth = new Date(year, month, 1).getDay(), daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -562,41 +659,41 @@
         for (let day = 1; day <= daysInMonth; day++) { const dayEl = document.createElement('div'); dayEl.className = 'calendar-day'; dayEl.textContent = day; if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) { dayEl.classList.add('current-day'); } calendarGrid.appendChild(dayEl); }
     }
     
-    function saveTodoItemsToFirebase() { set(dbRefTodoItems, todoItems).catch(console.error); }
+    function saveTodoItemsToFirebase() { set(dbRefTodoItems, AppState.todoItems).catch(console.error); }
     
     function addTodo() {
-        const taskText = allElements.todoInput.value.trim(); if (!taskText) return;
-        const newTodo = { id: push(dbRefTodoItems).key, text: taskText, createdBy: currentUser.displayName, createdAt: new Date().toISOString(), color: getColorForName(currentUser.displayName) };
-        if(!todoItems) todoItems = [];
-        todoItems.push(newTodo);
-        saveTodoItemsToFirebase(); allElements.todoInput.value = ''; allElements.todoInput.focus();
+        const taskText = dom.todoInput.value.trim(); if (!taskText) return;
+        const newTodo = { id: push(dbRefTodoItems).key, text: taskText, createdBy: AppState.currentUser.displayName, createdAt: new Date().toISOString(), color: getColorForName(AppState.currentUser.displayName) };
+        if(!AppState.todoItems) AppState.todoItems = [];
+        AppState.todoItems.push(newTodo);
+        saveTodoItemsToFirebase(); dom.todoInput.value = ''; dom.todoInput.focus();
     }
     
     function renderTodoItems() {
-        allElements.todoList.innerHTML = '';
-        if (!todoItems || todoItems.length === 0) { allElements.todoList.innerHTML = '<li style="text-align: right; color: #888; font-style: italic; background: none; border: none; box-shadow: none; cursor: default; padding: 10px;">אין מטלות.</li>'; return; }
-        todoItems.forEach((task) => {
+        dom.todoList.innerHTML = '';
+        if (!AppState.todoItems || AppState.todoItems.length === 0) { dom.todoList.innerHTML = '<li style="text-align: right; color: #888; font-style: italic; background: none; border: none; box-shadow: none; cursor: default; padding: 10px;">אין מטלות.</li>'; return; }
+        AppState.todoItems.forEach((task) => {
             if(typeof task === 'string' || !task) return;
             const li = document.createElement('li'); li.style.backgroundColor = task.color;
             li.innerHTML = `<span class="todo-text">${task.text}</span><span class="todo-meta">נוצר על ידי ${task.createdBy} ב-${new Date(task.createdAt).toLocaleString('he-IL', dateOptions)}</span>`;
-            li.addEventListener('click', function() { if(!isAuthenticated) return; todoItems = todoItems.filter(item => item.id !== task.id); saveTodoItemsToFirebase(); });
-            allElements.todoList.appendChild(li);
+            li.addEventListener('click', function() { if(!AppState.isAuthenticated) return; AppState.todoItems = AppState.todoItems.filter(item => item.id !== task.id); saveTodoItemsToFirebase(); });
+            dom.todoList.appendChild(li);
         });
     }
     
     function updateTasksButtonText() { 
-        const buttonTextSpan = allElements.tasksDropdownButton.querySelector('span');
+        const buttonTextSpan = dom.tasksDropdownButton.querySelector('span');
         if(buttonTextSpan) {
-            buttonTextSpan.textContent = `בחר מטלות (${allElements.tasksChecklistContainer.querySelectorAll('input:checked').length} / ${masterTaskList.length})`; 
+            buttonTextSpan.textContent = `בחר מטלות (${dom.tasksChecklistContainer.querySelectorAll('input:checked').length} / ${masterTaskList.length})`; 
         }
     }
     
     function renderChecklist(projectTasks = {}) {
-        allElements.tasksChecklistContainer.innerHTML = '';
+        dom.tasksChecklistContainer.innerHTML = '';
         masterTaskList.forEach(taskName => { 
             const { checked = false, timestamp = '', user = '' } = projectTasks[taskName] || {}; 
             const formattedDate = timestamp ? new Date(timestamp).toLocaleString('he-IL', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }) : '';
-            allElements.tasksChecklistContainer.insertAdjacentHTML('beforeend', 
+            dom.tasksChecklistContainer.insertAdjacentHTML('beforeend', 
                 `<div class="task-item">
                     <input type="checkbox" id="task-${taskName.replace(/\s/g, '')}" data-task-name="${taskName}" ${checked ? 'checked' : ''} data-timestamp="${timestamp}" data-user="${user}">
                     <label for="task-${taskName.replace(/\s/g, '')}">${taskName}</label>
@@ -609,13 +706,13 @@
     
     function getTasksDataFromDOM() { 
         const data = {}; 
-        allElements.tasksChecklistContainer.querySelectorAll('.task-item input[type="checkbox"]').forEach(cb => { 
+        dom.tasksChecklistContainer.querySelectorAll('.task-item input[type="checkbox"]').forEach(cb => { 
             const taskName = cb.dataset.taskName; 
             if (taskName) { 
                 data[taskName] = { 
                     checked: cb.checked, 
                     timestamp: cb.checked ? (cb.dataset.timestamp || new Date().toISOString()) : '',
-                    user: cb.checked ? (cb.dataset.user || currentUser.displayName) : ''
+                    user: cb.checked ? (cb.dataset.user || AppState.currentUser.displayName) : ''
                 }; 
             } 
         }); 
@@ -630,48 +727,48 @@
         const finishDateFormatted = project.finishDate ? formatDate(project.finishDate) : 'N/A';
         const createdDateFormatted = project.addedDateTime ? new Date(project.addedDateTime).toLocaleString('he-IL', dateOptions) : '';
         const editedDateFormatted = project.lastEditedAt ? new Date(project.lastEditedAt).toLocaleString('he-IL', dateOptions) : '';
-        projectModal.innerHTML = `<div class="project-modal-content"><span class="project-modal-close">&times;</span><h3>${project.name}</h3><p><span class="info-label">כתובת:</span> ${project.address || 'לא צויין'}</p><p><span class="info-label">תאריכים:</span> ${startDateFormatted} - ${finishDateFormatted}</p><p><span class="info-label">מטלות:</span> ${tasksSummary}</p><p><span class="info-label">נוצר ב:</span> ${createdDateFormatted} על ידי <strong>${project.whoCreated || 'לא ידוע'}</strong></p>${project.lastEditedAt ? `<p><span class="info-label">עודכן לאחרונה:</span> ${editedDateFormatted} על ידי <strong>${project.lastEditedBy || 'לא ידוע'}</strong></p>` : ''}<p><span class="info-label">התקדמות כללית:</span> <span style="font-weight: bold; color: ${getProgressColor(project.progress)};">${getProgressTranslation(project.progress)}</span></p><p><span class="info-label">הערות:</span> ${project.furtherNotes || 'אין'}</p><div class="project-modal-actions"><button class="add-btn auth-controlled">ערוך פרויקט</button></div></div>`;
-        requestAnimationFrame(() => projectModal.classList.add('visible'));
-        projectModal.querySelector('.project-modal-close').addEventListener('click', hideProjectModal);
-        const editButton = projectModal.querySelector('.add-btn'); if(isAuthenticated && editButton) { editButton.addEventListener('click', () => populateFormForEditing(projectId, project)); }
+        dom.projectModal.innerHTML = `<div class="project-modal-content"><span class="project-modal-close">&times;</span><h3>${project.name}</h3><p><span class="info-label">כתובת:</span> ${project.address || 'לא צויין'}</p><p><span class="info-label">תאריכים:</span> ${startDateFormatted} - ${finishDateFormatted}</p><p><span class="info-label">מטלות:</span> ${tasksSummary}</p><p><span class="info-label">נוצר ב:</span> ${createdDateFormatted} על ידי <strong>${project.whoCreated || 'לא ידוע'}</strong></p>${project.lastEditedAt ? `<p><span class="info-label">עודכן לאחרונה:</span> ${editedDateFormatted} על ידי <strong>${project.lastEditedBy || 'לא ידוע'}</strong></p>` : ''}<p><span class="info-label">התקדמות כללית:</span> <span style="font-weight: bold; color: ${getProgressColor(project.progress)};">${getProgressTranslation(project.progress)}</span></p><p><span class="info-label">הערות:</span> ${project.furtherNotes || 'אין'}</p><div class="project-modal-actions"><button class="add-btn auth-controlled">ערוך פרויקט</button></div></div>`;
+        requestAnimationFrame(() => dom.projectModal.classList.add('visible'));
+        dom.projectModal.querySelector('.project-modal-close').addEventListener('click', hideProjectModal);
+        const editButton = dom.projectModal.querySelector('.add-btn'); if(AppState.isAuthenticated && editButton) { editButton.addEventListener('click', () => populateFormForEditing(projectId, project)); }
         updateUIForAuthState();
     }
     
-    function hideProjectModal() { projectModal.classList.remove('visible'); }
+    function hideProjectModal() { dom.projectModal.classList.remove('visible'); }
     
     async function restoreProject(event) {
-        const btn = event.target.closest('.restore-project-btn'); if (!btn || !isAuthenticated) return;
+        const btn = event.target.closest('.restore-project-btn'); if (!btn || !AppState.isAuthenticated) return;
         const projectId = btn.dataset.projectId;
-        const confirmed = await showConfirmation("אישור שחזור", `האם לשחזר את הפרויקט "${deletedProjects[projectId].name}"?`, 'שחזר', 'btn-success');
+        const confirmed = await showConfirmation("אישור שחזור", `האם לשחזר את הפרויקט "${AppState.deletedProjects[projectId].name}"?`, 'שחזר', 'btn-success');
         if (confirmed) {
-            const pToRestore = { ...deletedProjects[projectId] };
+            const pToRestore = { ...AppState.deletedProjects[projectId] };
             if (pToRestore) { delete pToRestore.deletedAt; delete pToRestore.deletedBy; update(ref(db), { [`/deletedProjects/${projectId}`]: null, [`/projects/${projectId}`]: pToRestore }).then(() => alert(`"${pToRestore.name}" שוחזר.`)); }
         }
     }
     
     async function clearHistory() {
-        if (!isAuthenticated) return;
+        if (!AppState.isAuthenticated) return;
         const confirmed = await showConfirmation("אישור ניקוי היסטוריה", "פעולה זו תמחק לצמיתות את כל הפרויקטים שבארכיון. האם להמשיך?");
         if (confirmed) { set(dbRefDeletedProjects, {}); }
     }
     
     function renderProjects() {
-        allElements.projectList.innerHTML = ''; const projectsArray = Object.entries(projects || {}); if (projectsArray.length === 0) { allElements.projectList.innerHTML = '<li style="grid-column: 1 / -1; text-align: right; color: #888; font-style: italic; background: none; border: none; box-shadow: none; cursor: default; padding: 10px;">אין פרויקטים נוכחיים.</li>'; return; }
-        projectsArray.forEach(([key, project]) => { const li = document.createElement('li'); li.dataset.projectId = key; li.innerHTML = `<strong>${project.name}</strong>`; allElements.projectList.appendChild(li); });
+        dom.projectList.innerHTML = ''; const projectsArray = Object.entries(AppState.projects || {}); if (projectsArray.length === 0) { dom.projectList.innerHTML = '<li style="grid-column: 1 / -1; text-align: right; color: #888; font-style: italic; background: none; border: none; box-shadow: none; cursor: default; padding: 10px;">אין פרויקטים נוכחיים.</li>'; return; }
+        projectsArray.forEach(([key, project]) => { const li = document.createElement('li'); li.dataset.projectId = key; li.innerHTML = `<strong>${project.name}</strong>`; dom.projectList.appendChild(li); });
     }
     
     function renderDeletedProjects() {
-        const historyList = document.getElementById('projectHistoryList'); historyList.innerHTML = ''; const deletedArray = Object.entries(deletedProjects || {});
+        const historyList = document.getElementById('projectHistoryList'); historyList.innerHTML = ''; const deletedArray = Object.entries(AppState.deletedProjects || {});
         if (deletedArray.length === 0) { historyList.innerHTML = '<li style="background: none; border: none; box-shadow: none; color: #888; font-style: italic;">אין פרויקטים בהיסטוריה.</li>'; return; }
         deletedArray.forEach(([key, project]) => { const li = document.createElement('li'); li.dataset.projectId = key; const deletedDateFormatted = new Date(project.deletedAt).toLocaleString('he-IL', dateOptions); li.innerHTML = `<div class="deleted-text-content"><strong>${project.name}</strong><p><span class="info-label">נמחק ב:</span> ${deletedDateFormatted} על ידי <strong>${project.deletedBy || 'לא ידוע'}</strong></p></div><button class="restore-project-btn auth-controlled" data-project-id="${key}">שחזר</button>`; historyList.appendChild(li); });
         updateUIForAuthState();
     }
     
     function clearProjectForm() {
-        allElements.projectNameInput.value = ''; allElements.projectAddressInput.value = ''; allElements.contactInfoInput.value = ''; allElements.startDateInput.value = ''; allElements.finishDateInput.value = '';
-        renderChecklist(); allElements.taskProgressSelect.value = 'Not Started'; allElements.furtherNotesInput.value = ''; selectedProjectKey = null;
-        allElements.deleteProjectBtn.disabled = true; allElements.deleteProjectBtn.style.display = 'none'; allElements.addProjectBtn.textContent = 'הוסף פרויקט';
-        allElements.tasksDropdownGroup.classList.remove('open');
+        dom.projectNameInput.value = ''; dom.projectAddressInput.value = ''; dom.contactInfoInput.value = ''; dom.startDateInput.value = ''; dom.finishDateInput.value = '';
+        renderChecklist(); dom.taskProgressSelect.value = 'Not Started'; dom.furtherNotesInput.value = ''; AppState.selectedProjectKey = null;
+        dom.deleteProjectBtn.disabled = true; dom.deleteProjectBtn.style.display = 'none'; dom.addProjectBtn.textContent = 'הוסף פרויקט';
+        dom.tasksDropdownGroup.classList.remove('open');
     }
     
     function getProgressColor(p) { return {'Not Started': '#dc3545', 'In Progress': '#ffc107', 'On Hold': '#6c757d', 'Completed': '#28a745'}[p] || '#333'; }
@@ -680,7 +777,7 @@
     
     function exportProjectsToCsv() {
         const headers = ["name", "address", "contactInfo", "startDate", "finishDate", "tasks", "progress", "furtherNotes", "addedDateTime", "whoCreated", "lastEditedAt", "lastEditedBy", "deletedAt", "deletedBy"];
-        const allProjects = [...Object.values(projects), ...Object.values(deletedProjects)];
+        const allProjects = [...Object.values(AppState.projects), ...Object.values(AppState.deletedProjects)];
         let csvContent = "\uFEFF" + headers.join(",") + "\n"; 
         allProjects.forEach(p => {
             const row = headers.map(header => {
@@ -689,14 +786,11 @@
                     value = `"${JSON.stringify(value).replace(/"/g, '""')}"`;
                 }
                 let stringValue = String(value);
-                if (stringValue.includes(',')) {
-                    stringValue = `"${stringValue}"`;
-                }
+                if (stringValue.includes(',')) { stringValue = `"${stringValue}"`; }
                 return stringValue;
             });
             csvContent += row.join(",") + "\n";
         });
-
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
         const url = URL.createObjectURL(blob);
@@ -728,16 +822,15 @@
                     }
                     projectData[header] = value;
                 });
-                
                 const newKey = push(dbRefProjects).key;
                 newProjects[newKey] = projectData;
             });
             
             try {
                 await set(dbRefProjects, newProjects);
-                alert("Projects imported successfully!");
+                await showConfirmation("הצלחה", "הפרויקטים יובאו בהצלחה!", "אישור", "btn-success", false);
             } catch (error) {
-                alert("Failed to import projects.");
+                await showConfirmation("שגיאה", "נכשל בייבוא הפרויקטים.", "הבנתי", "btn-danger", false);
             }
         };
         reader.readAsText(file);
@@ -745,42 +838,42 @@
 
     // --- 5. EVENT LISTENERS & INITIAL CALLS ---
     onAuthStateChanged(auth, (user) => {
-        if (user) { currentUser = user; isAuthenticated = true; loginModal.classList.remove('visible');
-        } else { currentUser = null; isAuthenticated = false; loginModal.classList.add('visible'); }
+        if (user) { AppState.currentUser = user; AppState.isAuthenticated = true; dom.loginModal.classList.remove('visible');
+        } else { AppState.currentUser = null; AppState.isAuthenticated = false; dom.loginModal.classList.add('visible'); }
         updateUIForAuthState();
     });
 
-    onValue(dbRefProjects, (snapshot) => { projects = snapshot.val() || {}; renderProjects(); });
-    onValue(dbRefDeletedProjects, s => { deletedProjects = s.val() || {}; renderDeletedProjects(); });
-    onValue(dbRefTodoItems, s => { todoItems = Array.isArray(s.val()) ? s.val() : []; renderTodoItems(); });
+    onValue(dbRefProjects, (snapshot) => { AppState.projects = snapshot.val() || {}; renderProjects(); });
+    onValue(dbRefDeletedProjects, snapshot => { AppState.deletedProjects = snapshot.val() || {}; renderDeletedProjects(); });
+    onValue(dbRefTodoItems, snapshot => { AppState.todoItems = Array.isArray(snapshot.val()) ? snapshot.val() : []; renderTodoItems(); });
 
     googleSignInBtn.addEventListener('click', handleGoogleSignIn);
-    guestLoginBtn.addEventListener('click', () => { isAuthenticated = false; currentUser = null; updateUIForAuthState(); loginModal.classList.remove('visible'); });
+    guestLoginBtn.addEventListener('click', () => { AppState.isAuthenticated = false; AppState.currentUser = null; updateUIForAuthState(); dom.loginModal.classList.remove('visible'); });
     adminOverrideBtn.addEventListener('click', async () => {
-        const pin = prompt("הזן קוד גישה למנהל:");
-        if (pin === "1598") { isAuthenticated = true; currentUser = { displayName: 'Admin' }; updateUIForAuthState(); loginModal.classList.remove('visible'); } 
-        else if (pin !== null) { await showConfirmation("שגיאה", "קוד הגישה שהוזן שגוי.", "הבנתי", "btn-secondary"); }
+        const pin = await showPrompt("גישת מנהל", "הזן קוד גישה למנהל:", "password");
+        if (pin === "1598") { AppState.isAuthenticated = true; AppState.currentUser = { displayName: 'Admin' }; updateUIForAuthState(); dom.loginModal.classList.remove('visible'); } 
+        else if (pin !== null) { await showConfirmation("שגיאה", "קוד הגישה שהוזן שגוי.", "הבנתי", "btn-secondary", false); }
     });
-    document.getElementById('prevMonthBtn').addEventListener('click', () => { displayedDate.setMonth(displayedDate.getMonth() - 1); generateCalendar(); });
-    document.getElementById('nextMonthBtn').addEventListener('click', () => { displayedDate.setMonth(displayedDate.getMonth() + 1); generateCalendar(); });
-    allElements.addTodoBtn.addEventListener('click', addTodo);
-    allElements.todoInput.addEventListener('keypress', e => e.key === 'Enter' && addTodo());
-    allElements.addProjectBtn.addEventListener('click', saveProject);
-    allElements.deleteProjectBtn.addEventListener('click', deleteProject);
-    allElements.clearHistoryBtn.addEventListener('click', clearHistory);
-    allElements.projectList.addEventListener('click', (event) => { const listItem = event.target.closest('li'); if (!listItem) return; const projectId = listItem.dataset.projectId; if (projects[projectId]) showProjectModal(projectId, projects[projectId]); });
-    allElements.startDateInput.addEventListener('click', openDatePicker);
-    allElements.finishDateInput.addEventListener('click', openDatePicker);
-    allElements.projectHistoryList.addEventListener('click', restoreProject);
-    allElements.tasksDropdownButton.addEventListener('click', (e) => { e.stopPropagation(); allElements.tasksDropdownGroup.classList.toggle('open'); });
-    allElements.tasksChecklistContainer.addEventListener('change', e => { 
-        if (e.target.type === 'checkbox') { 
+    document.getElementById('prevMonthBtn').addEventListener('click', () => { AppState.displayedDate.setMonth(AppState.displayedDate.getMonth() - 1); generateCalendar(); });
+    document.getElementById('nextMonthBtn').addEventListener('click', () => { AppState.displayedDate.setMonth(AppState.displayedDate.getMonth() + 1); generateCalendar(); });
+    dom.addTodoBtn.addEventListener('click', addTodo);
+    dom.todoInput.addEventListener('keypress', e => e.key === 'Enter' && addTodo());
+    dom.addProjectBtn.addEventListener('click', saveProject);
+    dom.deleteProjectBtn.addEventListener('click', deleteProject);
+    dom.clearHistoryBtn.addEventListener('click', clearHistory);
+    dom.projectList.addEventListener('click', (event) => { const listItem = event.target.closest('li'); if (!listItem) return; const projectId = listItem.dataset.projectId; if (AppState.projects[projectId]) showProjectModal(projectId, AppState.projects[projectId]); });
+    dom.startDateInput.addEventListener('click', openDatePicker);
+    dom.finishDateInput.addEventListener('click', openDatePicker);
+    dom.projectHistoryList.addEventListener('click', restoreProject);
+    dom.tasksDropdownButton.addEventListener('click', (e) => { e.stopPropagation(); dom.tasksDropdownGroup.classList.toggle('open'); });
+    dom.tasksChecklistContainer.addEventListener('change', e => { 
+        if (e.target.type === 'checkbox' && AppState.currentUser) { 
             const tsSpan = e.target.closest('.task-item').querySelector('.task-timestamp'); 
             if (e.target.checked) { 
                 const now = new Date(); 
                 e.target.dataset.timestamp = now.toISOString();
-                e.target.dataset.user = currentUser.displayName;
-                tsSpan.textContent = `${currentUser.displayName} - ${now.toLocaleString('he-IL', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' })}`;
+                e.target.dataset.user = AppState.currentUser.displayName;
+                tsSpan.textContent = `${AppState.currentUser.displayName} - ${now.toLocaleString('he-IL', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' })}`;
             } else { 
                 e.target.dataset.timestamp = '';
                 e.target.dataset.user = '';
@@ -789,17 +882,20 @@
             updateTasksButtonText(); 
         } 
     });
-    datePickerModal.querySelector('.prev-month').addEventListener('click', () => { pickerDate.setMonth(pickerDate.getMonth() - 1); renderDatePicker(); });
-    datePickerModal.querySelector('.next-month').addEventListener('click', () => { pickerDate.setMonth(pickerDate.getMonth() + 1); renderDatePicker(); });
-    datePickerModal.querySelector('.date-picker-grid-days').addEventListener('click', (event) => { const dayEl = event.target.closest('.date-picker-day:not(.empty)'); if (dayEl && activeDateInput) { const day = dayEl.dataset.day; const selectedDate = new Date(pickerDate.getFullYear(), pickerDate.getMonth(), day); activeDateInput.value = formatDate(selectedDate); hideDatePicker(); } });
+    datePickerModal.querySelector('.prev-month').addEventListener('click', () => { AppState.pickerDate.setMonth(AppState.pickerDate.getMonth() - 1); renderDatePicker(); });
+    datePickerModal.querySelector('.next-month').addEventListener('click', () => { AppState.pickerDate.setMonth(AppState.pickerDate.getMonth() + 1); renderDatePicker(); });
+    datePickerModal.querySelector('.date-picker-grid-days').addEventListener('click', (event) => { const dayEl = event.target.closest('.date-picker-day:not(.empty)'); if (dayEl && AppState.activeDateInput) { const day = dayEl.dataset.day; const selectedDate = new Date(AppState.pickerDate.getFullYear(), AppState.pickerDate.getMonth(), day); AppState.activeDateInput.value = formatDate(selectedDate); hideDatePicker(); } });
     document.addEventListener('click', (event) => {
         if (datePickerModal.style.display === 'block' && !datePickerModal.contains(event.target) && !event.target.classList.contains('date-input')) { hideDatePicker(); }
-        if (allElements.tasksDropdownGroup.classList.contains('open') && !allElements.tasksDropdownGroup.contains(event.target)) { allElements.tasksDropdownGroup.classList.remove('open'); }
+        if (dom.tasksDropdownGroup.classList.contains('open') && !dom.tasksDropdownGroup.contains(event.target)) { dom.tasksDropdownGroup.classList.remove('open'); }
     });
-    document.querySelectorAll('.toggle-btn').forEach(btn => btn.id !== 'toggleHistoryBtn' && btn.addEventListener('click', toggleContainer));
+    document.querySelectorAll('.card__toggle-btn').forEach(btn => btn.addEventListener('click', (e) => {
+        const targetId = e.target.dataset.target;
+        document.getElementById(targetId)?.classList.toggle('minimized');
+    }));
     const toggleHistoryBtn = document.getElementById('toggleHistoryBtn');
     toggleHistoryBtn.addEventListener('click', () => { const projectHistoryList = document.getElementById('projectHistoryList'); const clearHistoryBtnWrapper = document.querySelector('.clear-history-btn-wrapper'); const isCollapsed = projectHistoryList.classList.toggle('collapsed'); clearHistoryBtnWrapper.classList.toggle('collapsed'); toggleHistoryBtn.innerHTML = isCollapsed ? '+' : '&#x2212;'; });
-    allElements.dataMgmtBtn.addEventListener('click', () => dataActionModal.classList.add('visible'));
+    dom.dataMgmtBtn.addEventListener('click', () => dataActionModal.classList.add('visible'));
     document.getElementById('dataActionCancelBtn').addEventListener('click', () => dataActionModal.classList.remove('visible'));
     document.getElementById('dataActionExportBtn').addEventListener('click', () => {
         dataActionModal.classList.remove('visible');
@@ -808,9 +904,9 @@
     document.getElementById('dataActionImportBtn').addEventListener('click', async () => {
         dataActionModal.classList.remove('visible');
         const confirmed = await showConfirmation("אזהרה: פעולה הרסנית", "ייבוא קובץ יחליף לצמיתות את כל הנתונים הנוכחיים. האם אתה בטוח שברצונך להמשיך?", "כן, יבא את הקובץ", "btn-danger");
-        if(confirmed) { allElements.csvFileInput.click(); }
+        if(confirmed) { dom.csvFileInput.click(); }
     });
-    allElements.csvFileInput.addEventListener('change', (event) => {
+    dom.csvFileInput.addEventListener('change', (event) => {
         const file = event.target.files[0];
         if (file) { importProjectsFromCsv(file); }
     });
@@ -823,7 +919,5 @@
     </script>
 </body>
 </html>
-
-<!-- End of app -->
 
 <!-- End of app -->
