@@ -39,6 +39,7 @@ const dom = {
     startDateInput: document.getElementById('startDate'), 
     finishDateInput: document.getElementById('finishDate'),
     tasksDropdownGroup: document.querySelector('.tasks-dropdown-group'), 
+    tasksDropdownText: document.getElementById('tasksDropdownText'),
     tasksDropdownButton: document.getElementById('tasksDropdownButton'),
     tasksChecklistContainer: document.getElementById('tasksChecklistContainer'), 
     taskProgressSelect: document.getElementById('taskProgress'), 
@@ -310,10 +311,7 @@ function renderTodoItems() {
 }
 
 function updateTasksButtonText() { 
-    const buttonTextSpan = dom.tasksDropdownButton.querySelector('span');
-    if(buttonTextSpan) {
-        buttonTextSpan.textContent = `בחר מטלות (${dom.tasksChecklistContainer.querySelectorAll('input:checked').length} / ${masterTaskList.length})`; 
-    }
+    dom.tasksDropdownText.value = `נבחרו (${dom.tasksChecklistContainer.querySelectorAll('input:checked').length} / ${masterTaskList.length})`; 
 }
 
 function renderChecklist(projectTasks = {}) {
@@ -501,7 +499,9 @@ dom.startDateInput.addEventListener('click', openDatePicker);
 dom.finishDateInput.addEventListener('click', openDatePicker);
 dom.projectHistoryList.addEventListener('click', restoreProject);
 dom.tasksDropdownButton.addEventListener('click', (e) => { e.stopPropagation(); dom.tasksDropdownGroup.classList.toggle('open'); });
-dom.tasksDropdownButton.addEventListener('keypress', (e) => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); dom.tasksDropdownGroup.classList.toggle('open'); } });
+dom.tasksDropdownText.addEventListener('click', (e) => { e.stopPropagation(); dom.tasksDropdownGroup.classList.toggle('open'); });
+
+dom.tasksDropdownGroup.addEventListener('keypress', (e) => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); dom.tasksDropdownGroup.classList.toggle('open'); } });
 dom.tasksChecklistContainer.addEventListener('change', e => { 
     if (e.target.type === 'checkbox' && AppState.currentUser) { 
         const tsSpan = e.target.closest('.task-item').querySelector('.task-timestamp'); 
