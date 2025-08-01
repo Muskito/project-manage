@@ -633,78 +633,39 @@
             border-radius: 10px;
             width: 90%;
             max-width: 400px;
-            text-align: right;
+            text-align: center; /* Center content */
         }
         .login-modal-content h2 {
-            text-align: center;
             border-bottom: none;
             padding-bottom: 0;
             margin-bottom: 25px;
         }
-        .login-modal-content .form-group {
-            margin-bottom: 15px;
-        }
-        .login-modal-content input {
-            padding: 10px 12px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 1em;
-            width: 100%;
-            box-sizing: border-box;
-            font-family: 'Heebo', sans-serif;
-            text-align: right;
-        }
-        .captcha-wrapper {
-            display: flex;
+        
+        #googleSignInBtn {
+            display: inline-flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-        .captcha-text {
-            padding: 10px;
-            background-color: #f0f0f0;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 1.4em;
-            font-weight: bold;
-            letter-spacing: 4px;
-            text-decoration: line-through;
-            -webkit-user-select: none; /* ADDED */
-            user-select: none;
-            flex-grow: 1;
-            text-align: center;
-        }
-        #reloadCaptchaBtn {
-            background: none;
+            justify-content: center;
+            gap: 15px;
+            background-color: #4285F4;
+            color: white;
+            border-radius: 8px;
             border: none;
-            font-size: 1.8em;
-            cursor: pointer;
-            color: #666;
-            padding: 0;
-        }
-        .login-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        .login-buttons button {
-            flex-grow: 1;
-            padding: 12px;
+            padding: 12px 24px;
             font-size: 1.1em;
             font-weight: bold;
-            border-radius: 6px;
-            border: none;
+            font-family: 'Heebo', sans-serif;
             cursor: pointer;
+            transition: background-color 0.2s ease;
+            width: 100%;
         }
-        #signInBtn {
-            background-color: #007bff;
-            color: white;
+        #googleSignInBtn:hover {
+            background-color: #357ae8;
         }
-        #clearLoginBtn {
-            background-color: #6c757d;
-            color: white;
+        #googleSignInBtn svg {
+            width: 24px;
+            height: 24px;
         }
-
+        
         .hidden-for-guest {
             display: none !important;
         }
@@ -724,27 +685,12 @@
 <body>
     <div id="loginModal" class="visible">
         <div class="login-modal-content">
-            <h2>כניסה למערכת</h2>
-            <div class="form-group">
-                <label for="email">אימייל:</label>
-                <input type="email" id="email" required>
-            </div>
-            <div class="form-group">
-                <label for="password">סיסמה:</label>
-                <input type="password" id="password" required>
-            </div>
-            <div class="form-group">
-                <label for="captchaInput">אימות:</label>
-                <div class="captcha-wrapper">
-                    <span id="captchaText" class="captcha-text"></span>
-                    <button id="reloadCaptchaBtn" type="button" aria-label="Reload Captcha">&#x21bb;</button>
-                </div>
-                <input type="text" id="captchaInput" placeholder="הקלד את הטקסט כאן" required>
-            </div>
-            <div class="login-buttons">
-                <button id="clearLoginBtn" type="button">ניקוי</button>
-                <button id="signInBtn" type="button">כניסה</button>
-            </div>
+            <h2>ניהול פרויקטים</h2>
+            <p style="margin-top: 0; margin-bottom: 25px; font-size: 1.1em; color: #555;">יש להתחבר כדי לערוך נתונים</p>
+            <button id="googleSignInBtn">
+                <svg viewBox="0 0 24 24"><path fill="white" d="M22.56,12.25C22.56,11.47 22.5,10.72 22.38,10H12V14.5H18.04C17.72,16.53 16.37,18.13 14.25,18.13C11.88,18.13 10,16.25 10,13.88C10,11.5 11.88,9.63 14.25,9.63C15.28,9.63 16.2,10 16.89,10.61L19.78,7.72C18.13,6.13 16.37,5.25 14.25,5.25C10.08,5.25 6.63,8.38 6.63,12.5C6.63,16.62 10.08,19.75 14.25,19.75C18.42,19.75 22.68,16.56 22.68,12.63C22.68,12.44 22.56,12.25 22.56,12.25Z"></path></svg>
+                <span>התחברות עם גוגל</span>
+            </button>
         </div>
     </div>
 
@@ -781,7 +727,6 @@
                 <div class="form-group"><label for="startDate">תאריך התחלה:</label><input type="date" id="startDate"></div>
                 <div class="form-group"><label for="finishDate">תאריך סיום:</label><input type="date" id="finishDate"></div>
                 <div id="tasksDropdown" class="tasks-dropdown-container"><label>מטלות לביצוע:</label><button type="button" id="tasksDropdownButton" class="tasks-dropdown-button">בחר מטלות...</button><div id="tasksChecklistContainer" class="tasks-checklist-container"></div></div>
-                <div class="form-group"><label for="whoCreatedTask">מי יצר את המטלה:</label><input type="text" id="whoCreatedTask" placeholder="לדוגמה: שרה לוי"></div>
                 <div class="form-group"><label for="taskProgress">התקדמות מטלה:</label><select id="taskProgress"><option value="Not Started">לא התחיל</option><option value="In Progress">בטיפול</option><option value="On Hold">בהמתנה</option><option value="Completed">הושלם</option></select></div>
                 <div class="form-group full-width"><label for="furtherNotes">הערות נוספות:</label><textarea id="furtherNotes" placeholder="כל הערה נוספת..."></textarea></div>
             </div>
@@ -806,9 +751,10 @@
     </div>
 
     <script type="module">
+    // --- UPDATED IMPORTS ---
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
     import { getDatabase, ref, set, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
-    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+    import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyB90h6Yllco6LZfdyrSyBl0hc4bt6fbUDg",
@@ -823,30 +769,24 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const auth = getAuth(app);
+    const auth = getAuth(app); // Initialize Auth service
     const dbRefProjects = ref(db, 'projects');
     const dbRefDeletedProjects = ref(db, 'deletedProjects');
     const dbRefTodoItems = ref(db, 'todoItems');
 
     let isAuthenticated = false;
+    let currentUser = null; // Store user object
     const loginModal = document.getElementById('loginModal');
-    const signInBtn = document.getElementById('signInBtn');
-    const clearLoginBtn = document.getElementById('clearLoginBtn');
-    const emailInput = document.getElementById('email');
-    const passwordInput = document.getElementById('password');
-    const captchaText = document.getElementById('captchaText');
-    const captchaInput = document.getElementById('captchaInput');
-    const reloadCaptchaBtn = document.getElementById('reloadCaptchaBtn');
+    const googleSignInBtn = document.getElementById('googleSignInBtn');
     
-    let projects = {}, deletedProjects = {}, todoItems = [], currentEditorName = null, displayedDate = new Date();
+    let projects = {}, deletedProjects = {}, todoItems = [], displayedDate = new Date();
     
-    // All other `getElementById` calls are here for brevity
     const todoInput = document.getElementById('todoInput'), addTodoBtn = document.getElementById('addTodoBtn'),
           todoList = document.getElementById('todoList'), projectNameInput = document.getElementById('projectName'),
           projectAddressInput = document.getElementById('projectAddress'), contactInfoInput = document.getElementById('contactInfo'),
           startDateInput = document.getElementById('startDate'), finishDateInput = document.getElementById('finishDate'),
           tasksDropdown = document.getElementById('tasksDropdown'), tasksDropdownButton = document.getElementById('tasksDropdownButton'),
-          tasksChecklistContainer = document.getElementById('tasksChecklistContainer'), whoCreatedTaskInput = document.getElementById('whoCreatedTask'),
+          tasksChecklistContainer = document.getElementById('tasksChecklistContainer'), 
           taskProgressSelect = document.getElementById('taskProgress'), furtherNotesInput = document.getElementById('furtherNotes'),
           addProjectBtn = document.getElementById('addProjectBtn'), deleteProjectBtn = document.getElementById('deleteProjectBtn'),
           projectList = document.getElementById('projectList'), clearHistoryBtn = document.getElementById('clearHistoryBtn'),
@@ -860,54 +800,116 @@
     onValue(dbRefDeletedProjects, s => { deletedProjects = s.val() || {}; renderDeletedProjects(); });
     onValue(dbRefTodoItems, s => { todoItems = s.val() || []; renderTodoItems(); });
 
-    function generateCaptcha() {
-        const chars = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
-        let captcha = '';
-        for (let i = 0; i < 5; i++) {
-            captcha += chars.charAt(Math.floor(Math.random() * chars.length));
+    // --- NEW: Authentication and UI Control ---
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            currentUser = user;
+            isAuthenticated = true;
+            loginModal.classList.remove('visible');
+        } else {
+            currentUser = null;
+            isAuthenticated = false;
+            loginModal.classList.add('visible');
         }
-        captchaText.textContent = captcha;
-    }
+        updateUIForAuthState();
+    });
 
     function updateUIForAuthState() {
         document.querySelectorAll('.auth-controlled').forEach(el => {
-            el.style.display = isAuthenticated ? '' : 'none';
+            el.style.display = isAuthenticated ? '' : 'flex'; // Use flex for project-buttons
+             if(el.classList.contains('project-form')) el.style.display = isAuthenticated ? 'grid' : 'none';
         });
         todoList.style.pointerEvents = isAuthenticated ? 'auto' : 'none';
     }
 
-    async function handleLogin() {
-        if (captchaInput.value.toLowerCase() !== captchaText.textContent.toLowerCase()) {
-            alert("האימות (Captcha) שגוי. נסה שוב.");
-            generateCaptcha();
-            captchaInput.value = '';
-            return;
-        }
+    async function handleGoogleSignIn() {
+        const provider = new GoogleAuthProvider();
         try {
-            await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
-            isAuthenticated = true;
-            loginModal.classList.remove('visible');
-            updateUIForAuthState();
+            await signInWithPopup(auth, provider);
+            // onAuthStateChanged will handle the rest
         } catch (error) {
-            alert("האימייל או הסיסמה שגויים.");
-            generateCaptcha();
-            passwordInput.value = '';
-            captchaInput.value = '';
+            console.error("Google Sign-In failed:", error);
+            alert("ההתחברות עם גוגל נכשלה. נסה שוב.");
         }
     }
-    signInBtn.addEventListener('click', handleLogin);
-    passwordInput.addEventListener('keypress', (e) => e.key === 'Enter' && handleLogin());
-    captchaInput.addEventListener('keypress', (e) => e.key === 'Enter' && handleLogin());
+    googleSignInBtn.addEventListener('click', handleGoogleSignIn);
 
-    clearLoginBtn.addEventListener('click', () => {
-        emailInput.value = '';
-        passwordInput.value = '';
-        captchaInput.value = '';
-    });
-    reloadCaptchaBtn.addEventListener('click', generateCaptcha);
+    // ... All other functions are below ...
+    
+    // UPDATED: `saveProject` now uses the logged-in user's name automatically
+    function saveProject() {
+        if (!isAuthenticated) return alert("You must be logged in to save projects.");
 
-    // --- The rest of the functions are unchanged and included for completeness ---
-    // (Time, Calendar, To-Do, Projects, etc.)
+        const projectName = projectNameInput.value.trim();
+        if (!projectName) return alert('שם היזם הוא שדה חובה!');
+        
+        const projectData = {
+            name: projectName,
+            address: projectAddressInput.value.trim(),
+            contactInfo: contactInfoInput.value.trim(),
+            startDate: startDateInput.value,
+            finishDate: finishDateInput.value,
+            tasks: getTasksDataFromDOM(),
+            progress: taskProgressSelect.value,
+            furtherNotes: furtherNotesInput.value.trim()
+        };
+
+        if (selectedProjectKey) { // This is an update
+            projectData.addedDateTime = projects[selectedProjectKey].addedDateTime; // Keep original creation date
+            projectData.whoCreated = projects[selectedProjectKey].whoCreated; // Keep original creator
+            projectData.lastEditedAt = formatDateTime(new Date());
+            projectData.lastEditedBy = currentUser.displayName; // AUTOMATIC
+            
+            update(ref(db, `projects/${selectedProjectKey}`), projectData)
+                .then(() => { alert(`הפרויקט "${projectData.name}" עודכן בהצלחה!`); clearProjectForm(); })
+                .catch(err => alert(`שגיאה בעדכון: ${err.message}`));
+        } else { // This is a new project
+            projectData.addedDateTime = formatDateTime(new Date());
+            projectData.whoCreated = currentUser.displayName; // AUTOMATIC
+            
+            set(push(dbRefProjects), projectData)
+                .then(() => { alert(`הפרויקט "${projectData.name}" נוסף בהצלחה!`); clearProjectForm(); })
+                .catch(err => alert(`שגיאה בהוספה: ${err.message}`));
+        }
+    }
+
+    // UPDATED: `populateFormForEditing` no longer needs a prompt
+    function populateFormForEditing(projectId, projectData) {
+        selectedProjectKey = projectId;
+        projectNameInput.value = projectData.name;
+        projectAddressInput.value = projectData.address || '';
+        contactInfoInput.value = projectData.contactInfo || '';
+        startDateInput.value = projectData.startDate || '';
+        finishDateInput.value = projectData.finishDate || '';
+        renderChecklist(projectData.tasks);
+        taskProgressSelect.value = projectData.progress;
+        furtherNotesInput.value = projectData.furtherNotes || '';
+        deleteProjectBtn.disabled = false;
+        deleteProjectBtn.style.display = 'inline-block';
+        addProjectBtn.textContent = 'שמור שינויים';
+        projectManagementContainer.scrollIntoView({ behavior: 'smooth' });
+        hideProjectModal();
+    }
+    
+    // UPDATED: `deleteProject` uses the logged-in user's name automatically
+    function deleteProject(event) {
+        event.stopPropagation();
+        if (!selectedProjectKey || !isAuthenticated) return;
+        
+        if (confirm(`האם למחוק את "${projects[selectedProjectKey].name}"?`)) {
+            const pToMove = { 
+                ...projects[selectedProjectKey], 
+                deletedAt: formatDateTime(new Date()),
+                deletedBy: currentUser.displayName // AUTOMATIC
+            };
+            const updates = { [`/projects/${selectedProjectKey}`]: null, [`/deletedProjects/${selectedProjectKey}`]: pToMove };
+            update(ref(db), updates)
+                .then(() => { alert(`הפרויקט הועבר להיסטוריה.`); clearProjectForm(); })
+                .catch(err => alert(`שגיאה במחיקה: ${err.message}`));
+        }
+    }
+
+    // All other functions from here are unchanged and included for completeness
     function updateTime() { document.getElementById('currentTime').textContent = new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit', second: '2-digit' }); }
     function generateCalendar() {
         const calendarMonthYear = document.getElementById('calendarMonthYear'), calendarGrid = document.getElementById('calendarGrid');
@@ -929,14 +931,7 @@
     document.getElementById('prevMonthBtn').addEventListener('click', () => { displayedDate.setMonth(displayedDate.getMonth() - 1); generateCalendar(); });
     document.getElementById('nextMonthBtn').addEventListener('click', () => { displayedDate.setMonth(displayedDate.getMonth() + 1); generateCalendar(); });
     function saveTodoItemsToFirebase() { set(dbRefTodoItems, todoItems).catch(console.error); }
-    function addTodo() {
-        const taskText = todoInput.value.trim();
-        if (!taskText) return alert('אנא הזן מטלה!');
-        todoItems.push(taskText);
-        saveTodoItemsToFirebase(); 
-        todoInput.value = '';
-        todoInput.focus();
-    }
+    function addTodo() { const taskText = todoInput.value.trim(); if (!taskText) return alert('אנא הזן מטלה!'); todoItems.push(taskText); saveTodoItemsToFirebase(); todoInput.value = ''; todoInput.focus(); }
     function renderTodoItems() {
         todoList.innerHTML = '';
         if (todoItems.length === 0) { todoList.innerHTML = '<li style="text-align: right; color: #888; font-style: italic; background: none; border: none; box-shadow: none; cursor: default; padding: 10px;">אין מטלות.</li>'; return; }
@@ -957,29 +952,11 @@
         });
         updateTasksButtonText();
     }
-    function getTasksDataFromDOM() {
-        const data = {};
-        tasksChecklistContainer.querySelectorAll('.task-item input[type="checkbox"]').forEach(cb => { const taskName = cb.dataset.taskName; if (taskName) { data[taskName] = { checked: cb.checked, timestamp: cb.checked ? (cb.dataset.timestamp || new Date().toISOString()) : '' }; } });
-        return data;
-    }
+    tasksDropdownButton.addEventListener('click', e => { e.stopPropagation(); tasksDropdown.classList.toggle('open'); });
+    document.addEventListener('click', e => { if (!tasksDropdown.contains(e.target)) tasksDropdown.classList.remove('open'); });
+    tasksChecklistContainer.addEventListener('change', e => { if (e.target.type === 'checkbox') { const tsSpan = e.target.closest('.task-item').querySelector('.task-timestamp'); if (e.target.checked) { const now = new Date(); e.target.dataset.timestamp = now.toISOString(); tsSpan.textContent = now.toLocaleString('he-IL', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }); } else { e.target.dataset.timestamp = ''; tsSpan.textContent = ''; } updateTasksButtonText(); } });
+    function getTasksDataFromDOM() { const data = {}; tasksChecklistContainer.querySelectorAll('.task-item input[type="checkbox"]').forEach(cb => { const taskName = cb.dataset.taskName; if (taskName) { data[taskName] = { checked: cb.checked, timestamp: cb.checked ? (cb.dataset.timestamp || new Date().toISOString()) : '' }; } }); return data; }
     function formatDateTime(d) { return d ? new Date(d).toISOString() : ''; }
-    function saveProject() {
-        const projectName = projectNameInput.value.trim();
-        if (!projectName) return alert('שם היזם הוא שדה חובה!');
-        if (!selectedProjectKey) {
-            const requiredFields = {'כתובת': projectAddressInput.value.trim(),'פרטי יצירת קשר': contactInfoInput.value.trim(),'תאריך התחלה': startDateInput.value,'מי יצר את המטלה': whoCreatedTaskInput.value.trim()};
-            const emptyFields = Object.entries(requiredFields).filter(([_, value]) => !value).map(([key]) => key);
-            if (emptyFields.length > 0) return alert(`נא למלא את שדות החובה הבאים:\n- ${emptyFields.join('\n- ')}`);
-        }
-        const projectData = {name: projectName,address: projectAddressInput.value.trim(),contactInfo: contactInfoInput.value.trim(),startDate: startDateInput.value,finishDate: finishDateInput.value,tasks: getTasksDataFromDOM(),addedDateTime: selectedProjectKey ? projects[selectedProjectKey].addedDateTime : formatDateTime(new Date()),whoCreated: selectedProjectKey ? projects[selectedProjectKey].whoCreated : whoCreatedTaskInput.value.trim(),progress: taskProgressSelect.value,furtherNotes: furtherNotesInput.value.trim()};
-        if (selectedProjectKey) {
-            projectData.lastEditedAt = formatDateTime(new Date());
-            projectData.lastEditedBy = currentEditorName || 'לא ידוע';
-            update(ref(db, `projects/${selectedProjectKey}`), projectData).then(() => { alert(`הפרויקט "${projectData.name}" עודכן בהצלחה!`); clearProjectForm(); }).catch(err => alert(`שגיאה בעדכון: ${err.message}`));
-        } else {
-            set(push(dbRefProjects), projectData).then(() => { alert(`הפרויקט "${projectData.name}" נוסף בהצלחה!`); clearProjectForm(); }).catch(err => alert(`שגיאה בהוספה: ${err.message}`));
-        }
-    }
     function showProjectModal(projectId, project) {
         const completedTasks = project.tasks ? Object.values(project.tasks).filter(t => t.checked).length : 0;
         const tasksSummary = `${completedTasks} / ${masterTaskList.length} הושלמו`;
@@ -989,56 +966,22 @@
         projectModal.querySelector('.project-modal-close').addEventListener('click', hideProjectModal);
         projectModal.addEventListener('click', (e) => e.target === projectModal && hideProjectModal());
         const editButton = projectModal.querySelector('.add-btn');
-        if(isAuthenticated && editButton) { editButton.addEventListener('click', () => populateFormForEditing(projectId, project)); }
-        else if (editButton) { editButton.parentElement.style.display = 'none'; }
+        if(isAuthenticated && editButton) { editButton.addEventListener('click', () => populateFormForEditing(projectId, project)); } else if (editButton) { editButton.parentElement.style.display = 'none'; }
     }
     function hideProjectModal() { projectModal.classList.remove('visible'); }
-    function populateFormForEditing(projectId, projectData) {
-        let editorName = '';
-        while (editorName.trim() === '') { editorName = prompt("אנא הזן את שמך לעריכה (שדה חובה):"); if (editorName === null) return; if (editorName.trim() === '') alert("שם העורך הוא שדה חובה."); }
-        currentEditorName = editorName.trim();
-        selectedProjectKey = projectId;
-        projectNameInput.value = projectData.name;
-        projectAddressInput.value = projectData.address || '';
-        contactInfoInput.value = projectData.contactInfo || '';
-        startDateInput.value = projectData.startDate || '';
-        finishDateInput.value = projectData.finishDate || '';
-        renderChecklist(projectData.tasks);
-        whoCreatedTaskInput.value = projectData.whoCreated || '';
-        taskProgressSelect.value = projectData.progress;
-        furtherNotesInput.value = projectData.furtherNotes || '';
-        deleteProjectBtn.disabled = false;
-        deleteProjectBtn.style.display = 'inline-block';
-        addProjectBtn.textContent = 'שמור שינויים';
-        projectManagementContainer.scrollIntoView({ behavior: 'smooth' });
-        hideProjectModal();
-    }
-    function deleteProject(event) {
-        event.stopPropagation();
-        if (!selectedProjectKey) return alert('אנא בחר פרויקט למחיקה.');
-        if (confirm(`האם למחוק את "${projects[selectedProjectKey].name}"?`)) {
-            const pToMove = { ...projects[selectedProjectKey], deletedAt: formatDateTime(new Date()), deletedBy: currentEditorName || 'לא ידוע' };
-            const updates = { [`/projects/${selectedProjectKey}`]: null, [`/deletedProjects/${selectedProjectKey}`]: pToMove };
-            update(ref(db), updates).then(() => { alert(`הפרויקט הועבר להיסטוריה.`); clearProjectForm(); }).catch(err => alert(`שגיאה במחיקה: ${err.message}`));
-        }
-    }
     function restoreProject(event) {
         const btn = event.target.closest('.restore-project-btn');
         if (!btn || !isAuthenticated) return;
         const projectId = btn.dataset.projectId;
         const pToRestore = { ...deletedProjects[projectId] };
         if (pToRestore) {
-            delete pToRestore.deletedAt;
-            delete pToRestore.deletedBy;
-            const updates = { [`/deletedProjects/${projectId}`]: null, [`/projects/${projectId}`]: pToRestore };
-            update(ref(db), updates).then(() => alert(`"${pToRestore.name}" שוחזר.`));
+            delete pToRestore.deletedAt; delete pToRestore.deletedBy;
+            update(ref(db), { [`/deletedProjects/${projectId}`]: null, [`/projects/${projectId}`]: pToRestore }).then(() => alert(`"${pToRestore.name}" שוחזר.`));
         }
     }
     function clearHistory() { if (isAuthenticated && confirm('האם למחוק את כל ההיסטוריה?')) set(dbRefDeletedProjects, {}); }
     function renderProjects() {
-        projectList.innerHTML = '';
-        const projectsArray = Object.entries(projects || {}); 
-        if (projectsArray.length === 0) { projectList.innerHTML = '<li style="grid-column: 1 / -1; text-align: right; color: #888; font-style: italic; background: none; border: none; box-shadow: none; cursor: default; padding: 10px;">אין פרויקטים נוכחיים.</li>'; return; }
+        projectList.innerHTML = ''; const projectsArray = Object.entries(projects || {}); if (projectsArray.length === 0) { projectList.innerHTML = '<li style="grid-column: 1 / -1; text-align: right; color: #888; font-style: italic; background: none; border: none; box-shadow: none; cursor: default; padding: 10px;">אין פרויקטים נוכחיים.</li>'; return; }
         projectsArray.forEach(([key, project]) => { const li = document.createElement('li'); li.dataset.projectId = key; li.innerHTML = `<strong>${project.name}</strong>`; projectList.appendChild(li); });
     }
     function renderDeletedProjects() {
@@ -1056,32 +999,24 @@
     }
     function clearProjectForm() {
         projectNameInput.value = ''; projectAddressInput.value = ''; contactInfoInput.value = ''; startDateInput.value = ''; finishDateInput.value = '';
-        renderChecklist(); whoCreatedTaskInput.value = ''; taskProgressSelect.value = 'Not Started'; furtherNotesInput.value = '';
-        selectedProjectKey = null; currentEditorName = null;
+        renderChecklist(); taskProgressSelect.value = 'Not Started'; furtherNotesInput.value = ''; selectedProjectKey = null;
         deleteProjectBtn.disabled = true; deleteProjectBtn.style.display = 'none'; addProjectBtn.textContent = 'הוסף פרויקט';
         tasksDropdown.classList.remove('open');
     }
     function getProgressColor(p) { return {'Not Started': '#dc3545', 'In Progress': '#ffc107', 'On Hold': '#6c757d', 'Completed': '#28a745'}[p] || '#333'; }
     function getProgressTranslation(p) { const map = {'Not Started': 'לא התחיל', 'In Progress': 'בטיפול', 'On Hold': 'בהמתנה', 'Completed': 'הושלם'}; return map[p] || p; }
-    function toggleContainer(event) {
-        const btn = event.target; const container = document.getElementById(btn.dataset.target);
-        if (container) { container.classList.toggle('minimized'); btn.innerHTML = container.classList.contains('minimized') ? '+' : '&#x2212;'; }
-    }
+    function toggleContainer(event) { const btn = event.target; const container = document.getElementById(btn.dataset.target); if (container) { container.classList.toggle('minimized'); btn.innerHTML = container.classList.contains('minimized') ? '+' : '&#x2212;'; } }
     document.querySelectorAll('.toggle-btn').forEach(btn => btn.id !== 'toggleHistoryBtn' && btn.addEventListener('click', toggleContainer));
-    toggleHistoryBtn.addEventListener('click', () => {
-        const isCollapsed = projectHistoryList.classList.toggle('collapsed');
-        clearHistoryBtnWrapper.classList.toggle('collapsed');
-        toggleHistoryBtn.innerHTML = isCollapsed ? '+' : '&#x2212;';
-    });
+    const toggleHistoryBtn = document.getElementById('toggleHistoryBtn'), projectHistoryList = document.getElementById('projectHistoryList'), clearHistoryBtnWrapper = document.querySelector('.clear-history-btn-wrapper');
+    toggleHistoryBtn.addEventListener('click', () => { const isCollapsed = projectHistoryList.classList.toggle('collapsed'); clearHistoryBtnWrapper.classList.toggle('collapsed'); toggleHistoryBtn.innerHTML = isCollapsed ? '+' : '&#x2212;'; });
     
-    // --- Initial App Load ---
+    // Initial calls
     updateTime();
     setInterval(updateTime, 1000); 
     generateCalendar();
     clearProjectForm();
-    generateCaptcha();
-    updateUIForAuthState();
-
+    
+    // Initial UI state is set by onAuthStateChanged
     </script>
 </body>
 </html>
