@@ -56,6 +56,19 @@ body {
     text-align: center;
 }
 
+.header-logo {
+    max-height: 50px;
+    width: auto;
+    display: block;
+}
+
+@media(max-width: 991px) {
+    .header-logo {
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
 @media(min-width: 992px) {
     .app-header h1 {
         text-align: right;
@@ -194,7 +207,13 @@ body {
 .restore-project-btn { background-color: var(--accent-primary); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8em; font-family: var(--font-family); white-space: nowrap; transition: background-color 0.2s ease; pointer-events: auto; }
 .restore-project-btn:hover { background-color: var(--accent-primary-hover); }
 .clear-history-btn-wrapper { width: 100%; margin-top: 15px; display: flex; justify-content: flex-end; }
-.data-management-container { padding-top: 25px; margin-top: 25px; border-top: 1px solid var(--border-color); text-align: center; }
+
+.data-management-container {
+    padding-top: 25px;
+    margin-top: 25px;
+    border-top: 1px solid var(--border-color);
+    text-align: center;
+}
 
 .footer-actions {
     width: 100%;
