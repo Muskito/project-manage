@@ -26,7 +26,6 @@ document.addEventListener('DOMContentLoaded', () => {
         loginModal: document.getElementById('loginModal'),
         googleSignInBtn: document.getElementById('googleSignInBtn'),
         guestLoginBtn: document.getElementById('guestLoginBtn'),
-        adminOverrideBtn: document.getElementById('adminOverride'),
         logoutBtn: document.getElementById('logoutBtn'),
         datePickerModal: document.getElementById('datePickerModal'),
         confirmModal: document.getElementById('confirmModal'),
@@ -42,6 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
         finishDateInput: document.getElementById('finishDate'),
         tasksDropdownGroup: document.querySelector('.tasks-dropdown-group'), 
         tasksDropdownButton: document.getElementById('tasksDropdownButton'),
+        tasksDropdownText: document.getElementById('tasksDropdownText'),
         tasksChecklistContainer: document.getElementById('tasksChecklistContainer'), 
         taskProgressSelect: document.getElementById('taskProgress'), 
         furtherNotesInput: document.getElementById('furtherNotes'),
@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
         activeDateInput: null,
         pickerDate: new Date()
     };
-
+    
     const approvedEmails = [
         'mustakis@gmail.com',
         'office.airflow2019@gmail.com',
@@ -414,7 +414,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const pToRestore = { ...projectToRestore };
             delete pToRestore.deletedAt;
             delete pToRestore.deletedBy;
-            update(ref(db), {
+            await update(ref(db), {
                 [`/deletedProjects/${projectId}`]: null,
                 [`/projects/${projectId}`]: pToRestore
             });
@@ -542,11 +542,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     dom.googleSignInBtn.addEventListener('click', handleGoogleSignIn);
     dom.guestLoginBtn.addEventListener('click', () => { AppState.isAuthenticated = false; AppState.currentUser = null; updateUIForAuthState(); dom.loginModal.classList.remove('visible'); });
-    dom.adminOverrideBtn.addEventListener('click', async () => {
-        const pin = await showPrompt("גישת מנהל", "הזן קוד גישה למנהל:", "password");
-        if (pin === "1598") { AppState.isAuthenticated = true; AppState.currentUser = { displayName: 'Admin' }; updateUIForAuthState(); dom.loginModal.classList.remove('visible'); } 
-        else if (pin !== null) { await showConfirmation("שגיאה", "קוד הגישה שהוזן שגוי.", "הבנתי", "btn-secondary", false); }
-    });
     dom.logoutBtn.addEventListener('click', handleLogout);
     document.getElementById('prevMonthBtn').addEventListener('click', () => { AppState.displayedDate.setMonth(AppState.displayedDate.getMonth() - 1); generateCalendar(); });
     document.getElementById('nextMonthBtn').addEventListener('click', () => { AppState.displayedDate.setMonth(AppState.displayedDate.getMonth() + 1); generateCalendar(); });
