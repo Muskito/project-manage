@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
         finishDateInput: document.getElementById('finishDate'),
         tasksDropdownGroup: document.querySelector('.tasks-dropdown-group'), 
         tasksDropdownButton: document.getElementById('tasksDropdownButton'),
-        tasksDropdownText: document.querySelector('.tasks-dropdown-button__text'),
+        tasksDropdownText: document.getElementById('tasksDropdownText'),
         tasksChecklistContainer: document.getElementById('tasksChecklistContainer'), 
         taskProgressSelect: document.getElementById('taskProgress'), 
         furtherNotesInput: document.getElementById('furtherNotes'),
@@ -69,6 +69,14 @@ document.addEventListener('DOMContentLoaded', () => {
         activeDateInput: null,
         pickerDate: new Date()
     };
+    
+    // IMPORTANT: Add the emails of users who are allowed to log in here.
+    const approvedEmails = [
+        'mustakis@gmail.com',
+        'office.airflow2019@gmail.com'
+        'tal@air-flow.co.il'
+        'eran@air-flow.co.il'
+    ];
 
     const masterTaskList = ["מפוחי גג", "מפוחי חניון", "מפוח חדר משאבות", "משתיקים", "דאמפרים", "תעלות", "ברכי לובי", "ברך אשפה", "מהלכי ונטות", "ונטות", "מפוח in-line", "גרילים", "גרילים נגד יתושים", "ארון פיקוד", "ביקורת 1", "ביקורת 2", "ביקורת 3", "ביקורת 4"];
     const hebrewMonths = ["ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"];
@@ -319,13 +327,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateTasksButtonText() { 
-        const textElement = dom.tasksDropdownButton.querySelector('.tasks-dropdown-button__text');
+        const textElement = dom.tasksDropdownText;
         const checkedCount = dom.tasksChecklistContainer.querySelectorAll('input:checked').length;
         if(textElement) {
             if (checkedCount > 0) {
-                textElement.textContent = `נבחרו (${checkedCount} / ${masterTaskList.length})`; 
+                textElement.value = `נבחרו (${checkedCount} / ${masterTaskList.length})`; 
             } else {
-                textElement.textContent = 'בחר מטלות...';
+                textElement.value = '';
             }
         }
     }
@@ -382,7 +390,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const completedTasks = project.tasks ? Object.values(project.tasks).filter(t => t.checked).length : 0; const tasksSummary = `${completedTasks} / ${masterTaskList.length} הושלמו`;
         const startDateFormatted = project.startDate ? formatDate(project.startDate) : 'N/A';
         const finishDateFormatted = project.finishDate ? formatDate(project.finishDate) : 'N/A';
-        const createdDateFormatted = project.addedDateTime ? new Date(project.addedDateTime).toLocaleString('he-IL', dateOptions) : '';
+        const createdDateFormatted = project.addedDateTime ? new Date(project.addedDateTime).toLocaleString('he-IL', dateOptions) : 'N/A';
         const deletedDateFormatted = project.deletedAt ? new Date(project.deletedAt).toLocaleString('he-IL', dateOptions) : 'N/A';
         
         dom.projectModal.innerHTML = `<div class="project-modal-content"><span class="project-modal-close">&times;</span><h3>${project.name} (נמחק)</h3><p><span class="info-label">כתובת:</span> ${project.address || 'לא צויין'}</p><p><span class="info-label">תאריכים:</span> ${startDateFormatted} - ${finishDateFormatted}</p><p><span class="info-label">מטלות:</span> ${tasksSummary}</p><p><span class="info-label">נוצר ב:</span> ${createdDateFormatted} על ידי <strong>${project.whoCreated || 'לא ידוע'}</strong></p><p><span class="info-label">נמחק ב:</span> ${deletedDateFormatted} על ידי <strong>${project.deletedBy || 'לא ידוע'}</strong></p><p><span class="info-label">התקדמות כללית:</span> <span style="font-weight: bold; color: ${getProgressColor(project.progress)};">${getProgressTranslation(project.progress)}</span></p><p><span class="info-label">הערות:</span> ${project.furtherNotes || 'אין'}</p><div class="project-modal-actions"><button id="modalRestoreBtn" class="auth-controlled btn btn-success">שחזר פרויקט</button></div></div>`;
@@ -512,9 +520,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- 5. EVENT LISTENERS & INITIAL CALLS ---
-    onAuthStateChanged(auth, (user) => {
-        if (user) { AppState.currentUser = user; AppState.isAuthenticated = true; dom.loginModal.classList.remove('visible');
-        } else { AppState.currentUser = null; AppState.isAuthenticated = false; dom.loginModal.classList.add('visible'); }
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            if (approvedEmails.includes(user.email)) {
+                AppState.currentUser = user;
+                AppState.isAuthenticated = true;
+                dom.loginModal.classList.remove('visible');
+            } else {
+                await showConfirmation("Access Denied", "This email address is not authorized to access this application.", "OK", "btn-secondary", false);
+                auth.signOut();
+            }
+        } else {
+            AppState.currentUser = null;
+            AppState.isAuthenticated = false;
+            dom.loginModal.classList.add('visible');
+        }
         updateUIForAuthState();
     });
 
@@ -540,6 +560,7 @@ document.addEventListener('DOMContentLoaded', () => {
     dom.projectList.addEventListener('click', (event) => { const listItem = event.target.closest('li'); if (!listItem) return; const projectId = listItem.dataset.projectId; if (AppState.projects[projectId]) showProjectModal(projectId, AppState.projects[projectId]); });
     dom.startDateInput.addEventListener('click', openDatePicker);
     dom.finishDateInput.addEventListener('click', openDatePicker);
+    
     dom.projectHistoryList.addEventListener('click', (event) => {
         const listItem = event.target.closest('li');
         if (!listItem) return;
@@ -548,6 +569,7 @@ document.addEventListener('DOMContentLoaded', () => {
             showDeletedProjectModal(projectId, AppState.deletedProjects[projectId]);
         }
     });
+
     dom.tasksDropdownButton.addEventListener('click', (e) => { e.stopPropagation(); dom.tasksDropdownGroup.classList.toggle('open'); });
     dom.tasksDropdownButton.addEventListener('keypress', (e) => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); dom.tasksDropdownGroup.classList.toggle('open'); } });
     dom.tasksChecklistContainer.addEventListener('change', e => { 
@@ -573,17 +595,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (datePickerModal.style.display === 'block' && !datePickerModal.contains(event.target) && !event.target.classList.contains('date-input')) { hideDatePicker(); }
         if (dom.tasksDropdownGroup.classList.contains('open') && !dom.tasksDropdownGroup.contains(event.target)) { dom.tasksDropdownGroup.classList.remove('open'); }
     });
-    document.querySelectorAll('.card__toggle-btn').forEach(btn => {
-        if (btn.id === 'toggleHistoryBtn') return;
-        btn.addEventListener('click', (e) => {
-            const targetId = e.currentTarget.dataset.target;
-            const targetCard = document.getElementById(targetId);
-            if (targetCard) {
-                targetCard.classList.toggle('minimized');
-                e.currentTarget.innerHTML = targetCard.classList.contains('minimized') ? '+' : '&#x2212;';
-            }
-        });
-    });
+    
     document.getElementById('toggleHistoryBtn').addEventListener('click', (e) => { 
         const isCollapsed = dom.projectHistoryList.classList.toggle('collapsed');
         document.querySelector('.clear-history-btn-wrapper').classList.toggle('collapsed');
