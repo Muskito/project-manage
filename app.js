@@ -56,6 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
         projectManagementContainer: document.getElementById('projectManagementContainer'),
         prevMonthBtn: document.getElementById('prevMonthBtn'),
         nextMonthBtn: document.getElementById('nextMonthBtn'),
+        toggleHistoryBtn: document.getElementById('toggleHistoryBtn'),
         dataActionCancelBtn: document.getElementById('dataActionCancelBtn'),
         dataActionExportBtn: document.getElementById('dataActionExportBtn'),
         dataActionImportBtn: document.getElementById('dataActionImportBtn'),
@@ -75,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
         activeDateInput: null,
         pickerDate: new Date()
     };
-    
+
     const masterTaskList = ["מפוחי גג", "מפוחי חניון", "מפוח חדר משאבות", "משתיקים", "דאמפרים", "תעלות", "ברכי לובי", "ברך אשפה", "מהלכי ונטות", "ונטות", "מפוח in-line", "גרילים", "גרילים נגד יתושים", "ארון פיקוד", "ביקורת 1", "ביקורת 2", "ביקורת 3", "ביקורת 4"];
     const hebrewMonths = ["ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"];
     const dateOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
@@ -83,11 +84,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 4. FUNCTION DEFINITIONS ---
     function updateUIForAuthState() {
         document.querySelectorAll('.auth-controlled').forEach(el => {
-            if (AppState.isAuthenticated) {
-                el.classList.remove('hidden-for-guest');
-            } else {
-                el.classList.add('hidden-for-guest');
-            }
+            if (AppState.isAuthenticated) { el.classList.remove('hidden-for-guest'); } 
+            else { el.classList.add('hidden-for-guest'); }
         });
         dom.todoList.style.pointerEvents = AppState.isAuthenticated ? 'auto' : 'none';
     }
@@ -645,6 +643,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (dom.tasksDropdownGroup.classList.contains('open') && !dom.tasksDropdownGroup.contains(event.target)) { dom.tasksDropdownGroup.classList.remove('open'); }
     });
     
+    if (dom.toggleHistoryBtn) {
+        dom.toggleHistoryBtn.addEventListener('click', (e) => { 
+            const isCollapsed = dom.projectHistoryList.classList.toggle('collapsed');
+            document.querySelector('.clear-history-btn-wrapper').classList.toggle('collapsed');
+            e.currentTarget.innerHTML = isCollapsed ? '+' : '&#x2212;'; 
+        });
+    }
+    
     dom.dataMgmtBtn.addEventListener('click', () => dataActionModal.classList.add('visible'));
     dom.dataActionCancelBtn.addEventListener('click', () => dataActionModal.classList.remove('visible'));
     dom.dataActionExportBtn.addEventListener('click', () => {
@@ -661,7 +667,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (file) { importProjectsFromCsv(file); }
     });
 
-    if(dom.tempAddEmailBtn) {
+    if (dom.tempAddEmailBtn) {
         dom.tempAddEmailBtn.addEventListener('click', addApprovedEmail);
     }
 
