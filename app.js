@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
         googleSignInBtn: document.getElementById('googleSignInBtn'),
         guestLoginBtn: document.getElementById('guestLoginBtn'),
         adminOverrideBtn: document.getElementById('adminOverride'),
+        logoutBtn: document.getElementById('logoutBtn'),
         datePickerModal: document.getElementById('datePickerModal'),
         confirmModal: document.getElementById('confirmModal'),
         promptModal: document.getElementById('promptModal'),
@@ -41,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
         finishDateInput: document.getElementById('finishDate'),
         tasksDropdownGroup: document.querySelector('.tasks-dropdown-group'), 
         tasksDropdownButton: document.getElementById('tasksDropdownButton'),
-        tasksDropdownText: document.querySelector('.tasks-dropdown-button__text'),
+        tasksDropdownText: document.getElementById('tasksDropdownText'),
         tasksChecklistContainer: document.getElementById('tasksChecklistContainer'), 
         taskProgressSelect: document.getElementById('taskProgress'), 
         furtherNotesInput: document.getElementById('furtherNotes'),
@@ -86,6 +87,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const provider = new GoogleAuthProvider();
         try { await signInWithPopup(auth, provider); } 
         catch (error) { console.error("Google Sign-In failed:", error); }
+    }
+
+    function handleLogout() {
+        auth.signOut();
     }
     
     function getColorForName(name) {
@@ -383,7 +388,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (pToRestore) { 
                 delete pToRestore.deletedAt; 
                 delete pToRestore.deletedBy; 
-                update(ref(db), { [`/deletedProjects/${projectId}`]: null, [`/projects/${projectId}`]: pToRestore });
+                await update(ref(db), { [`/deletedProjects/${projectId}`]: null, [`/projects/${projectId}`]: pToRestore });
             }
         }
     }
