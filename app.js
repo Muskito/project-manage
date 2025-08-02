@@ -1,13 +1,13 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-import { getDatabase, ref, set, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
-import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+import { initializeApp } from "https'://'www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import { getDatabase, ref, set, push, onValue, remove, update } from "https'://'www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https'://'www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- 1. INITIALIZATION ---
     const firebaseConfig = {
         apiKey: "AIzaSyB90h6Yllco6LZfdyrSyBl0hc4bt6fbUDg",
         authDomain: "projmanage.firebaseapp.com",
-        databaseURL: "https://projmanage-default-rtdb.asia-southeast1.firebasedatabase.app",
+        databaseURL: "https'://'projmanage-default-rtdb.asia-southeast1.firebasedatabase.app",
         projectId: "projmanage",
         storageBucket: "projmanage.firebasestorage.app",
         messagingSenderId: "362295689587",
@@ -181,18 +181,16 @@ document.addEventListener('DOMContentLoaded', () => {
         AppState.activeDateInput = event.target;
         AppState.pickerDate = AppState.activeDateInput.value ? parseAndValidateDate(AppState.activeDateInput.value) : new Date();
         const inputRect = AppState.activeDateInput.getBoundingClientRect();
-        
         dom.datePickerModal.style.width = `${inputRect.width}px`;
         dom.datePickerModal.style.display = 'block';
         dom.datePickerModal.style.top = `${inputRect.bottom + window.scrollY + 5}px`;
         dom.datePickerModal.style.left = `${inputRect.left + window.scrollX}px`;
         dom.datePickerModal.style.right = 'auto';
-
         renderDatePicker();
     }
 
     function hideDatePicker() {
-        datePickerModal.style.display = 'none';
+        dom.datePickerModal.style.display = 'none';
         AppState.activeDateInput = null;
     }
 
@@ -294,7 +292,7 @@ document.addEventListener('DOMContentLoaded', () => {
         calendarMonthYear.textContent = `${hebrewMonths[month]} ${year}`;
         while (calendarGrid.children.length > 7) { calendarGrid.removeChild(calendarGrid.lastChild); }
         const firstDayOfMonth = new Date(year, month, 1).getDay(), daysInMonth = new Date(year, month + 1, 0).getDate();
-        for (let i = 0; i < firstDayOfMonth; i++) { calendarGrid.insertAdjacentHTML('beforeend', '<div class="calendar-day other-month"></div>'); }
+        for (let i = 0; i < firstDayOfMonth; i++) { calendarGrid.insertAdjacentHTML('beforeend', '<div class="date-picker-day other-month"></div>'); }
         for (let day = 1; day <= daysInMonth; day++) { const dayEl = document.createElement('div'); dayEl.className = 'calendar-day'; dayEl.textContent = day; if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) { dayEl.classList.add('current-day'); } calendarGrid.appendChild(dayEl); }
     }
 
@@ -321,13 +319,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateTasksButtonText() { 
-        const textElement = dom.tasksDropdownButton.querySelector('.tasks-dropdown-button__text');
+        const textElement = dom.tasksDropdownText;
         const checkedCount = dom.tasksChecklistContainer.querySelectorAll('input:checked').length;
         if(textElement) {
             if (checkedCount > 0) {
-                textElement.textContent = `נבחרו (${checkedCount} / ${masterTaskList.length})`; 
+                textElement.value = `נבחרו (${checkedCount} / ${masterTaskList.length})`; 
             } else {
-                textElement.textContent = 'בחר מטלות...';
+                textElement.value = '';
             }
         }
     }
@@ -542,7 +540,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (datePickerModal.style.display === 'block' && !datePickerModal.contains(event.target) && !event.target.classList.contains('date-input')) { hideDatePicker(); }
         if (dom.tasksDropdownGroup.classList.contains('open') && !dom.tasksDropdownGroup.contains(event.target)) { dom.tasksDropdownGroup.classList.remove('open'); }
     });
-    
     document.getElementById('toggleHistoryBtn').addEventListener('click', (e) => { 
         const isCollapsed = dom.projectHistoryList.classList.toggle('collapsed');
         document.querySelector('.clear-history-btn-wrapper').classList.toggle('collapsed');
