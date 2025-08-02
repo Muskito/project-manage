@@ -41,7 +41,6 @@ document.addEventListener('DOMContentLoaded', () => {
         finishDateInput: document.getElementById('finishDate'),
         tasksDropdownGroup: document.querySelector('.tasks-dropdown-group'), 
         tasksDropdownButton: document.getElementById('tasksDropdownButton'),
-        tasksDropdownText: document.getElementById('tasksDropdownText'),
         tasksChecklistContainer: document.getElementById('tasksChecklistContainer'), 
         taskProgressSelect: document.getElementById('taskProgress'), 
         furtherNotesInput: document.getElementById('furtherNotes'),
@@ -93,16 +92,6 @@ document.addEventListener('DOMContentLoaded', () => {
             else { el.classList.add('hidden-for-guest'); }
         });
         dom.todoList.style.pointerEvents = AppState.isAuthenticated ? 'auto' : 'none';
-        
-        // Always show the logout button if not on the login screen
-        const logoutContainer = document.querySelector('.logout-container');
-        if (logoutContainer) {
-            if (!dom.loginModal.classList.contains('visible')) {
-                logoutContainer.classList.remove('hidden-for-guest');
-            } else {
-                logoutContainer.classList.add('hidden-for-guest');
-            }
-        }
     }
 
     async function handleGoogleSignIn() {
@@ -115,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (AppState.currentUser) {
             auth.signOut();
         } else {
-            // It's a guest, so just reload the page to go back to the login modal
+            // For guests, reloading the page effectively logs them out.
             window.location.reload();
         }
     }
@@ -563,7 +552,12 @@ document.addEventListener('DOMContentLoaded', () => {
     onValue(dbRefTodoItems, snapshot => { AppState.todoItems = Array.isArray(snapshot.val()) ? snapshot.val() : []; renderTodoItems(); });
 
     dom.googleSignInBtn.addEventListener('click', handleGoogleSignIn);
-    dom.guestLoginBtn.addEventListener('click', () => { AppState.isAuthenticated = false; AppState.currentUser = null; updateUIForAuthState(); dom.loginModal.classList.remove('visible'); });
+    dom.guestLoginBtn.addEventListener('click', () => { 
+        AppState.isAuthenticated = false; 
+        AppState.currentUser = null; 
+        updateUIForAuthState(); 
+        dom.loginModal.classList.remove('visible'); 
+    });
     dom.logoutBtn.addEventListener('click', handleLogout);
     
     if (dom.prevMonthBtn && dom.nextMonthBtn) {
