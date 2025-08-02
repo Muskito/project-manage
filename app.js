@@ -416,7 +416,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const pToRestore = { ...projectToRestore };
             delete pToRestore.deletedAt;
             delete pToRestore.deletedBy;
-            await update(ref(db), {
+            update(ref(db), {
                 [`/deletedProjects/${projectId}`]: null,
                 [`/projects/${projectId}`]: pToRestore
             });
