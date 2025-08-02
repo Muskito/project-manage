@@ -88,8 +88,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 4. FUNCTION DEFINITIONS ---
     function updateUIForAuthState() {
         document.querySelectorAll('.auth-controlled').forEach(el => {
-            if (AppState.isAuthenticated) { el.classList.remove('hidden-for-guest'); } 
-            else { el.classList.add('hidden-for-guest'); }
+            if (AppState.isAuthenticated) {
+                el.classList.remove('hidden-for-guest');
+            } else {
+                el.classList.add('hidden-for-guest');
+            }
         });
         dom.todoList.style.pointerEvents = AppState.isAuthenticated ? 'auto' : 'none';
     }
@@ -101,12 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function handleLogout() {
-        if (AppState.currentUser) {
-            auth.signOut();
-        } else {
-            // For guests, reloading the page effectively logs them out.
-            window.location.reload();
-        }
+        auth.signOut();
     }
     
     function getColorForName(name) {
