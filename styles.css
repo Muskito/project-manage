@@ -1,7 +1,7 @@
 :root {
     --bg-main: #ffffff;
     --bg-card: #ffffff; /* For popups and other UI elements */
-    --bg-app-card: #E6F6FF; /* New color for the main content cards */
+    --bg-app-card: #5CB6FF; /* New color for the main content cards */
     --bg-input: #f7fafc;
     --text-primary: #2d3748;
     --text-secondary: #718096;
@@ -337,3 +337,4 @@ body {
     .project-form { grid-template-columns: 1fr; } 
     .project-list { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); } 
 }
+
