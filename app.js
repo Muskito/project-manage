@@ -41,6 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
         finishDateInput: document.getElementById('finishDate'),
         tasksDropdownGroup: document.querySelector('.tasks-dropdown-group'), 
         tasksDropdownButton: document.getElementById('tasksDropdownButton'),
+        tasksDropdownText: document.querySelector('.tasks-dropdown-button__text'),
         tasksChecklistContainer: document.getElementById('tasksChecklistContainer'), 
         taskProgressSelect: document.getElementById('taskProgress'), 
         furtherNotesInput: document.getElementById('furtherNotes'),
@@ -104,11 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function handleLogout() {
-        if (AppState.currentUser) {
-            auth.signOut();
-        } else {
-            window.location.reload();
-        }
+        auth.signOut();
     }
     
     function getColorForName(name) {
