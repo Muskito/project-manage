@@ -1,13 +1,13 @@
-import { initializeApp } from "https'://'www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-import { getDatabase, ref, set, push, onValue, remove, update } from "https'://'www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
-import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https'://'www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import { getDatabase, ref, set, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- 1. INITIALIZATION ---
     const firebaseConfig = {
         apiKey: "AIzaSyB90h6Yllco6LZfdyrSyBl0hc4bt6fbUDg",
         authDomain: "projmanage.firebaseapp.com",
-        databaseURL: "https'://'projmanage-default-rtdb.asia-southeast1.firebasedatabase.app",
+        databaseURL: "https://projmanage-default-rtdb.asia-southeast1.firebasedatabase.app",
         projectId: "projmanage",
         storageBucket: "projmanage.firebasestorage.app",
         messagingSenderId: "362295689587",
@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
         finishDateInput: document.getElementById('finishDate'),
         tasksDropdownGroup: document.querySelector('.tasks-dropdown-group'), 
         tasksDropdownButton: document.getElementById('tasksDropdownButton'),
-        tasksDropdownText: document.getElementById('tasksDropdownText'),
+        tasksDropdownText: document.querySelector('.tasks-dropdown-button__text'),
         tasksChecklistContainer: document.getElementById('tasksChecklistContainer'), 
         taskProgressSelect: document.getElementById('taskProgress'), 
         furtherNotesInput: document.getElementById('furtherNotes'),
@@ -292,7 +292,7 @@ document.addEventListener('DOMContentLoaded', () => {
         calendarMonthYear.textContent = `${hebrewMonths[month]} ${year}`;
         while (calendarGrid.children.length > 7) { calendarGrid.removeChild(calendarGrid.lastChild); }
         const firstDayOfMonth = new Date(year, month, 1).getDay(), daysInMonth = new Date(year, month + 1, 0).getDate();
-        for (let i = 0; i < firstDayOfMonth; i++) { calendarGrid.insertAdjacentHTML('beforeend', '<div class="date-picker-day other-month"></div>'); }
+        for (let i = 0; i < firstDayOfMonth; i++) { calendarGrid.insertAdjacentHTML('beforeend', '<div class="calendar-day other-month"></div>'); }
         for (let day = 1; day <= daysInMonth; day++) { const dayEl = document.createElement('div'); dayEl.className = 'calendar-day'; dayEl.textContent = day; if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) { dayEl.classList.add('current-day'); } calendarGrid.appendChild(dayEl); }
     }
 
@@ -319,13 +319,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateTasksButtonText() { 
-        const textElement = dom.tasksDropdownText;
+        const textElement = dom.tasksDropdownButton.querySelector('.tasks-dropdown-button__text');
         const checkedCount = dom.tasksChecklistContainer.querySelectorAll('input:checked').length;
         if(textElement) {
             if (checkedCount > 0) {
-                textElement.value = `נבחרו (${checkedCount} / ${masterTaskList.length})`; 
+                textElement.textContent = `נבחרו (${checkedCount} / ${masterTaskList.length})`; 
             } else {
-                textElement.value = '';
+                textElement.textContent = 'בחר מטלות...';
             }
         }
     }
@@ -377,20 +377,41 @@ document.addEventListener('DOMContentLoaded', () => {
         const editButton = dom.projectModal.querySelector('.add-btn'); if(AppState.isAuthenticated && editButton) { editButton.addEventListener('click', () => populateFormForEditing(projectId, project)); }
         updateUIForAuthState();
     }
+    
+    function showDeletedProjectModal(projectId, project) {
+        const completedTasks = project.tasks ? Object.values(project.tasks).filter(t => t.checked).length : 0; const tasksSummary = `${completedTasks} / ${masterTaskList.length} הושלמו`;
+        const startDateFormatted = project.startDate ? formatDate(project.startDate) : 'N/A';
+        const finishDateFormatted = project.finishDate ? formatDate(project.finishDate) : 'N/A';
+        const createdDateFormatted = project.addedDateTime ? new Date(project.addedDateTime).toLocaleString('he-IL', dateOptions) : '';
+        const deletedDateFormatted = project.deletedAt ? new Date(project.deletedAt).toLocaleString('he-IL', dateOptions) : 'N/A';
+        
+        dom.projectModal.innerHTML = `<div class="project-modal-content"><span class="project-modal-close">&times;</span><h3>${project.name} (נמחק)</h3><p><span class="info-label">כתובת:</span> ${project.address || 'לא צויין'}</p><p><span class="info-label">תאריכים:</span> ${startDateFormatted} - ${finishDateFormatted}</p><p><span class="info-label">מטלות:</span> ${tasksSummary}</p><p><span class="info-label">נוצר ב:</span> ${createdDateFormatted} על ידי <strong>${project.whoCreated || 'לא ידוע'}</strong></p><p><span class="info-label">נמחק ב:</span> ${deletedDateFormatted} על ידי <strong>${project.deletedBy || 'לא ידוע'}</strong></p><p><span class="info-label">התקדמות כללית:</span> <span style="font-weight: bold; color: ${getProgressColor(project.progress)};">${getProgressTranslation(project.progress)}</span></p><p><span class="info-label">הערות:</span> ${project.furtherNotes || 'אין'}</p><div class="project-modal-actions"><button id="modalRestoreBtn" class="auth-controlled btn btn-success">שחזר פרויקט</button></div></div>`;
+        
+        requestAnimationFrame(() => dom.projectModal.classList.add('visible'));
+        dom.projectModal.querySelector('.project-modal-close').addEventListener('click', hideProjectModal);
+        const restoreBtn = dom.projectModal.querySelector('#modalRestoreBtn');
+        if (AppState.isAuthenticated && restoreBtn) {
+            restoreBtn.addEventListener('click', () => {
+                restoreProject(projectId);
+                hideProjectModal();
+            });
+        }
+        updateUIForAuthState();
+    }
 
     function hideProjectModal() { dom.projectModal.classList.remove('visible'); }
 
-    async function restoreProject(event) {
-        const btn = event.target.closest('.restore-project-btn'); if (!btn || !AppState.isAuthenticated) return;
-        const projectId = btn.dataset.projectId;
-        const confirmed = await showConfirmation("אישור שחזור", `האם לשחזר את הפרויקט "${AppState.deletedProjects[projectId].name}"?`, 'שחזר', 'btn-success');
-        if (confirmed) {
-            const pToRestore = { ...AppState.deletedProjects[projectId] };
-            if (pToRestore) { 
-                delete pToRestore.deletedAt; 
-                delete pToRestore.deletedBy; 
-                update(ref(db), { [`/deletedProjects/${projectId}`]: null, [`/projects/${projectId}`]: pToRestore });
-            }
+    async function restoreProject(projectId) {
+        if (!projectId || !AppState.isAuthenticated) return;
+        const projectToRestore = AppState.deletedProjects[projectId];
+        if (projectToRestore) {
+            const pToRestore = { ...projectToRestore };
+            delete pToRestore.deletedAt;
+            delete pToRestore.deletedBy;
+            update(ref(db), {
+                [`/deletedProjects/${projectId}`]: null,
+                [`/projects/${projectId}`]: pToRestore
+            });
         }
     }
 
@@ -407,8 +428,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderDeletedProjects() {
         const historyList = dom.projectHistoryList; historyList.innerHTML = ''; const deletedArray = Object.entries(AppState.deletedProjects || {});
-        if (deletedArray.length === 0) { historyList.innerHTML = '<li style="background: none; border: none; box-shadow: none; color: #888; font-style: italic;">אין פרויקטים בהיסטוריה.</li>'; return; }
-        deletedArray.forEach(([key, project]) => { const li = document.createElement('li'); li.dataset.projectId = key; const deletedDateFormatted = new Date(project.deletedAt).toLocaleString('he-IL', dateOptions); li.innerHTML = `<div class="deleted-text-content"><strong>${project.name}</strong><p><span class="info-label">נמחק ב:</span> ${deletedDateFormatted} על ידי <strong>${project.deletedBy || 'לא ידוע'}</strong></p></div><button class="restore-project-btn auth-controlled" data-project-id="${key}">שחזר</button>`; historyList.appendChild(li); });
+        if (deletedArray.length === 0) { historyList.innerHTML = '<li style="grid-column: 1 / -1; text-align: right; color: #888; font-style: italic; background: none; border: none; box-shadow: none; cursor: default; padding: 10px;">אין פרויקטים בהיסטוריה.</li>'; return; }
+        deletedArray.forEach(([key, project]) => { 
+            const li = document.createElement('li'); 
+            li.dataset.projectId = key; 
+            li.innerHTML = `<strong>${project.name}</strong>`; 
+            historyList.appendChild(li); 
+        });
         updateUIForAuthState();
     }
 
@@ -514,7 +540,14 @@ document.addEventListener('DOMContentLoaded', () => {
     dom.projectList.addEventListener('click', (event) => { const listItem = event.target.closest('li'); if (!listItem) return; const projectId = listItem.dataset.projectId; if (AppState.projects[projectId]) showProjectModal(projectId, AppState.projects[projectId]); });
     dom.startDateInput.addEventListener('click', openDatePicker);
     dom.finishDateInput.addEventListener('click', openDatePicker);
-    dom.projectHistoryList.addEventListener('click', restoreProject);
+    dom.projectHistoryList.addEventListener('click', (event) => {
+        const listItem = event.target.closest('li');
+        if (!listItem) return;
+        const projectId = listItem.dataset.projectId;
+        if (AppState.deletedProjects[projectId]) {
+            showDeletedProjectModal(projectId, AppState.deletedProjects[projectId]);
+        }
+    });
     dom.tasksDropdownButton.addEventListener('click', (e) => { e.stopPropagation(); dom.tasksDropdownGroup.classList.toggle('open'); });
     dom.tasksDropdownButton.addEventListener('keypress', (e) => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); dom.tasksDropdownGroup.classList.toggle('open'); } });
     dom.tasksChecklistContainer.addEventListener('change', e => { 
@@ -539,6 +572,17 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', (event) => {
         if (datePickerModal.style.display === 'block' && !datePickerModal.contains(event.target) && !event.target.classList.contains('date-input')) { hideDatePicker(); }
         if (dom.tasksDropdownGroup.classList.contains('open') && !dom.tasksDropdownGroup.contains(event.target)) { dom.tasksDropdownGroup.classList.remove('open'); }
+    });
+    document.querySelectorAll('.card__toggle-btn').forEach(btn => {
+        if (btn.id === 'toggleHistoryBtn') return;
+        btn.addEventListener('click', (e) => {
+            const targetId = e.currentTarget.dataset.target;
+            const targetCard = document.getElementById(targetId);
+            if (targetCard) {
+                targetCard.classList.toggle('minimized');
+                e.currentTarget.innerHTML = targetCard.classList.contains('minimized') ? '+' : '&#x2212;';
+            }
+        });
     });
     document.getElementById('toggleHistoryBtn').addEventListener('click', (e) => { 
         const isCollapsed = dom.projectHistoryList.classList.toggle('collapsed');
