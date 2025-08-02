@@ -119,7 +119,7 @@ body {
 
 .todo-input-group { display: flex; margin-bottom: 15px; gap: 10px; flex-direction: row-reverse; }
 .todo-input-group input[type="text"] { flex-grow: 1; padding: 10px 15px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 1em; background-color: var(--bg-input); font-family: var(--font-family); text-align: right; }
-.todo-input-group button { background-color: var(--accent-success); padding: 0 20px; }
+.todo-input-group button { background-color: var(--accent-success); padding: 0 20px; flex-shrink: 0; }
 
 .todo-list { list-style: none; padding: 0; margin: 0; overflow-y: auto; flex-grow: 1; }
 .todo-list li { border: 1px solid var(--border-color); padding: 10px 15px; margin-bottom: 8px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: transform 0.1s ease, box-shadow 0.2s ease; word-wrap: break-word; text-align: right; flex-wrap: wrap; }
@@ -132,7 +132,7 @@ body {
 #calendarMonthYear { font-size: 1.2em; font-weight: bold; color: #333; }
 .calendar-nav button { background: none; border: 1px solid transparent; font-size: 1.5em; font-weight: bold; color: #555; cursor: pointer; padding: 0 10px; line-height: 1; border-radius: 4px; transition: background-color 0.2s; }
 .calendar-nav button:hover { background-color: #eef2f5; }
-.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; width: 100%; text-align: center; }
+.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; width: 100%; text-align: center; }
 .calendar-day-name, .calendar-day { padding: 5px 0; border-radius: 4px; font-size: 0.8em; display: flex; justify-content: center; align-items: center; height: 30px; }
 .calendar-day-name { background-color: #e0e7ee; color: #556270; font-weight: bold; }
 .calendar-day { background-color: var(--bg-input); color: #4d565e; border: 1px solid var(--border-color); cursor: pointer; transition: background-color 0.1s ease; }
@@ -147,18 +147,26 @@ body {
 .form-group.full-width { grid-column: 1 / -1; }
 .form-group label { margin-bottom: 5px; font-weight: 500; color: var(--text-primary); font-size: 0.9em; }
 
-.form-input, .project-form select {
+.form-input, .project-form select, .tasks-dropdown-button {
     padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 1em;
     width: 100%; box-sizing: border-box; background-color: var(--bg-input); font-family: var(--font-family); text-align: right;
     transition: border-color 0.2s, box-shadow 0.2s;
 }
-.form-input:focus, .project-form select:focus {
+.form-input:focus, .project-form select:focus, .tasks-dropdown-button:focus {
     outline: none; border-color: var(--accent-primary); box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.2);
 }
-.form-input, .project-form select { height: 44px; }
+.form-input, .project-form select, .tasks-dropdown-button { height: 44px; }
 .project-form textarea { resize: vertical; min-height: 80px; }
 
 .form-input.date-input { cursor: pointer; background-image: url('data:image/svg+xml;utf8,<svg fill="%23666" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); background-repeat: no-repeat; background-position: left 10px center; background-size: 20px; padding-left: 35px; }
+.tasks-dropdown-button { display: flex; align-items: center; justify-content: flex-end; cursor: pointer; }
+.tasks-dropdown-button__text { flex-grow: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-left: 10px; }
+.tasks-dropdown-button__arrow {
+    width: 0; height: 0; margin-right: 15px; flex-shrink: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid var(--text-secondary);
+}
 .project-form select { appearance: none; background-image: url('data:image/svg+xml;utf8,<svg fill="%23666" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); background-repeat: no-repeat; background-position: left 10px center; background-size: 20px; padding-left: 30px; }
 .form-group.tasks-dropdown-group { position: relative; } 
 .tasks-checklist-container { display: none; position: absolute; top: 100%; right: 0; width: 100%; z-index: 100; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; box-shadow: var(--shadow); padding: 15px; margin-top: 4px; max-height: 250px; overflow-y: auto; grid-template-columns: 1fr; gap: 12px; }
@@ -169,7 +177,7 @@ body {
 .task-item input[type="checkbox"] { flex-shrink: 0; width: 18px; height: 18px; cursor: pointer; }
 .task-timestamp { font-size: 0.75em; color: var(--text-secondary); direction: ltr; text-align: right; width: 100%; }
 
-.btn { padding: 10px 24px; border: none; border-radius: 6px; font-size: 1em; font-weight: bold; cursor: pointer; transition: transform 0.1s ease, filter 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease; }
+.btn { padding: 10px 24px; border: none; border-radius: 6px; font-size: 1em; font-weight: bold; cursor: pointer; transition: transform 0.1s ease, filter 0.2s ease; }
 .btn:hover { transform: translateY(-1px); filter: brightness(95%); }
 .btn-primary { background-color: var(--accent-primary); color: var(--text-on-accent); }
 .btn-danger { background-color: var(--accent-danger); color: var(--text-on-accent); }
@@ -203,8 +211,6 @@ body {
     align-items: center;
     gap: 15px;
 }
-.dev-credit a { font-size: 0.75em; color: var(--text-primary); text-decoration: none; }
-.dev-credit a:hover { text-decoration: underline; }
 
 .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(30, 41, 59, 0.7); display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0s 0.3s; z-index: 1000; }
 .modal-overlay.visible { opacity: 1; visibility: visible; transition: opacity 0.3s ease; }
@@ -227,15 +233,7 @@ body {
 
 .login-modal-actions { display: flex; flex-direction: column; gap: 10px; width: 100%; }
 .login-modal-actions .btn { width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 12px; font-size: 1em; }
-.btn-google { 
-    background-color: #ffffff; 
-    color: #3C4043; 
-    border: 1px solid #DADCE0;
-}
-.btn-google:hover {
-    background-color: #F8F9FA;
-    border-color: #cce0fc;
-}
+.btn-google { background-color: #4285F4; color: white; }
 .btn-google svg { width: 20px; height: 20px; }
 
 .admin-override-container { margin-top: 20px; text-align: center; }
@@ -253,6 +251,35 @@ body {
 .date-picker-day.selected { background-color: var(--accent-primary); color: white; }
 .date-picker-day.today { border: 1px solid var(--accent-primary); }
 .date-picker-day.empty { cursor: default; }
+
+.logout-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: -15px;
+}
+@media(min-width: 992px) {
+    .logout-container {
+        justify-content: flex-end;
+    }
+}
+.btn-logout {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9em;
+    padding: 5px 10px;
+}
+.btn-logout:hover {
+    color: var(--accent-danger);
+}
+.btn-logout svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+}
 
 @media (max-width: 768px) {
     #datetimeContainer { display: none; }
