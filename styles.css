@@ -12,7 +12,7 @@
     --accent-success: #38a169;
     --accent-danger: #e53e3e;
     --accent-secondary: #6c757d;
-    --border-color: #e2e8f0;
+    --border-color: #A0AEC0;
     --border-radius: 8px;
     --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     --font-family: 'Heebo', system-ui, sans-serif;
@@ -337,6 +337,7 @@ body {
     .project-form { grid-template-columns: 1fr; } 
     .project-list { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); } 
 }
+
 
 
 
