@@ -1,5 +1,5 @@
 :root {
-    --bg-main: #f4f7fa;
+    --bg-main: #ffffff;
     --bg-card: #ffffff;
     --bg-input: #f7fafc;
     --text-primary: #2d3748;
@@ -62,8 +62,19 @@ body {
     display: block;
 }
 
+.login-modal-logo {
+    text-align: center;
+    margin-bottom: 20px;
+}
+.login-modal-logo .header-logo {
+    max-height: 60px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
 @media(max-width: 991px) {
-    .header-logo {
+    .app-header .header-logo {
         margin-left: auto;
         margin-right: auto;
     }
