@@ -73,8 +73,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // IMPORTANT: Add the emails of users who are allowed to log in here.
     const approvedEmails = [
         'mustakis@gmail.com',
-        'office.airflow2019@gmail.com'
-        'tal@air-flow.co.il'
+        'office.airflow2019@gmail.com',
+        'tal@air-flow.co.il',
         'eran@air-flow.co.il'
     ];
 
@@ -622,3 +622,4 @@ document.addEventListener('DOMContentLoaded', () => {
     generateCalendar();
     clearProjectForm();
 });
+
