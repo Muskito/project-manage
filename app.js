@@ -526,7 +526,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 AppState.isAuthenticated = true;
                 dom.loginModal.classList.remove('visible');
             } else {
-                await showConfirmation("Access Denied", "This email address is not authorized to access this application.", "OK", "btn-secondary", false);
+                await showConfirmation("גישה נדחית", "אין אישור כניסה לאפליקציה. פנה למנהל.", "אוקיי", "btn-secondary", false);
                 auth.signOut();
             }
         } else {
@@ -629,3 +629,4 @@ document.addEventListener('DOMContentLoaded', () => {
     generateCalendar();
     clearProjectForm();
 });
+
