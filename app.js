@@ -299,7 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
         calendarMonthYear.textContent = `${hebrewMonths[month]} ${year}`;
         while (calendarGrid.children.length > 7) { calendarGrid.removeChild(calendarGrid.lastChild); }
         const firstDayOfMonth = new Date(year, month, 1).getDay(), daysInMonth = new Date(year, month + 1, 0).getDate();
-        for (let i = 0; i < firstDayOfMonth; i++) { calendarGrid.insertAdjacentHTML('beforeend', '<div class="date-picker-day other-month"></div>'); }
+        for (let i = 0; i < firstDayOfMonth; i++) { calendarGrid.insertAdjacentHTML('beforeend', '<div class="calendar-day other-month"></div>'); }
         for (let day = 1; day <= daysInMonth; day++) { const dayEl = document.createElement('div'); dayEl.className = 'calendar-day'; dayEl.textContent = day; if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) { dayEl.classList.add('current-day'); } calendarGrid.appendChild(dayEl); }
     }
 
@@ -416,7 +416,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const pToRestore = { ...projectToRestore };
             delete pToRestore.deletedAt;
             delete pToRestore.deletedBy;
-            await update(ref(db), {
+            update(ref(db), {
                 [`/deletedProjects/${projectId}`]: null,
                 [`/projects/${projectId}`]: pToRestore
             });
@@ -538,13 +538,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             const snapshot = await get(dbRefApprovedEmails);
-            let currentEmails = [];
-            if (snapshot.exists()) {
-                currentEmails = snapshot.val();
-            }
+            let currentEmails = snapshot.exists() ? snapshot.val() : {};
+            const emailKey = emailToAdd.replace(/\./g, ',');
 
-            if (!currentEmails.includes(emailToAdd)) {
-                currentEmails.push(emailToAdd);
+            if (!currentEmails[emailKey]) {
+                currentEmails[emailKey] = true;
             } else {
                 alert("Email already in the list.");
                 return;
@@ -644,7 +642,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (dom.tasksDropdownGroup.classList.contains('open') && !dom.tasksDropdownGroup.contains(event.target)) { dom.tasksDropdownGroup.classList.remove('open'); }
     });
     
-    if (dom.toggleHistoryBtn) {
+    if(dom.toggleHistoryBtn) {
         dom.toggleHistoryBtn.addEventListener('click', (e) => { 
             const isCollapsed = dom.projectHistoryList.classList.toggle('collapsed');
             document.querySelector('.clear-history-btn-wrapper').classList.toggle('collapsed');
