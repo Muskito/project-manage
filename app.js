@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-import { getDatabase, ref, set, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+import { getDatabase, ref, set, push, onValue, remove, update, get } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -56,10 +56,11 @@ document.addEventListener('DOMContentLoaded', () => {
         projectManagementContainer: document.getElementById('projectManagementContainer'),
         prevMonthBtn: document.getElementById('prevMonthBtn'),
         nextMonthBtn: document.getElementById('nextMonthBtn'),
-        toggleHistoryBtn: document.getElementById('toggleHistoryBtn'),
         dataActionCancelBtn: document.getElementById('dataActionCancelBtn'),
         dataActionExportBtn: document.getElementById('dataActionExportBtn'),
-        dataActionImportBtn: document.getElementById('dataActionImportBtn')
+        dataActionImportBtn: document.getElementById('dataActionImportBtn'),
+        tempEmailInput: document.getElementById('tempEmailInput'),
+        tempAddEmailBtn: document.getElementById('tempAddEmailBtn')
     };
     
     // --- 3. STATE MANAGEMENT ---
@@ -75,13 +76,6 @@ document.addEventListener('DOMContentLoaded', () => {
         pickerDate: new Date()
     };
     
-    const approvedEmails = [
-        'mustakis@gmail.com',
-        'office.airflow2019@gmail.com',
-        'tal@air-flow.co.il',
-        'eran@air-flow.co.il'
-    ];
-
     const masterTaskList = ["מפוחי גג", "מפוחי חניון", "מפוח חדר משאבות", "משתיקים", "דאמפרים", "תעלות", "ברכי לובי", "ברך אשפה", "מהלכי ונטות", "ונטות", "מפוח in-line", "גרילים", "גרילים נגד יתושים", "ארון פיקוד", "ביקורת 1", "ביקורת 2", "ביקורת 3", "ביקורת 4"];
     const hebrewMonths = ["ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"];
     const dateOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
@@ -89,8 +83,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 4. FUNCTION DEFINITIONS ---
     function updateUIForAuthState() {
         document.querySelectorAll('.auth-controlled').forEach(el => {
-            if (AppState.isAuthenticated) { el.classList.remove('hidden-for-guest'); } 
-            else { el.classList.add('hidden-for-guest'); }
+            if (AppState.isAuthenticated) {
+                el.classList.remove('hidden-for-guest');
+            } else {
+                el.classList.add('hidden-for-guest');
+            }
         });
         dom.todoList.style.pointerEvents = AppState.isAuthenticated ? 'auto' : 'none';
     }
@@ -421,7 +418,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const pToRestore = { ...projectToRestore };
             delete pToRestore.deletedAt;
             delete pToRestore.deletedBy;
-            update(ref(db), {
+            await update(ref(db), {
                 [`/deletedProjects/${projectId}`]: null,
                 [`/projects/${projectId}`]: pToRestore
             });
@@ -531,10 +528,47 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         reader.readAsText(file);
     }
+    
+    async function addApprovedEmail() {
+        const emailToAdd = dom.tempEmailInput.value.trim();
+        if (!emailToAdd) {
+            alert("Please enter an email address.");
+            return;
+        }
+
+        const dbRefApprovedEmails = ref(db, 'configuration/approvedEmails');
+
+        try {
+            const snapshot = await get(dbRefApprovedEmails);
+            let currentEmails = [];
+            if (snapshot.exists()) {
+                currentEmails = snapshot.val();
+            }
+
+            if (!currentEmails.includes(emailToAdd)) {
+                currentEmails.push(emailToAdd);
+            } else {
+                alert("Email already in the list.");
+                return;
+            }
+
+            await set(dbRefApprovedEmails, currentEmails);
+            
+            alert(`Successfully added ${emailToAdd}.`);
+            dom.tempEmailInput.value = '';
+
+        } catch (error) {
+            console.error("Error adding email:", error);
+            alert("Failed to add email. See console for details.");
+        }
+    }
 
     // --- 5. EVENT LISTENERS & INITIAL CALLS ---
     onAuthStateChanged(auth, async (user) => {
         if (user) {
+            const snapshot = await get(ref(db, 'configuration/approvedEmails'));
+            const approvedEmails = snapshot.exists() ? snapshot.val() : [];
+
             if (approvedEmails.includes(user.email)) {
                 AppState.currentUser = user;
                 AppState.isAuthenticated = true;
@@ -626,6 +660,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const file = event.target.files[0];
         if (file) { importProjectsFromCsv(file); }
     });
+
+    if(dom.tempAddEmailBtn) {
+        dom.tempAddEmailBtn.addEventListener('click', addApprovedEmail);
+    }
 
     updateTime();
     setInterval(updateTime, 1000); 
