@@ -254,7 +254,7 @@ body {
 .modal-overlay.visible .modal-content, .modal-overlay.visible .project-modal-content, .modal-overlay.visible .login-modal-content { transform: scale(1); }
 .project-modal-content { max-width: 600px; text-align: right; position: relative; }
 .modal-content { max-width: 500px; text-align: right; }
-.login-modal-content { max-width: 400px; text-align: center; border: 2px solid var(--border-accent); padding-top: 20px; }
+.login-modal-content { max-width: 400px; text-align: center; border: 2px solid var(--border-accent); padding-top: 10px; }
 .project-modal-close { position: absolute; top: 10px; left: 15px; font-size: 2em; font-weight: bold; color: var(--text-secondary); cursor: pointer; line-height: 1; }
 .project-modal-close:hover { color: var(--text-primary); }
 .project-modal-content h3 { margin-top: 0; color: var(--accent-primary); }
@@ -337,5 +337,6 @@ body {
     .project-form { grid-template-columns: 1fr; } 
     .project-list { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); } 
 }
+
 
 
