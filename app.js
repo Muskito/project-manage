@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try { await signInWithPopup(auth, provider); } 
         catch (error) { console.error("Google Sign-In failed:", error); }
     }
-
+    
     function handleLogout() {
         auth.signOut();
     }
@@ -181,10 +181,13 @@ document.addEventListener('DOMContentLoaded', () => {
         AppState.activeDateInput = event.target;
         AppState.pickerDate = AppState.activeDateInput.value ? parseAndValidateDate(AppState.activeDateInput.value) : new Date();
         const inputRect = AppState.activeDateInput.getBoundingClientRect();
+        
         dom.datePickerModal.style.width = `${inputRect.width}px`;
         dom.datePickerModal.style.display = 'block';
         dom.datePickerModal.style.top = `${inputRect.bottom + window.scrollY + 5}px`;
-        dom.datePickerModal.style.right = `${window.innerWidth - inputRect.right}px`;
+        dom.datePickerModal.style.left = `${inputRect.left + window.scrollX}px`;
+        dom.datePickerModal.style.right = 'auto';
+
         renderDatePicker();
     }
 
@@ -502,6 +505,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (pin === "1598") { AppState.isAuthenticated = true; AppState.currentUser = { displayName: 'Admin' }; updateUIForAuthState(); dom.loginModal.classList.remove('visible'); } 
         else if (pin !== null) { await showConfirmation("שגיאה", "קוד הגישה שהוזן שגוי.", "הבנתי", "btn-secondary", false); }
     });
+    dom.logoutBtn.addEventListener('click', handleLogout);
     document.getElementById('prevMonthBtn').addEventListener('click', () => { AppState.displayedDate.setMonth(AppState.displayedDate.getMonth() - 1); generateCalendar(); });
     document.getElementById('nextMonthBtn').addEventListener('click', () => { AppState.displayedDate.setMonth(AppState.displayedDate.getMonth() + 1); generateCalendar(); });
     dom.addTodoBtn.addEventListener('click', addTodo);
@@ -538,17 +542,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (datePickerModal.style.display === 'block' && !datePickerModal.contains(event.target) && !event.target.classList.contains('date-input')) { hideDatePicker(); }
         if (dom.tasksDropdownGroup.classList.contains('open') && !dom.tasksDropdownGroup.contains(event.target)) { dom.tasksDropdownGroup.classList.remove('open'); }
     });
-    document.querySelectorAll('.card__toggle-btn').forEach(btn => {
-        if (btn.id === 'toggleHistoryBtn') return;
-        btn.addEventListener('click', (e) => {
-            const targetId = e.currentTarget.dataset.target;
-            const targetCard = document.getElementById(targetId);
-            if (targetCard) {
-                const isMinimized = targetCard.classList.toggle('minimized');
-                e.currentTarget.innerHTML = isMinimized ? '+' : '&#x2212;';
-            }
-        });
-    });
+    
     document.getElementById('toggleHistoryBtn').addEventListener('click', (e) => { 
         const isCollapsed = dom.projectHistoryList.classList.toggle('collapsed');
         document.querySelector('.clear-history-btn-wrapper').classList.toggle('collapsed');
