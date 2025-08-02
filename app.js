@@ -176,9 +176,10 @@ document.addEventListener('DOMContentLoaded', () => {
         AppState.activeDateInput = event.target;
         AppState.pickerDate = AppState.activeDateInput.value ? parseAndValidateDate(AppState.activeDateInput.value) : new Date();
         const inputRect = AppState.activeDateInput.getBoundingClientRect();
-        datePickerModal.style.display = 'block';
-        datePickerModal.style.top = `${inputRect.bottom + window.scrollY + 5}px`;
-        datePickerModal.style.right = `${window.innerWidth - inputRect.right}px`;
+        dom.datePickerModal.style.width = `${inputRect.width}px`;
+        dom.datePickerModal.style.display = 'block';
+        dom.datePickerModal.style.top = `${inputRect.bottom + window.scrollY + 5}px`;
+        dom.datePickerModal.style.right = `${window.innerWidth - inputRect.right}px`;
         renderDatePicker();
     }
 
@@ -312,13 +313,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateTasksButtonText() { 
-        const textElement = dom.tasksDropdownText;
+        const textElement = dom.tasksDropdownButton.querySelector('.tasks-dropdown-button__text');
         const checkedCount = dom.tasksChecklistContainer.querySelectorAll('input:checked').length;
         if(textElement) {
             if (checkedCount > 0) {
-                textElement.value = `נבחרו (${checkedCount} / ${masterTaskList.length})`; 
+                textElement.textContent = `נבחרו (${checkedCount} / ${masterTaskList.length})`; 
             } else {
-                textElement.value = '';
+                textElement.textContent = 'בחר מטלות...';
             }
         }
     }
@@ -531,6 +532,17 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', (event) => {
         if (datePickerModal.style.display === 'block' && !datePickerModal.contains(event.target) && !event.target.classList.contains('date-input')) { hideDatePicker(); }
         if (dom.tasksDropdownGroup.classList.contains('open') && !dom.tasksDropdownGroup.contains(event.target)) { dom.tasksDropdownGroup.classList.remove('open'); }
+    });
+    document.querySelectorAll('.card__toggle-btn').forEach(btn => {
+        if (btn.id === 'toggleHistoryBtn') return;
+        btn.addEventListener('click', (e) => {
+            const targetId = e.currentTarget.dataset.target;
+            const targetCard = document.getElementById(targetId);
+            if (targetCard) {
+                const isMinimized = targetCard.classList.toggle('minimized');
+                e.currentTarget.innerHTML = isMinimized ? '+' : '&#x2212;';
+            }
+        });
     });
     document.getElementById('toggleHistoryBtn').addEventListener('click', (e) => { 
         const isCollapsed = dom.projectHistoryList.classList.toggle('collapsed');
