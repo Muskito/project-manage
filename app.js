@@ -70,7 +70,6 @@ document.addEventListener('DOMContentLoaded', () => {
         pickerDate: new Date()
     };
     
-    // IMPORTANT: Add the emails of users who are allowed to log in here.
     const approvedEmails = [
         'mustakis@gmail.com',
         'office.airflow2019@gmail.com',
@@ -560,7 +559,6 @@ document.addEventListener('DOMContentLoaded', () => {
     dom.projectList.addEventListener('click', (event) => { const listItem = event.target.closest('li'); if (!listItem) return; const projectId = listItem.dataset.projectId; if (AppState.projects[projectId]) showProjectModal(projectId, AppState.projects[projectId]); });
     dom.startDateInput.addEventListener('click', openDatePicker);
     dom.finishDateInput.addEventListener('click', openDatePicker);
-    
     dom.projectHistoryList.addEventListener('click', (event) => {
         const listItem = event.target.closest('li');
         if (!listItem) return;
@@ -569,7 +567,6 @@ document.addEventListener('DOMContentLoaded', () => {
             showDeletedProjectModal(projectId, AppState.deletedProjects[projectId]);
         }
     });
-
     dom.tasksDropdownButton.addEventListener('click', (e) => { e.stopPropagation(); dom.tasksDropdownGroup.classList.toggle('open'); });
     dom.tasksDropdownButton.addEventListener('keypress', (e) => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); dom.tasksDropdownGroup.classList.toggle('open'); } });
     dom.tasksChecklistContainer.addEventListener('change', e => { 
@@ -595,7 +592,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (datePickerModal.style.display === 'block' && !datePickerModal.contains(event.target) && !event.target.classList.contains('date-input')) { hideDatePicker(); }
         if (dom.tasksDropdownGroup.classList.contains('open') && !dom.tasksDropdownGroup.contains(event.target)) { dom.tasksDropdownGroup.classList.remove('open'); }
     });
-    
+    document.querySelectorAll('.card__toggle-btn').forEach(btn => {
+        if (btn.id === 'toggleHistoryBtn') return;
+        btn.addEventListener('click', (e) => {
+            const targetId = e.currentTarget.dataset.target;
+            const targetCard = document.getElementById(targetId);
+            if (targetCard) {
+                targetCard.classList.toggle('minimized');
+                e.currentTarget.innerHTML = targetCard.classList.contains('minimized') ? '+' : '&#x2212;';
+            }
+        });
+    });
     document.getElementById('toggleHistoryBtn').addEventListener('click', (e) => { 
         const isCollapsed = dom.projectHistoryList.classList.toggle('collapsed');
         document.querySelector('.clear-history-btn-wrapper').classList.toggle('collapsed');
@@ -622,4 +629,3 @@ document.addEventListener('DOMContentLoaded', () => {
     generateCalendar();
     clearProjectForm();
 });
-
