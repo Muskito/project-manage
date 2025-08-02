@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
         activeDateInput: null,
         pickerDate: new Date()
     };
-
+    
     const approvedEmails = [
         'mustakis@gmail.com',
         'office.airflow2019@gmail.com',
@@ -93,6 +93,16 @@ document.addEventListener('DOMContentLoaded', () => {
             else { el.classList.add('hidden-for-guest'); }
         });
         dom.todoList.style.pointerEvents = AppState.isAuthenticated ? 'auto' : 'none';
+        
+        // Always show the logout button if not on the login screen
+        const logoutContainer = document.querySelector('.logout-container');
+        if (logoutContainer) {
+            if (!dom.loginModal.classList.contains('visible')) {
+                logoutContainer.classList.remove('hidden-for-guest');
+            } else {
+                logoutContainer.classList.add('hidden-for-guest');
+            }
+        }
     }
 
     async function handleGoogleSignIn() {
@@ -102,7 +112,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function handleLogout() {
-        auth.signOut();
+        if (AppState.currentUser) {
+            auth.signOut();
+        } else {
+            // It's a guest, so just reload the page to go back to the login modal
+            window.location.reload();
+        }
     }
     
     function getColorForName(name) {
@@ -604,12 +619,12 @@ document.addEventListener('DOMContentLoaded', () => {
         e.currentTarget.innerHTML = isCollapsed ? '+' : '&#x2212;'; 
     });
     dom.dataMgmtBtn.addEventListener('click', () => dataActionModal.classList.add('visible'));
-    document.getElementById('dataActionCancelBtn').addEventListener('click', () => dataActionModal.classList.remove('visible'));
-    document.getElementById('dataActionExportBtn').addEventListener('click', () => {
+    dom.dataActionCancelBtn.addEventListener('click', () => dataActionModal.classList.remove('visible'));
+    dom.dataActionExportBtn.addEventListener('click', () => {
         dataActionModal.classList.remove('visible');
         exportProjectsToCsv();
     });
-    document.getElementById('dataActionImportBtn').addEventListener('click', async () => {
+    dom.dataActionImportBtn.addEventListener('click', async () => {
         dataActionModal.classList.remove('visible');
         const confirmed = await showConfirmation("אזהרה: פעולה הרסנית", "ייבוא קובץ יחליף לצמיתות את כל הנתונים הנוכחיים. האם אתה בטוח שברצונך להמשיך?", "כן, יבא את הקובץ", "btn-danger");
         if(confirmed) { dom.csvFileInput.click(); }
