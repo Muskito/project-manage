@@ -1,18 +1,18 @@
 :root {
     --bg-main: #ffffff;
     --bg-card: #ffffff; /* For popups and other UI elements */
-    --bg-app-card: #F2F2F2; /* New color for the main content cards */
+    --bg-app-card: #E6F6FF; /* New color for the main content cards */
     --bg-input: #f7fafc;
     --text-primary: #2d3748;
     --text-secondary: #718096;
     --text-on-accent: #ffffff;
     --accent-primary: #3182ce;
     --accent-primary-hover: #2b6cb0;
-    --border-accent: #AECBFA; /* Soft blue for border */
+    --border-accent: #AECBFA; 
     --accent-success: #38a169;
     --accent-danger: #e53e3e;
     --accent-secondary: #6c757d;
-    --border-color: #A0AEC0; /* Updated to a darker gray */
+    --border-color: #A0AEC0; 
     --border-radius: 8px;
     --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     --font-family: 'Heebo', system-ui, sans-serif;
@@ -325,6 +325,18 @@ body {
 
 .hidden-for-guest {
     display: none !important;
+}
+
+.temp-setup {
+    border: 2px dashed var(--accent-danger);
+    padding: 15px;
+    margin-top: 20px;
+    border-radius: var(--border-radius);
+    max-width: 400px;
+    text-align: center;
+}
+.temp-setup h4 {
+    margin-top: 0;
 }
 
 @media (max-width: 768px) {
