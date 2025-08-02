@@ -104,7 +104,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function handleLogout() {
-        auth.signOut();
+        if (AppState.currentUser) {
+            auth.signOut();
+        } else {
+            window.location.reload();
+        }
     }
     
     function getColorForName(name) {
