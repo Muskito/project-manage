@@ -1,6 +1,6 @@
 :root {
     --bg-main: #ffffff;
-    --bg-card: #6699FF;
+    --bg-card: ##99FFFF;
     --bg-input: #f7fafc;
     --text-primary: #2d3748;
     --text-secondary: #718096;
@@ -336,4 +336,5 @@ body {
     .project-form { grid-template-columns: 1fr; } 
     .project-list { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); } 
 }
+
 
