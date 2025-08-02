@@ -41,7 +41,6 @@ document.addEventListener('DOMContentLoaded', () => {
         finishDateInput: document.getElementById('finishDate'),
         tasksDropdownGroup: document.querySelector('.tasks-dropdown-group'), 
         tasksDropdownButton: document.getElementById('tasksDropdownButton'),
-        tasksDropdownText: document.getElementById('tasksDropdownText'),
         tasksChecklistContainer: document.getElementById('tasksChecklistContainer'), 
         taskProgressSelect: document.getElementById('taskProgress'), 
         furtherNotesInput: document.getElementById('furtherNotes'),
@@ -53,7 +52,13 @@ document.addEventListener('DOMContentLoaded', () => {
         projectModal: document.getElementById('projectModal'),
         dataMgmtBtn: document.getElementById('dataMgmtBtn'), 
         csvFileInput: document.getElementById('csvFileInput'),
-        projectManagementContainer: document.getElementById('projectManagementContainer')
+        projectManagementContainer: document.getElementById('projectManagementContainer'),
+        prevMonthBtn: document.getElementById('prevMonthBtn'),
+        nextMonthBtn: document.getElementById('nextMonthBtn'),
+        toggleHistoryBtn: document.getElementById('toggleHistoryBtn'),
+        dataActionCancelBtn: document.getElementById('dataActionCancelBtn'),
+        dataActionExportBtn: document.getElementById('dataActionExportBtn'),
+        dataActionImportBtn: document.getElementById('dataActionImportBtn')
     };
     
     // --- 3. STATE MANAGEMENT ---
@@ -187,11 +192,13 @@ document.addEventListener('DOMContentLoaded', () => {
         AppState.activeDateInput = event.target;
         AppState.pickerDate = AppState.activeDateInput.value ? parseAndValidateDate(AppState.activeDateInput.value) : new Date();
         const inputRect = AppState.activeDateInput.getBoundingClientRect();
+        
         dom.datePickerModal.style.width = `${inputRect.width}px`;
         dom.datePickerModal.style.display = 'block';
-        dom.datePickerModal.style.top = `${inputRect.bottom + window.scrollY + 5}px`;
-        dom.datePickerModal.style.left = `${inputRect.left + window.scrollX}px`;
+        dom.datePickerModal.style.top = `${inputRect.bottom + 5}px`;
+        dom.datePickerModal.style.left = `${inputRect.left}px`;
         dom.datePickerModal.style.right = 'auto';
+
         renderDatePicker();
     }
 
@@ -543,8 +550,12 @@ document.addEventListener('DOMContentLoaded', () => {
     dom.googleSignInBtn.addEventListener('click', handleGoogleSignIn);
     dom.guestLoginBtn.addEventListener('click', () => { AppState.isAuthenticated = false; AppState.currentUser = null; updateUIForAuthState(); dom.loginModal.classList.remove('visible'); });
     dom.logoutBtn.addEventListener('click', handleLogout);
-    document.getElementById('prevMonthBtn').addEventListener('click', () => { AppState.displayedDate.setMonth(AppState.displayedDate.getMonth() - 1); generateCalendar(); });
-    document.getElementById('nextMonthBtn').addEventListener('click', () => { AppState.displayedDate.setMonth(AppState.displayedDate.getMonth() + 1); generateCalendar(); });
+    
+    if (dom.prevMonthBtn && dom.nextMonthBtn) {
+        dom.prevMonthBtn.addEventListener('click', () => { AppState.displayedDate.setMonth(AppState.displayedDate.getMonth() - 1); generateCalendar(); });
+        dom.nextMonthBtn.addEventListener('click', () => { AppState.displayedDate.setMonth(AppState.displayedDate.getMonth() + 1); generateCalendar(); });
+    }
+
     dom.addTodoBtn.addEventListener('click', addTodo);
     dom.todoInput.addEventListener('keypress', e => e.key === 'Enter' && addTodo());
     dom.addProjectBtn.addEventListener('click', saveProject);
@@ -587,18 +598,18 @@ document.addEventListener('DOMContentLoaded', () => {
         if (dom.tasksDropdownGroup.classList.contains('open') && !dom.tasksDropdownGroup.contains(event.target)) { dom.tasksDropdownGroup.classList.remove('open'); }
     });
     
-    document.getElementById('toggleHistoryBtn').addEventListener('click', (e) => { 
+    dom.toggleHistoryBtn.addEventListener('click', (e) => { 
         const isCollapsed = dom.projectHistoryList.classList.toggle('collapsed');
         document.querySelector('.clear-history-btn-wrapper').classList.toggle('collapsed');
         e.currentTarget.innerHTML = isCollapsed ? '+' : '&#x2212;'; 
     });
     dom.dataMgmtBtn.addEventListener('click', () => dataActionModal.classList.add('visible'));
-    document.getElementById('dataActionCancelBtn').addEventListener('click', () => dataActionModal.classList.remove('visible'));
-    document.getElementById('dataActionExportBtn').addEventListener('click', () => {
+    dom.dataActionCancelBtn.addEventListener('click', () => dataActionModal.classList.remove('visible'));
+    dom.dataActionExportBtn.addEventListener('click', () => {
         dataActionModal.classList.remove('visible');
         exportProjectsToCsv();
     });
-    document.getElementById('dataActionImportBtn').addEventListener('click', async () => {
+    dom.dataActionImportBtn.addEventListener('click', async () => {
         dataActionModal.classList.remove('visible');
         const confirmed = await showConfirmation("אזהרה: פעולה הרסנית", "ייבוא קובץ יחליף לצמיתות את כל הנתונים הנוכחיים. האם אתה בטוח שברצונך להמשיך?", "כן, יבא את הקובץ", "btn-danger");
         if(confirmed) { dom.csvFileInput.click(); }
