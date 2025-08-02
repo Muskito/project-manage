@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
         finishDateInput: document.getElementById('finishDate'),
         tasksDropdownGroup: document.querySelector('.tasks-dropdown-group'), 
         tasksDropdownButton: document.getElementById('tasksDropdownButton'),
-        tasksDropdownText: document.querySelector('.tasks-dropdown-button__text'),
+        tasksDropdownText: document.getElementById('tasksDropdownText'),
         tasksChecklistContainer: document.getElementById('tasksChecklistContainer'), 
         taskProgressSelect: document.getElementById('taskProgress'), 
         furtherNotesInput: document.getElementById('furtherNotes'),
@@ -415,7 +415,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const pToRestore = { ...projectToRestore };
             delete pToRestore.deletedAt;
             delete pToRestore.deletedBy;
-            await update(ref(db), {
+            update(ref(db), {
                 [`/deletedProjects/${projectId}`]: null,
                 [`/projects/${projectId}`]: pToRestore
             });
@@ -592,6 +592,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (datePickerModal.style.display === 'block' && !datePickerModal.contains(event.target) && !event.target.classList.contains('date-input')) { hideDatePicker(); }
         if (dom.tasksDropdownGroup.classList.contains('open') && !dom.tasksDropdownGroup.contains(event.target)) { dom.tasksDropdownGroup.classList.remove('open'); }
     });
+    
     document.getElementById('toggleHistoryBtn').addEventListener('click', (e) => { 
         const isCollapsed = dom.projectHistoryList.classList.toggle('collapsed');
         document.querySelector('.clear-history-btn-wrapper').classList.toggle('collapsed');
