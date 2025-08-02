@@ -272,6 +272,27 @@ body {
     fill: currentColor;
 }
 
+.date-picker { 
+    display: none; 
+    position: fixed; 
+    z-index: 1001; 
+    background: #fff; 
+    border: 1px solid #ccc; 
+    border-radius: 8px; 
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15); 
+    padding: 8px; 
+}
+.date-picker-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.date-picker-header .month-year { font-weight: bold; font-size: 1.1em; }
+.date-picker-header button { background: none; border: none; font-size: 1.5em; cursor: pointer; padding: 0 10px; }
+.date-picker-grid-header { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-weight: bold; color: #666; font-size: 0.9em; margin-bottom: 5px; }
+.date-picker-grid-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.date-picker-day { border-radius: 4px; padding: 8px 0; text-align: center; cursor: pointer; transition: background-color 0.2s; }
+.date-picker-day:not(.empty):hover { background-color: #e6f0fa; }
+.date-picker-day.selected { background-color: var(--accent-primary); color: white; }
+.date-picker-day.today { border: 1px solid var(--accent-primary); }
+.date-picker-day.empty { cursor: default; }
+
 @media (max-width: 768px) {
     #datetimeContainer { display: none; }
     .project-form { grid-template-columns: 1fr; } 
