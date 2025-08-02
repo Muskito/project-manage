@@ -299,7 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
         calendarMonthYear.textContent = `${hebrewMonths[month]} ${year}`;
         while (calendarGrid.children.length > 7) { calendarGrid.removeChild(calendarGrid.lastChild); }
         const firstDayOfMonth = new Date(year, month, 1).getDay(), daysInMonth = new Date(year, month + 1, 0).getDate();
-        for (let i = 0; i < firstDayOfMonth; i++) { calendarGrid.insertAdjacentHTML('beforeend', '<div class="calendar-day other-month"></div>'); }
+        for (let i = 0; i < firstDayOfMonth; i++) { calendarGrid.insertAdjacentHTML('beforeend', '<div class="date-picker-day other-month"></div>'); }
         for (let day = 1; day <= daysInMonth; day++) { const dayEl = document.createElement('div'); dayEl.className = 'calendar-day'; dayEl.textContent = day; if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) { dayEl.classList.add('current-day'); } calendarGrid.appendChild(dayEl); }
     }
 
@@ -416,7 +416,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const pToRestore = { ...projectToRestore };
             delete pToRestore.deletedAt;
             delete pToRestore.deletedBy;
-            update(ref(db), {
+            await update(ref(db), {
                 [`/deletedProjects/${projectId}`]: null,
                 [`/projects/${projectId}`]: pToRestore
             });
@@ -565,9 +565,10 @@ document.addEventListener('DOMContentLoaded', () => {
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             const snapshot = await get(ref(db, 'configuration/approvedEmails'));
-            const approvedEmails = snapshot.exists() ? snapshot.val() : [];
+            const approvedEmailsObject = snapshot.exists() ? snapshot.val() : {};
+            const emailKey = user.email.replace(/\./g, ',');
 
-            if (approvedEmails.includes(user.email)) {
+            if (approvedEmailsObject[emailKey]) {
                 AppState.currentUser = user;
                 AppState.isAuthenticated = true;
                 dom.loginModal.classList.remove('visible');
