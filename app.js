@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
         finishDateInput: document.getElementById('finishDate'),
         tasksDropdownGroup: document.querySelector('.tasks-dropdown-group'), 
         tasksDropdownButton: document.getElementById('tasksDropdownButton'),
-        tasksDropdownText: document.querySelector('.tasks-dropdown-button__text'),
+        tasksDropdownText: document.getElementById('tasksDropdownText'),
         tasksChecklistContainer: document.getElementById('tasksChecklistContainer'), 
         taskProgressSelect: document.getElementById('taskProgress'), 
         furtherNotesInput: document.getElementById('furtherNotes'),
@@ -49,6 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
         deleteProjectBtn: document.getElementById('deleteProjectBtn'),
         projectList: document.getElementById('projectList'), 
         projectHistoryList: document.getElementById('projectHistoryList'),
+        historyContainer: document.getElementById('historyContainer'),
         clearHistoryBtn: document.getElementById('clearHistoryBtn'),
         projectModal: document.getElementById('projectModal'),
         dataMgmtBtn: document.getElementById('dataMgmtBtn'), 
@@ -56,7 +57,6 @@ document.addEventListener('DOMContentLoaded', () => {
         projectManagementContainer: document.getElementById('projectManagementContainer'),
         prevMonthBtn: document.getElementById('prevMonthBtn'),
         nextMonthBtn: document.getElementById('nextMonthBtn'),
-        toggleHistoryBtn: document.getElementById('toggleHistoryBtn'),
         dataActionCancelBtn: document.getElementById('dataActionCancelBtn'),
         dataActionExportBtn: document.getElementById('dataActionExportBtn'),
         dataActionImportBtn: document.getElementById('dataActionImportBtn')
@@ -89,11 +89,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 4. FUNCTION DEFINITIONS ---
     function updateUIForAuthState() {
         document.querySelectorAll('.auth-controlled').forEach(el => {
-            if (AppState.isAuthenticated) {
-                el.classList.remove('hidden-for-guest');
-            } else {
-                el.classList.add('hidden-for-guest');
-            }
+            if (AppState.isAuthenticated) { el.classList.remove('hidden-for-guest'); } 
+            else { el.classList.add('hidden-for-guest'); }
         });
         dom.todoList.style.pointerEvents = AppState.isAuthenticated ? 'auto' : 'none';
     }
@@ -424,10 +421,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const pToRestore = { ...projectToRestore };
             delete pToRestore.deletedAt;
             delete pToRestore.deletedBy;
-            update(ref(db), {
+            await update(ref(db), {
                 [`/deletedProjects/${projectId}`]: null,
                 [`/projects/${projectId}`]: pToRestore
             });
+            await showConfirmation("הצלחה", `הפרויקט "${pToRestore.name}" שוחזר.`, "אישור", "btn-success", false);
         }
     }
 
@@ -443,8 +441,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderDeletedProjects() {
-        const historyList = dom.projectHistoryList; historyList.innerHTML = ''; const deletedArray = Object.entries(AppState.deletedProjects || {});
-        if (deletedArray.length === 0) { historyList.innerHTML = '<li style="grid-column: 1 / -1; text-align: right; color: #888; font-style: italic; background: none; border: none; box-shadow: none; cursor: default; padding: 10px;">אין פרויקטים בהיסטוריה.</li>'; return; }
+        const historyList = dom.projectHistoryList; 
+        const deletedArray = Object.entries(AppState.deletedProjects || {});
+        historyList.innerHTML = ''; 
+
+        if (deletedArray.length === 0) {
+            dom.historyContainer.style.display = 'none';
+            return;
+        }
+
+        dom.historyContainer.style.display = 'block';
         deletedArray.forEach(([key, project]) => { 
             const li = document.createElement('li'); 
             li.dataset.projectId = key; 
@@ -606,11 +612,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (dom.tasksDropdownGroup.classList.contains('open') && !dom.tasksDropdownGroup.contains(event.target)) { dom.tasksDropdownGroup.classList.remove('open'); }
     });
     
-    dom.toggleHistoryBtn.addEventListener('click', (e) => { 
-        const isCollapsed = dom.projectHistoryList.classList.toggle('collapsed');
-        document.querySelector('.clear-history-btn-wrapper').classList.toggle('collapsed');
-        e.currentTarget.innerHTML = isCollapsed ? '+' : '&#x2212;'; 
-    });
     dom.dataMgmtBtn.addEventListener('click', () => dataActionModal.classList.add('visible'));
     dom.dataActionCancelBtn.addEventListener('click', () => dataActionModal.classList.remove('visible'));
     dom.dataActionExportBtn.addEventListener('click', () => {
