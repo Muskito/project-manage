@@ -1,6 +1,7 @@
 :root {
     --bg-main: #ffffff;
-    --bg-card: #E6F6FF;
+    --bg-card: #ffffff; /* For popups and other UI elements */
+    --bg-app-card: #E6F6FF; /* New color for the main content cards */
     --bg-input: #f7fafc;
     --text-primary: #2d3748;
     --text-secondary: #718096;
@@ -114,7 +115,7 @@ body {
 }
 
 .app-card {
-    background-color: var(--bg-card);
+    background-color: var(--bg-app-card);
     border-radius: var(--border-radius);
     box-shadow: var(--shadow);
     display: grid;
@@ -160,7 +161,7 @@ body {
 .calendar-day-name, .calendar-day { padding: 5px 0; border-radius: 4px; font-size: 0.8em; display: flex; justify-content: center; align-items: center; height: 30px; }
 .calendar-day-name { background-color: #e0e7ee; color: #556270; font-weight: bold; }
 .calendar-day { background-color: var(--bg-input); color: #4d565e; border: 1px solid var(--border-color); cursor: pointer; transition: background-color 0.1s ease; }
-.calendar-day.other-month { color: #ccc; background-color: var(--bg-card); }
+.calendar-day.other-month { color: #ccc; background-color: #fff; }
 .calendar-day:not(.empty):hover { background-color: #e6f0fa; }
 .calendar-day.current-day { background-color: var(--accent-primary); color: white; font-weight: bold; border-color: var(--accent-primary); }
 .calendar-footer { margin-top: 15px; padding-top: 10px; border-top: 1px solid var(--border-color); text-align: center; }
