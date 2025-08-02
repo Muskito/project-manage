@@ -41,6 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
         finishDateInput: document.getElementById('finishDate'),
         tasksDropdownGroup: document.querySelector('.tasks-dropdown-group'), 
         tasksDropdownButton: document.getElementById('tasksDropdownButton'),
+        tasksDropdownText: document.getElementById('tasksDropdownText'),
         tasksChecklistContainer: document.getElementById('tasksChecklistContainer'), 
         taskProgressSelect: document.getElementById('taskProgress'), 
         furtherNotesInput: document.getElementById('furtherNotes'),
@@ -73,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
         activeDateInput: null,
         pickerDate: new Date()
     };
-    
+
     const approvedEmails = [
         'mustakis@gmail.com',
         'office.airflow2019@gmail.com',
@@ -192,13 +193,11 @@ document.addEventListener('DOMContentLoaded', () => {
         AppState.activeDateInput = event.target;
         AppState.pickerDate = AppState.activeDateInput.value ? parseAndValidateDate(AppState.activeDateInput.value) : new Date();
         const inputRect = AppState.activeDateInput.getBoundingClientRect();
-        
         dom.datePickerModal.style.width = `${inputRect.width}px`;
         dom.datePickerModal.style.display = 'block';
         dom.datePickerModal.style.top = `${inputRect.bottom + 5}px`;
         dom.datePickerModal.style.left = `${inputRect.left}px`;
         dom.datePickerModal.style.right = 'auto';
-
         renderDatePicker();
     }
 
@@ -312,6 +311,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function saveTodoItemsToFirebase() { set(dbRefTodoItems, AppState.todoItems); }
 
     function addTodo() {
+        if (!AppState.isAuthenticated) return;
         const taskText = dom.todoInput.value.trim(); if (!taskText) return;
         const newTodo = { id: push(dbRefTodoItems).key, text: taskText, createdBy: AppState.currentUser.displayName, createdAt: new Date().toISOString(), color: getColorForName(AppState.currentUser.displayName) };
         if(!AppState.todoItems) AppState.todoItems = [];
@@ -421,7 +421,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const pToRestore = { ...projectToRestore };
             delete pToRestore.deletedAt;
             delete pToRestore.deletedBy;
-            await update(ref(db), {
+            update(ref(db), {
                 [`/deletedProjects/${projectId}`]: null,
                 [`/projects/${projectId}`]: pToRestore
             });
@@ -604,12 +604,12 @@ document.addEventListener('DOMContentLoaded', () => {
         e.currentTarget.innerHTML = isCollapsed ? '+' : '&#x2212;'; 
     });
     dom.dataMgmtBtn.addEventListener('click', () => dataActionModal.classList.add('visible'));
-    dom.dataActionCancelBtn.addEventListener('click', () => dataActionModal.classList.remove('visible'));
-    dom.dataActionExportBtn.addEventListener('click', () => {
+    document.getElementById('dataActionCancelBtn').addEventListener('click', () => dataActionModal.classList.remove('visible'));
+    document.getElementById('dataActionExportBtn').addEventListener('click', () => {
         dataActionModal.classList.remove('visible');
         exportProjectsToCsv();
     });
-    dom.dataActionImportBtn.addEventListener('click', async () => {
+    document.getElementById('dataActionImportBtn').addEventListener('click', async () => {
         dataActionModal.classList.remove('visible');
         const confirmed = await showConfirmation("אזהרה: פעולה הרסנית", "ייבוא קובץ יחליף לצמיתות את כל הנתונים הנוכחיים. האם אתה בטוח שברצונך להמשיך?", "כן, יבא את הקובץ", "btn-danger");
         if(confirmed) { dom.csvFileInput.click(); }
