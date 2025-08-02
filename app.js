@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
         finishDateInput: document.getElementById('finishDate'),
         tasksDropdownGroup: document.querySelector('.tasks-dropdown-group'), 
         tasksDropdownButton: document.getElementById('tasksDropdownButton'),
-        tasksDropdownText: document.getElementById('tasksDropdownText'),
+        tasksDropdownText: document.querySelector('.tasks-dropdown-button__text'),
         tasksChecklistContainer: document.getElementById('tasksChecklistContainer'), 
         taskProgressSelect: document.getElementById('taskProgress'), 
         furtherNotesInput: document.getElementById('furtherNotes'),
@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
         activeDateInput: null,
         pickerDate: new Date()
     };
-    
+
     const approvedEmails = [
         'mustakis@gmail.com',
         'office.airflow2019@gmail.com',
@@ -326,13 +326,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateTasksButtonText() { 
-        const textElement = dom.tasksDropdownText;
+        const textElement = dom.tasksDropdownButton.querySelector('.tasks-dropdown-button__text');
         const checkedCount = dom.tasksChecklistContainer.querySelectorAll('input:checked').length;
         if(textElement) {
             if (checkedCount > 0) {
-                textElement.value = `נבחרו (${checkedCount} / ${masterTaskList.length})`; 
+                textElement.textContent = `נבחרו (${checkedCount} / ${masterTaskList.length})`; 
             } else {
-                textElement.value = '';
+                textElement.textContent = 'בחר מטלות...';
             }
         }
     }
@@ -415,7 +415,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const pToRestore = { ...projectToRestore };
             delete pToRestore.deletedAt;
             delete pToRestore.deletedBy;
-            update(ref(db), {
+            await update(ref(db), {
                 [`/deletedProjects/${projectId}`]: null,
                 [`/projects/${projectId}`]: pToRestore
             });
@@ -526,7 +526,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 AppState.isAuthenticated = true;
                 dom.loginModal.classList.remove('visible');
             } else {
-                await showConfirmation("גישה נדחית", "אין אישור כניסה לאפליקציה. פנה למנהל.", "אוקיי", "btn-secondary", false);
+                await showConfirmation("גישה נדחתה", "כתובת האימייל אינה מורשית לגשת לאפליקציה זו.", "הבנתי", "btn-secondary", false);
                 auth.signOut();
             }
         } else {
@@ -592,17 +592,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (datePickerModal.style.display === 'block' && !datePickerModal.contains(event.target) && !event.target.classList.contains('date-input')) { hideDatePicker(); }
         if (dom.tasksDropdownGroup.classList.contains('open') && !dom.tasksDropdownGroup.contains(event.target)) { dom.tasksDropdownGroup.classList.remove('open'); }
     });
-    document.querySelectorAll('.card__toggle-btn').forEach(btn => {
-        if (btn.id === 'toggleHistoryBtn') return;
-        btn.addEventListener('click', (e) => {
-            const targetId = e.currentTarget.dataset.target;
-            const targetCard = document.getElementById(targetId);
-            if (targetCard) {
-                targetCard.classList.toggle('minimized');
-                e.currentTarget.innerHTML = targetCard.classList.contains('minimized') ? '+' : '&#x2212;';
-            }
-        });
-    });
     document.getElementById('toggleHistoryBtn').addEventListener('click', (e) => { 
         const isCollapsed = dom.projectHistoryList.classList.toggle('collapsed');
         document.querySelector('.clear-history-btn-wrapper').classList.toggle('collapsed');
@@ -629,4 +618,3 @@ document.addEventListener('DOMContentLoaded', () => {
     generateCalendar();
     clearProjectForm();
 });
-
