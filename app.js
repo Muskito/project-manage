@@ -41,7 +41,6 @@ document.addEventListener('DOMContentLoaded', () => {
         finishDateInput: document.getElementById('finishDate'),
         tasksDropdownGroup: document.querySelector('.tasks-dropdown-group'), 
         tasksDropdownButton: document.getElementById('tasksDropdownButton'),
-        tasksDropdownText: document.getElementById('tasksDropdownText'),
         tasksChecklistContainer: document.getElementById('tasksChecklistContainer'), 
         taskProgressSelect: document.getElementById('taskProgress'), 
         furtherNotesInput: document.getElementById('furtherNotes'),
@@ -57,6 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
         projectManagementContainer: document.getElementById('projectManagementContainer'),
         prevMonthBtn: document.getElementById('prevMonthBtn'),
         nextMonthBtn: document.getElementById('nextMonthBtn'),
+        toggleHistoryBtn: document.getElementById('toggleHistoryBtn'),
         dataActionCancelBtn: document.getElementById('dataActionCancelBtn'),
         dataActionExportBtn: document.getElementById('dataActionExportBtn'),
         dataActionImportBtn: document.getElementById('dataActionImportBtn')
@@ -421,11 +421,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const pToRestore = { ...projectToRestore };
             delete pToRestore.deletedAt;
             delete pToRestore.deletedBy;
-            await update(ref(db), {
+            update(ref(db), {
                 [`/deletedProjects/${projectId}`]: null,
                 [`/projects/${projectId}`]: pToRestore
             });
-            await showConfirmation("הצלחה", `הפרויקט "${pToRestore.name}" שוחזר.`, "אישור", "btn-success", false);
         }
     }
 
